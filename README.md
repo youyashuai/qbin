@@ -1,2 +1,2 @@
 # Qbin
-这是一个小而美的
+coming soon.
