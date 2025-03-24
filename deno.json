@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "start": "deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel index.ts"
+  },
+  "imports": {},
+  "compilerOptions": {
+    "strict": true
+  }
+}

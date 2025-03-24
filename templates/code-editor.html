@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <link href=https://qbin.me/ rel=canonical>
+    <title>QBin</title>
+    <meta charset=UTF-8>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name=viewport>
+    <link href=/static/css/code-editor.css rel=stylesheet>
+    <script src=https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js></script>
+    <script src=/static/js/code-editor.js async referrerpolicy=no-referrer></script>
+    <link href=/favicon.ico rel=icon type=image/svg+xml>
+</head>
+<body>
+<!-- 顶部密码/访问key面板 -->
+<div class="header">
+    <div class="password-container">
+        <div class="bookmark"></div>
+        <div class="password-panel">
+            <div class="social-links-section">
+                <div class="social-links">
+                    <a title="预览" href="javascript:void(0)" class="social-link preview-link" id="preview-button">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </a>
+                    <!-- 添加编辑器跳转链接 -->
+                    <a title="通用编辑器" href="javascript:void(0)" class="social-link editor-link code-editor-link" id="edit-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <line x1="7" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <line x1="7" y1="16" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <line x1="17" y1="11" x2="17" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <!-- 添加Markdown编辑器跳转链接 -->
+                    <a title="Markdown编辑器" href="javascript:void(0)" class="social-link editor-link markdown-editor-link" id="md-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M7 16V8h2l2 5 2-5h2v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M16 12l-1.5 2 1.5 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a title="使用指南" href="https://qbin.me/r/document" target="_blank" rel="noopener noreferrer" class="social-link">📖</a>
+                    <a title="Github" href="https://github.com/Quick-Bin/Qbin" target="_blank" rel="noopener noreferrer"
+                       class="social-link">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+                        </svg>
+                    </a>
+                    <a title="Email" href="mailto:ww1998mail@gmail.com" class="social-link">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 访问设置分组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="section-icon">🔑</span>访问凭据
+                </div>
+                <div class="input-wrapper">
+                    <label for="key-input" class="form-label required-label">访问 KEY</label>
+                    <input type="text" id="key-input" placeholder="设置您的访问密钥" minlength="2" maxlength="32"
+                           required autocomplete="off"/>
+                </div>
+                <div class="input-wrapper">
+                    <label for="password-input" class="form-label">访问密码</label>
+                    <input type="text" id="password-input" placeholder="可选：设置额外密码" maxlength="32"
+                           autocomplete="off"/>
+                </div>
+            </div>
+
+            <!-- 有效期分组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="section-icon">⏱️</span>内容设置
+                </div>
+                <div class="input-wrapper">
+                    <label for="expiry-select" class="form-label">有效期限</label>
+                    <select id="expiry-select" class="expiry-select">
+                        <option value="999999999">永久有效</option>
+                        <option value="60">1 分钟</option>
+                        <option value="600">10 分钟</option>
+                        <option value="3600">1 小时</option>
+                        <option value="86400">1 天</option>
+                        <option value="604800">1 周</option>
+                        <option value="2592000">1 个月</option>
+                    </select>
+                </div>
+                <div class="option-toggle">
+                    <span class="custom-checkbox" id="encrypt-checkbox"></span>
+                    <span class="option-text"><del>端到端加密</del> (开发中)</span>
+                    <input type="checkbox" id="encryptData" name="encryptData" style="display:none">
+                </div>
+            </div>
+
+            <!-- 在密码面板中添加新的编辑器设置分组 -->
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="section-icon">💻</span>编辑器设置
+                </div>
+                <div class="input-wrapper">
+                    <label for="language-select" class="form-label">编程语言</label>
+                    <select id="language-select" class="language-select">
+                        <option value="plaintext">纯文本</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C#</option>
+                        <option value="cpp">C++</option>
+                        <option value="php">PHP</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="go">Go</option>
+                        <option value="rust">Rust</option>
+                        <option value="json">JSON</option>
+                        <option value="markdown">Markdown</option>
+                        <option value="yaml">YAML</option>
+                        <option value="xml">XML</option>
+                        <option value="sql">SQL</option>
+                        <option value="shell">Shell/Bash</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 添加滚动指示器 -->
+            <div class="scroll-indicator"></div>
+        </div>
+    </div>
+</div>
+<div class="key-watermark"></div>
+<div class="content">
+    <div id="editor"></div>
+    <!-- 上传状态提示：固定在视口左上角 -->
+    <div id="upload-status" class="upload-status"></div>
+</div>
+<!-- 添加确认对话框 -->
+<div class="confirm-overlay"></div>
+<div class="confirm-dialog">
+    <div class="confirm-dialog-content"></div>
+    <div class="confirm-dialog-buttons">
+        <button class="confirm-button secondary" data-action="cancel">保留本地</button>
+        <button class="confirm-button primary" data-action="confirm">加载远程</button>
+    </div>
+</div>
+<div class="copyright">© 2025 QBin.me</div>
+</body>
+</html>

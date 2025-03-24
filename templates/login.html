@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <link href=https://qbin.me/ rel=canonical>
+    <title>QuickBin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href=/favicon.ico rel=icon type=image/svg+xml>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background-color: #f8fafc;
+            --container-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --error-color: #ef4444;
+            --subtitle-color: #64748b;
+            --divider-color: #e2e8f0;
+            --oauth-hover: #f8fafc;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.04),
+                        0 10px 20px -10px rgba(0, 0, 0, 0.03);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #3b82f6;
+                --primary-hover: #2563eb;
+                --background-color: #0f172a;
+                --container-bg: #1e293b;
+                --text-color: #f1f5f9;
+                --border-color: #334155;
+                --error-color: #f87171;
+                --subtitle-color: #94a3b8;
+                --divider-color: #334155;
+                --oauth-hover: #262f3f;
+                --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+                --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+                --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2),
+                            0 10px 20px -10px rgba(0, 0, 0, 0.15);
+            }
+
+            .oauth-button {
+                background-color: var(--container-bg);
+                border-color: var(--border-color);
+                color: var(--text-color);
+            }
+
+            .oauth-button:hover {
+                background-color: var(--oauth-hover);
+            }
+
+            /* 调整深色模式下的图标颜色 */
+            .input-icon {
+                color: #64748b;
+            }
+
+            /* Logo 亮度调整 */
+            .qbin-header img {
+                filter: brightness(0.9);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+            background-image:
+                linear-gradient(45deg,
+                    var(--background-color) 0%,
+                    var(--background-color) 100%);
+        }
+
+        .qbin-container {
+            background-color: var(--container-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            transition: all 0.3s ease;
+            position: relative;
+            border: none;
+            box-shadow:
+                var(--shadow-lg),
+                0 0 0 1px rgba(0, 0, 0, 0.02),
+                inset 0 0 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .qbin-container::before {
+            display: none;
+        }
+
+        .qbin-container:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 25px 35px -12px rgba(0, 0, 0, 0.05),
+                0 12px 25px -12px rgba(0, 0, 0, 0.04),
+                0 0 0 1px rgba(0, 0, 0, 0.02),
+                inset 0 0 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .qbin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .qbin-subtitle {
+            color: var(--subtitle-color);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .access-form {
+            margin-top: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .access-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            box-shadow:
+                inset 0 2px 4px rgba(0, 0, 0, 0.02),
+                0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-color);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .input-icon.icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .access-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow:
+                0 0 0 3px rgba(37,99,235,0.1),
+                inset 0 2px 4px rgba(0, 0, 0, 0.02);
+            transform: translateY(-1px);
+        }
+
+        .access-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .access-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .access-button:active {
+            transform: translateY(0);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--subtitle-color);
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        .auth-divider span {
+            padding: 0 1rem;
+            font-size: 0.875rem;
+        }
+
+        .oauth-button {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            padding: 0.875rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.02),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .oauth-button:hover {
+            background-color: var(--oauth-hover);
+            transform: translateY(-1px);
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .oauth-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .login-options {
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out 0.1s backwards;
+        }
+
+        .logo-svg {
+            width: 180px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background-color: rgba(239, 68, 68, 0.1);
+            margin-bottom: 1rem;
+            color: var(--error-color);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 480px) {
+            .qbin-container {
+                padding: 2rem;
+                margin: 0.5rem;
+                border-radius: 16px;
+            }
+
+            body {
+                padding: max(1rem, env(safe-area-inset-top))
+                        max(1rem, env(safe-area-inset-right))
+                        max(1rem, env(safe-area-inset-bottom))
+                        max(1rem, env(safe-area-inset-left));
+            }
+
+            .access-input,
+            .oauth-button {
+                font-size: 16px;
+            }
+
+            .qbin-header img {
+                width: 150px;
+                height: auto;
+            }
+
+            .input-wrapper {
+                position: relative;
+                margin-bottom: 1.5rem;
+            }
+
+            .input-icon {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-color);
+                font-size: 16px;
+                pointer-events: none;
+            }
+
+            .access-input {
+                padding-left: 2.75rem;
+            }
+        }
+
+        @media (hover: hover) {
+            .access-button:hover,
+            .oauth-button:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        .loading-animation {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .access-input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px var(--container-bg) inset;
+            -webkit-text-fill-color: var(--text-color);
+        }
+
+        .copyright {
+            position: fixed;
+            bottom: max(env(safe-area-inset-bottom, 12px), 12px);
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+            padding: 8px;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .qbin-container:hover + .copyright {
+            opacity: 0.4;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .copyright {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .qbin-container:hover + .copyright {
+                opacity: 0.2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .copyright {
+                font-size: 11px;
+                bottom: max(env(safe-area-inset-bottom, 15px), 15px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            body {
+                background-image: linear-gradient(45deg,
+                    var(--background-color) 0%,
+                    rgba(20, 30, 50, 0.99) 100%);
+            }
+        }
+
+        /* 添加 SVG 图标样式 */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+
+        /* New styles for the auth buttons container */
+        .auth-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .auth-icon-button {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-icon-button:hover {
+            background-color: var(--oauth-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-icon-button img {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Improved spacing */
+        .auth-divider {
+            margin: 2rem 0 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="qbin-container">
+    <div class="qbin-header">
+        <img src="https://ik.imagekit.io/naihe/logo/qbin.svg" alt="QBin Logo">
+        <p class="qbin-subtitle">Secure cloud QBin access</p>
+    </div>
+    <form id="accessForm" class="access-form">
+        <div class="input-wrapper">
+            <svg class="icon input-icon" viewBox="0 0 24 24">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.96-7 10.27-3.87-1.31-7-5.6-7-10.27V6.3l7-3.12z"/>
+                <path d="M12 6a2 2 0 012 2v3a2 2 0 01-4 0V8a2 2 0 012-2z"/>
+            </svg>
+            <input
+                    type="password"
+                    id="accessKey"
+                    class="access-input"
+                    required
+                    placeholder="Enter access key"
+                    autocomplete="current-password"
+            >
+        </div>
+        <p id="errorMessage" class="error-message">Invalid access key. Please try again.</p>
+        <button type="submit" class="access-button">
+            <svg class="icon" id="submitIcon" viewBox="0 0 24 24">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+            <span>Access QBin</span>
+        </button>
+    </form>
+    <div class="auth-divider">
+        <span>OR</span>
+    </div>
+    <div class="auth-buttons">
+        <button onclick="handleOAuthLogin('google')" class="auth-icon-button" title="Login with Google">
+            <img src="https://ik.imagekit.io/naihe/logo/google.svg" alt="Google">
+        </button>
+        <button onclick="handleOAuthLogin('github')" class="auth-icon-button" title="Login with GitHub">
+            <img src="https://ik.imagekit.io/naihe/logo/github.svg" alt="GitHub">
+        </button>
+        <button onclick="handleOAuthLogin('linuxdo')" class="auth-icon-button" title="Login with Linuxdo">
+            <img src="https://ik.imagekit.io/naihe/logo/linux.do.svg" alt="Linux.do">
+        </button>
+    </div>
+</div>
+<div class="copyright">© 2025 QBin.me</div>
+<script>
+    // 获取必要的DOM元素
+    const accessForm = document.getElementById('accessForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const submitButton = accessForm.querySelector('.access-button');
+    const submitButtonText = submitButton.querySelector('span');
+    const submitButtonIcon = submitButton.querySelector('svg');
+
+    // 按钮状态配置
+    const BUTTON_STATES = {
+        default: {
+            text: 'Access QBin',
+            icon: `<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>`
+        },
+        loading: {
+            text: 'Processing...',
+            icon: `<path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>`
+        },
+        success: {
+            text: 'Success!',
+            icon: `<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>`
+        }
+    };
+
+    // 设置按钮状态的函数
+    const setButtonState = (state) => {
+        const config = BUTTON_STATES[state];
+        submitButtonText.textContent = config.text;
+        submitButtonIcon.innerHTML = config.icon;
+
+        if (state === 'loading') {
+            submitButtonIcon.style.animation = 'spin 1s linear infinite';
+        } else {
+            submitButtonIcon.style.animation = 'none';
+        }
+    };
+
+    // 显示错误信息的函数
+    const displayError = (message) => {
+        errorMessage.innerHTML = `
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            ${message}
+        `;
+        errorMessage.style.display = 'block';
+    };
+
+    // 表单提交处理
+    accessForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const accessKey = document.getElementById('accessKey').value;
+        errorMessage.style.display = 'none';
+        if (accessKey.trim() === '') {
+            displayError('Access key cannot be empty');
+            return;
+        }
+
+        submitButton.disabled = true;
+        setButtonState('loading');
+        try {
+            const response = await fetch(`/api/login/admin`, {
+                method: 'GET',
+                headers: {
+                    "x-apikey": accessKey,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            // 更新错误状态处理
+            if (!response.ok) {
+                switch (response.status) {
+                    case 403:
+                        throw new Error('Invalid access key');
+                    case 404:
+                        throw new Error('Resource not found');
+                    case 429:
+                        throw new Error('Too many attempts, please try again later');
+                    case 500:
+                    case 502:
+                    case 503:
+                    case 504:
+                        throw new Error('Server error, please try again later');
+                    default:
+                        throw new Error('An unexpected error occurred');
+                }
+            }
+
+            if(response.headers.get("content-type").includes("text/html")){
+                throw new Error("Cookie 已失效，请重新登录");
+            }
+
+            const data = await response.json();
+
+            setButtonState('success');
+            // 登录成功，重定向到首页
+            setTimeout(() => {
+                window.location.assign('/');
+            }, 300);
+        } catch (error) {
+            displayError(error.message);
+            submitButton.disabled = false;
+            setButtonState('default');
+        }
+    });
+
+    // OAuth 登录处理 - 更新为支持多种登录方式
+    async function handleOAuthLogin(provider) {
+        try {
+            // 根据提供商重定向到相应的登录页面
+            window.location.assign(`/api/login/${provider}`);
+        } catch (error) {
+            console.error(`${provider} login error:`, error);
+            errorMessage.textContent = `Failed to initialize ${provider} login. Please try again.`;
+            errorMessage.style.display = 'block';
+        }
+    }
+
+    // 页面加载时检查 URL 中的错误信息
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const errorDesc = urlParams.get('error_description');
+
+        if (error) {
+            errorMessage.textContent = errorDesc || 'Authentication failed. Please try again.';
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

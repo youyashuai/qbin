@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网址格式提示</title>
+    <style>
+        /* 浅色模式默认变量 */
+        :root {
+            --bg-color: #f0f2f5;  /* 更柔和的背景色 */
+            --paper-bg: #ffffff;
+            --text-color: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --highlight-color: #3498db;
+            --paper-shadow:
+                0 1px 2px rgba(0,0,0,0.05),
+                0 4px 8px rgba(0,0,0,0.05),
+                0 16px 24px rgba(0,0,0,0.03);  /* 更自然的阴影层次 */
+            --tip-bg: rgba(0,0,0,0.015);  /* 更细腻的提示背景 */
+            --paper-edge: rgba(0,0,0,0.08);
+            --noise-opacity: 0.12;
+            --focus-ring: rgba(52, 152, 219, 0.15);
+        }
+
+        /* 深色模式媒体查询 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #161618;  /* 更柔和的深色背景 */
+                --paper-bg: #242426;  /* 略微调整以更自然 */
+                --text-color: #e0e0e0;
+                --text-secondary: #a0a0a0;
+                --highlight-color: #4d9fff;
+                --paper-shadow:
+                    0 1px 2px rgba(0,0,0,0.2),
+                    0 4px 8px rgba(0,0,0,0.2),
+                    0 16px 24px rgba(0,0,0,0.1);
+                --tip-bg: rgba(255,255,255,0.02);
+                --paper-edge: rgba(255,255,255,0.08);
+                --noise-opacity: 0.3;
+                --focus-ring: rgba(77, 159, 255, 0.15);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 16px;
+        }
+
+        .paper {
+            background: var(--paper-bg);
+            padding: clamp(28px, 6vw, 36px);  /* 增加内边距 */
+            width: min(100%, 360px);
+            text-align: center;
+            border-radius: 16px;  /* 更圆润的边角 */
+            position: relative;
+            box-shadow: var(--paper-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--paper-edge);
+            overflow: hidden;
+            backdrop-filter: blur(8px);  /* 添加毛玻璃效果 */
+        }
+
+        .paper:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 4px 8px rgba(0,0,0,0.1),
+                0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        /* 纸张纹理效果 */
+        .paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: var(--noise-opacity);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .icon {
+            font-size: clamp(32px, 6vw, 40px);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(18px, 4vw, 20px);
+            font-weight: 500;
+            margin: 0 0 12px 0;
+            color: var(--text-color);
+            letter-spacing: 0.5px;
+        }
+
+        .message {
+            color: var(--text-secondary);
+            font-size: clamp(13px, 3vw, 14px);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .tips-container {
+            background: var(--tip-bg);
+            padding: clamp(18px, 4vw, 22px);  /* 增加内边距 */
+            border-radius: 12px;  /* 更圆润的边角 */
+            margin-bottom: 24px;
+            border: 1px solid var(--paper-edge);
+            text-align: left;
+            backdrop-filter: blur(4px);  /* 添加微妙的毛玻璃效果 */
+        }
+
+        .tip-item {
+            color: var(--text-secondary);
+            font-size: clamp(12px, 2.5vw, 13px);
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tip-item:first-child {
+            margin-top: 0;
+        }
+
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--highlight-color);
+            padding: 12px 28px;  /* 增加水平内边距 */
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid var(--highlight-color);
+            border-radius: 10px;  /* 更圆润的边角 */
+            transition: all 0.2s ease;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+            font-weight: 500;  /* 稍微加粗 */
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .button:hover::before {
+            left: 100%;
+        }
+
+        .button:hover {
+            background: var(--highlight-color);
+            color: var(--paper-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px var(--focus-ring);
+        }
+
+        /* 更新输入框样式 */
+        #pathInput {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px 16px;  /* 稍微增加水平内边距 */
+            border: 1px solid var(--paper-edge);
+            border-radius: 10px;  /* 更圆润的边角 */
+            font-size: 15px;
+            color: var(--text-color);
+            background: var(--paper-bg);
+            transition: all 0.2s ease;
+            outline: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-shadow:
+                inset 0 1px 2px var(--paper-edge),
+                0 1px 2px rgba(0,0,0,0.02);  /* 添加微妙的外阴影 */
+        }
+
+        #pathInput:focus {
+            border-color: var(--highlight-color);
+            box-shadow:
+                inset 0 1px 2px var(--paper-edge),
+                0 0 0 3px var(--focus-ring);
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+                align-items: flex-start;
+                padding-top: clamp(64px, 15vh, 96px);  /* 增加顶部间距 */
+            }
+
+            .paper {
+                margin: 0;
+                width: 100%;
+                padding: clamp(24px, 5vw, 32px);  /* 移动端稍微减小内边距 */
+            }
+
+            .button {
+                width: 100%;
+                padding: 14px;
+            }
+
+            #pathInput {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
+
+        /* 触摸设备优化 */
+        @media (hover: none) {
+            .paper:hover {
+                transform: none;
+                box-shadow: var(--paper-shadow);
+            }
+
+            .button:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            .paper,
+            .button,
+            .button::before,
+            #pathInput {
+                transition: none;
+            }
+        }
+
+        /* 版权信息样式 */
+        .copyright {
+            position: fixed;
+            bottom: max(env(safe-area-inset-bottom, 12px), 12px);
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+            padding: 8px;
+            transition: opacity 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .paper:hover + .copyright {
+            opacity: 0.4;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .copyright {
+                color: rgba(255, 255, 255, 0.4);
+            }
+
+            .paper:hover + .copyright {
+                opacity: 0.2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .copyright {
+                font-size: 11px;
+                bottom: max(env(safe-area-inset-bottom, 15px), 15px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="paper">
+        <div class="icon">✏️</div>
+        <h1>路径格式有误</h1>
+        <div class="message">
+            请修改当前路径格式：
+        </div>
+        <div class="input-container" style="margin-bottom: 20px;">
+            <div class="path-input-wrapper" style="position: relative; margin-bottom: 12px;">
+                <input type="text"
+                       id="pathInput"
+                       style="width: 100%;
+                              box-sizing: border-box;
+                              padding: 12px;
+                              border: 1px solid var(--paper-edge);
+                              border-radius: 8px;
+                              font-size: 15px;
+                              color: var(--text-color);
+                              background: var(--paper-bg);
+                              transition: all 0.2s ease;
+                              outline: none;
+                              overflow: hidden;
+                              text-overflow: ellipsis;">
+            </div>
+            <button onclick="goToPath()"
+                    class="button"
+                    style="width: 100%;
+                           box-sizing: border-box;
+                           padding: 12px;
+                           font-size: 15px;
+                           cursor: pointer;">
+                点击跳转
+            </button>
+        </div>
+        <div class="tips-container">
+            <div class="tip-item">📝 /p/[key]路径key至少需要2个字符</div>
+            <div class="tip-item">✨ 可用：字母、数字、连字符(-)、下划线(_)、英文句点(.)</div>
+            <div class="tip-item">❌ 不可用：空格、中文、特殊字符</div>
+        </div>
+        <div style="text-align: center; margin-top: 16px; font-size: 13px;">
+            <a href="/p/document"
+               style="color: var(--highlight-color);
+                      text-decoration: none;
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 4px;">
+                <span>查看使用指南</span>
+                <span style="font-size: 16px;">→</span>
+            </a>
+        </div>
+    </div>
+    <div class="copyright">© 2025 QBin.me</div>
+
+    <script>
+        const currentPath = window.location.pathname;
+        const inputEl = document.getElementById('pathInput');
+
+        // 设置当前路径到输入框
+        inputEl.value = currentPath;
+        // 聚焦并选中全部文本
+        inputEl.focus();
+        inputEl.select();
+
+        function goToPath() {
+            const path = document.getElementById('pathInput').value.trim();
+            if (path) {
+                window.location.href = path;
+            }
+        }
+
+        // 恢复回车键提交功能
+        inputEl.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                goToPath();
+            }
+        });
+
+        // 添加输入框焦点样式
+        inputEl.addEventListener('focus', function() {
+            this.style.borderColor = 'var(--highlight-color)';
+            this.style.boxShadow = '0 0 0 2px rgba(52, 152, 219, 0.2)';
+        });
+
+        inputEl.addEventListener('blur', function() {
+            this.style.borderColor = 'var(--paper-edge)';
+            this.style.boxShadow = 'none';
+        });
+    </script>
+</body>
+</html>
