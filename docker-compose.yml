@@ -4,7 +4,7 @@ services:
   qbin:
     image: naiher/qbin:latest
     container_name: qbin-app
-    restart: unless-stopped
+    restart: always
     depends_on:
       postgres:
         condition: service_healthy
