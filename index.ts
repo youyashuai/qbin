@@ -1,5 +1,6 @@
 import { closePool } from "./src/db/pool.ts";
 import { createServer } from "./src/server.ts";
+import {get_env} from "./src/config/constants";
 
 /**
  * 程序入口
@@ -28,7 +29,7 @@ async function main() {
   }
 
   // 启动服务器
-  const PORT = 8000;
+  const PORT = parseInt(get_env("PORT")) || 8000;
   console.log(`Server is running on port ${PORT}...`);
   await app.listen({ port: PORT });
 }
