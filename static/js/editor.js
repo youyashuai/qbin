@@ -204,7 +204,7 @@ class Qbin {
             this.isUploading = true;
             this.updateUploadStatus("数据加载中…");
             let tips = "";
-            const {status, content} = await this.getContent(key, pwd);
+            const {status, content} = await API.getContent(key, pwd);
 
             if (!content && status !== 200 && status !== 404) {
                 throw new Error('加载失败');
@@ -697,92 +697,6 @@ class Qbin {
             result.render = "";
         }
         return result;
-    }
-
-    getMimeTypeFromFileName(filename) {
-        const extension = filename.toLowerCase().split('.').pop();
-        const mimeTypes = {
-            // Text formats
-            'txt': 'text/plain; charset=UTF-8',
-            'md': 'text/markdown',
-            'csv': 'text/csv',
-            'html': 'text/html',
-            'htm': 'text/html',
-            'css': 'text/css',
-            'js': 'text/javascript',
-            'json': 'application/json',
-            'xml': 'application/xml',
-
-            // Document formats
-            'pdf': 'application/pdf',
-            'doc': 'application/msword',
-            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'xls': 'application/vnd.ms-excel',
-            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'ppt': 'application/vnd.ms-powerpoint',
-            'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'odt': 'application/vnd.oasis.opendocument.text',
-            'ods': 'application/vnd.oasis.opendocument.spreadsheet',
-            'odp': 'application/vnd.oasis.opendocument.presentation',
-            'rtf': 'application/rtf',
-
-            // Image formats
-            'png': 'image/png',
-            'jpg': 'image/jpeg',
-            'jpeg': 'image/jpeg',
-            'gif': 'image/gif',
-            'svg': 'image/svg+xml',
-            'webp': 'image/webp',
-            'bmp': 'image/bmp',
-            'ico': 'image/x-icon',
-            'tiff': 'image/tiff',
-            'tif': 'image/tiff',
-
-            // Audio formats
-            'mp3': 'audio/mpeg',
-            'wav': 'audio/wav',
-            'ogg': 'audio/ogg',
-            'flac': 'audio/flac',
-            'aac': 'audio/aac',
-            'm4a': 'audio/mp4',
-
-            // Video formats
-            'mp4': 'video/mp4',
-            'webm': 'video/webm',
-            'ogv': 'video/ogg',
-            'avi': 'video/x-msvideo',
-            'mov': 'video/quicktime',
-            'wmv': 'video/x-ms-wmv',
-            'mkv': 'video/x-matroska',
-
-            // Archive formats
-            'zip': 'application/zip',
-            'rar': 'application/x-rar-compressed',
-            '7z': 'application/x-7z-compressed',
-            'tar': 'application/x-tar',
-            'gz': 'application/gzip',
-
-            // Other common formats
-            'epub': 'application/epub+zip',
-            'exe': 'application/x-msdownload',
-            'dmg': 'application/x-apple-diskimage',
-            'iso': 'application/x-iso9660-image',
-            'apk': 'application/vnd.android.package-archive',
-            'ics': 'text/calendar',
-            'ttf': 'font/ttf',
-            'woff': 'font/woff',
-            'woff2': 'font/woff2'
-        };
-        return mimeTypes[extension] || 'application/octet-stream';
-    }
-
-    debounce(func, wait) {
-        clearTimeout(this.debounceTimeout);
-        return new Promise((resolve) => {
-            this.debounceTimeout = setTimeout(() => {
-                resolve(func());
-            }, wait);
-        });
     }
 }
 
@@ -1285,9 +1199,3 @@ function cyrb53(str, seed = 512) {
     return 2097152 * (h2 >>> 0) + (h1 >>> 11);
 }
 
-// 在页面加载时添加
-window.addEventListener('load', () => {
-    if (!('caches' in window)) {
-        console.warn('This browser does not support Cache API. Falling back to normal fetch.');
-    }
-});

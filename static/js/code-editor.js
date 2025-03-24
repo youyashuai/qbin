@@ -742,15 +742,6 @@ class Qbin {
         return result;
     }
 
-    debounce(func, wait) {
-        clearTimeout(this.debounceTimeout);
-        return new Promise((resolve) => {
-            this.debounceTimeout = setTimeout(() => {
-                resolve(func());
-            }, wait);
-        });
-    }
-
     // 添加语言选择器初始化方法
     initLanguageSelector() {
         const languageSelect = document.getElementById('language-select');
@@ -865,21 +856,6 @@ const API = {
             }
         }
         return this.getErrorMessageByStatus(response.status);
-    },
-
-    getErrorMessageByStatus(status) {
-        if (status >= 500) {
-            return '服务器出错，请稍后重试';
-        } else if (status === 404) {
-            return '请求的资源不存在';
-        } else if (status === 403) {
-            return '无访问权限';
-        } else if (status === 401) {
-            return '未授权访问';
-        } else if (status === 400) {
-            return '请求参数错误';
-        }
-        return '请求失败';
     },
 
     async getContent(key, pwd) {
