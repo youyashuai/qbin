@@ -48,7 +48,7 @@ services:
   postgres:
     image: postgres:14-alpine
     container_name: qbin-postgres
-    restart: unless-stopped
+    restart: always
     environment:
       - POSTGRES_USER=qbin
       - POSTGRES_PASSWORD=qbinpassword
