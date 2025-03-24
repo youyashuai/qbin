@@ -177,7 +177,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
 
 export const handleAdminLogin = async (ctx: Context) => {
   const apikey = ctx.request.headers.get("x-apikey");
-  if (apikey && !(ADMIN[apikey] > -1)){
+  if (apikey && !(ADMIN[apikey] >= LEVEL)){
     ctx.response.status = 403;
     ctx.response.body = { msg: "apikey error" };
     return;
