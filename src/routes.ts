@@ -335,6 +335,9 @@ router
   .get("/document", async (ctx) => {
     return await getDocumentHtml(ctx, 200);
   })
+  .get("/health", async (ctx) => {
+    return new Response(ctx, 200, "healthy");
+  })
   .get("/static/js/:file", async (ctx) => {
     return await getJS(ctx, ctx.params.file, 200);
   })
