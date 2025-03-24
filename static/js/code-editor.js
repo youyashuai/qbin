@@ -90,7 +90,7 @@ class Qbin {
                     clearTimeout(this.autoUploadTimer);
                     this.autoUploadTimer = setTimeout(() => {
                         const content = this.editor.getValue();
-                        if (content.trim() && cyrb53(content) !== this.lastUploadedHash) {
+                        if (content && cyrb53(content) !== this.lastUploadedHash) {
                             const lang = document.getElementById('language-select').value;
                             const mimetype = this.getMimeTypeFromLang(lang)
                             this.handleUpload(content, mimetype);
@@ -173,7 +173,7 @@ class Qbin {
     saveToLocalCache(force = false) {
         const content = this.editor.getValue();
         // 确保只有新数据被保存
-        if (force || (content.trim() && cyrb53(content) !== this.lastUploadedHash)) {
+        if (force || (content && cyrb53(content) !== this.lastUploadedHash)) {
             const cacheData = {
                 content,
                 timestamp: getTimestamp(),

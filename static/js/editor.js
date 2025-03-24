@@ -33,8 +33,7 @@ class Qbin {
 
     saveToLocalCache(force = false) {
         const content = this.editor.value;
-        // 确保只有新数据被保存
-        if (force || (content.trimEnd() && cyrb53(content) !== this.lastUploadedHash)) {
+        if (force || (content && cyrb53(content) !== this.lastUploadedHash)) {
             const cacheData = {
                 content,
                 timestamp: getTimestamp(),
@@ -113,8 +112,8 @@ class Qbin {
             clearTimeout(this.autoUploadTimer);
             this.autoUploadTimer = setTimeout(() => {
                 const content = this.editor.value;
-                if (content.trim() && cyrb53(content) !== this.lastUploadedHash) {
-                    this.handleUpload(content.trimEnd(), "text/plain; charset=UTF-8");
+                if (content && cyrb53(content) !== this.lastUploadedHash) {
+                    this.handleUpload(content, "text/plain; charset=UTF-8");
                 }
             }, 2000);
         });
