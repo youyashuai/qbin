@@ -2,12 +2,15 @@ class Qbin {
     constructor() {
         this.currentPath = this.parsePath(window.location.pathname);
         this.CACHE_KEY = 'qbin/';
+        this.cacheName = 'qbin-cache-v1';
         this.isUploading = false;
         this.lastUploadedHash = '';
         this.autoUploadTimer = null;
         this.emoji = {online: "☁️", inline: "☁", no: '⊘'}
         this.status = this.emoji.online; // ☁️ 🌐 | 🏠✈️⊘ ✈ | ☁️ ☁
         this.editor = document.getElementById('editor');
+        // 检查缓存API是否可用
+        this.cacheSupported = 'caches' in window;
 
         this.loadContent().then(() => {});
         // 如果当前地址为 "/"、"/p" 或 "/p/"，则自动生成 key 并更新地址
@@ -201,43 +204,49 @@ class Qbin {
             this.isUploading = true;
             this.updateUploadStatus("数据加载中…");
             let tips = "";
-            const {status, content} = await API.getContent(key, pwd);
-            if (content || status === 200 || status === 404) {
-                this.lastUploadedHash = cyrb53(content || "");
-                if (status === 404) {
-                    this.status = this.emoji.online;
-                    this.saveToLocalCache(true); // 更新本地缓存
-                    tips = "这是可用的KEY"
-                } else if (!isCache || this.lastUploadedHash === cyrb53(this.editor.value)) {
-                    this.status = this.emoji.online;
-                    this.editor.value = content || "";
-                    this.saveToLocalCache(true); // 更新本地缓存
-                    tips = "数据加载成功"
-                } else {
-                    // 显示确认对话框
-                    const result = await this.showConfirmDialog(
-                        "检测到本地缓存与服务器数据不一致，您想使用哪个版本？\n\n" +
-                        "• 本地版本：保留当前编辑器中的内容\n" +
-                        "• 服务器版本：加载服务器上的最新内容"
-                    );
+            const {status, content} = await this.getContent(key, pwd);
 
-                    if (result) {
-                        this.status = this.emoji.online;
-                        this.editor.value = content;
-                        this.saveToLocalCache(true); // 更新本地缓存
-                        tips = "远程数据加载成功"
-                    }
-                }
-                const uploadArea = document.querySelector('.upload-area');
-                uploadArea.classList.toggle('visible', false);
-                this.updateUploadStatus(tips || "数据加载成功", "success");
-                return true;
+            if (!content && status !== 200 && status !== 404) {
+                throw new Error('加载失败');
             }
-            return false;
+
+            this.lastUploadedHash = cyrb53(content || "");
+
+            if (status === 404) {
+                this.status = this.emoji.online;
+                this.saveToLocalCache(true);
+                tips = "这是可用的KEY";
+            } else if (!isCache || this.lastUploadedHash === cyrb53(this.editor.value)) {
+                this.status = this.emoji.online;
+                this.editor.value = content || "";
+                this.saveToLocalCache(true);
+                tips = "数据加载成功";
+            } else {
+                const result = await this.showConfirmDialog(
+                    "检测到本地缓存与服务器数据不一致，您想使用哪个版本？\n\n" +
+                    "• 本地版本：保留当前编辑器中的内容\n" +
+                    "• 服务器版本：加载服务器上的最新内容"
+                );
+
+                if (result) {
+                    this.status = this.emoji.online;
+                    this.editor.value = content;
+                    this.saveToLocalCache(true);
+                    tips = "远程数据加载成功";
+                }
+            }
+
+            const uploadArea = document.querySelector('.upload-area');
+            if (uploadArea) {
+                uploadArea.classList.toggle('visible', false);
+            }
+            this.updateUploadStatus(tips || "数据加载成功", "success");
+            return true;
         } catch (error) {
-            isSuccess = false
+            isSuccess = false;
             this.updateUploadStatus("数据加载失败：" + error.message);
             console.error(error);
+            return false;
         } finally {
             this.isUploading = false;
             setTimeout(() => {
@@ -826,7 +835,7 @@ const API = {
             if (!contentType.startsWith('text/') &&
                 !contentType.includes('json') &&
                 !contentType.includes('javascript') &&
-                !contentTy / pe.includes('xml')) {
+                !contentType.includes('xml')) {
                 throw new Error('不支持的文件类型');
             }
             return {status: response.status, content: await response.text()};
@@ -839,16 +848,12 @@ const API = {
     async uploadContent(content, key, pwd = '', mimetype = 'application/octet-stream') {
         const select = document.querySelector('.expiry-select');
         try {
-            const MAX_FILE_SIZE = 5 * 1024 * 1024;
             const method = mimetype.includes("text/") ? 'POST' : 'PUT';
             const body = content;
             let headers = {
                 "x-expire": select.options[select.selectedIndex].value,
                 "Content-Type": mimetype,
             };
-            if (content.size > MAX_FILE_SIZE) {
-                throw new Error(['上传内容超出', MAX_FILE_SIZE / 1024 / 1024, 'MB限制'].join(''));
-            }
             const response = await fetch(`/s/${key}/${pwd}`, {
                 method,
                 body,
@@ -867,36 +872,52 @@ const API = {
     },
 
     async fetchWithCache(url) {
+        // 如果不支持Cache API，直接使用普通fetch
+        if (!this.cacheSupported) {
+            return fetch(url);
+        }
+
         try {
-            const cache = await caches.open('qbin-cache-v1');
+            const cache = await caches.open(this.cacheName);
             const cacheResponse = await cache.match(url);
             const headers = new Headers();
+
             if (cacheResponse) {
                 const etag = cacheResponse.headers.get('ETag');
                 const lastModified = cacheResponse.headers.get('Last-Modified');
                 if (etag) headers.set('If-None-Match', etag);
                 if (lastModified) headers.set('If-Modified-Since', lastModified);
             }
-            const response = await fetch(url, {
-                headers,
-                credentials: 'include'
-            });
-            if (response.status === 304 && cacheResponse) {
-                return cacheResponse;
-            }
-            if (response.ok) {
-                await cache.put(url, response.clone());
+
+            try {
+                const response = await fetch(url, {
+                    headers,
+                    credentials: 'include'
+                });
+
+                if (response.status === 304 && cacheResponse) {
+                    return cacheResponse;
+                }
+
+                if (response.ok) {
+                    await cache.put(url, response.clone());
+                    return response;
+                }
+
+                if (!response.ok) {
+                    await cache.delete(url);
+                }
                 return response;
+            } catch (fetchError) {
+                // 网络错误时尝试返回缓存
+                if (cacheResponse) {
+                    return cacheResponse;
+                }
+                throw fetchError;
             }
-            if (!response.ok) {
-                await cache.delete(url);
-            }
-            return response;
         } catch (error) {
-            // 网络错误时尝试返回缓存
-            const cacheResponse = await cache.match(url);
-            if (cacheResponse) return cacheResponse;
-            throw error;
+            console.warn('Cache API failed, falling back to normal fetch:', error);
+            return fetch(url, { credentials: 'include' });
         }
     }
 };
@@ -1263,3 +1284,10 @@ function cyrb53(str, seed = 512) {
     h2 ^= h1 >>> 16;
     return 2097152 * (h2 >>> 0) + (h1 >>> 11);
 }
+
+// 在页面加载时添加
+window.addEventListener('load', () => {
+    if (!('caches' in window)) {
+        console.warn('This browser does not support Cache API. Falling back to normal fetch.');
+    }
+});
