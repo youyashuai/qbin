@@ -10,7 +10,7 @@ services:
         condition: service_healthy
     environment:
       # 必选环境变量
-      - ADMIN_PASSWORD=your_secure_admin_password  # 请修改为安全的密码
+      - ADMIN_PASSWORD=qbin.me  # 请修改为安全的密码
       - ADMIN_EMAIL=admin@example.com  # 请修改为您的邮箱
       - DATABASE_URL=postgres://qbin:qbinpassword@postgres:5432/qbin
       - JWT_SECRET=change_this_to_a_secure_random_string  # 请修改为随机安全字符串
