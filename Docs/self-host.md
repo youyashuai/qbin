@@ -1,4 +1,6 @@
-coming soon.
+Coming soon.
+
+---
 
 2. 点击 [Deploy on Deno](https://dash.deno.com/new_project?url=https://github.com/Quick-Bin/Qbin)（首次点击要先登录Deno Deploy，登录完成之后重新点击这个链接即可进行部署）
 3. 部署完成后设置环境变量
