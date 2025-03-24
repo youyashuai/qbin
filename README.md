@@ -89,14 +89,15 @@
 本项目提供了一些额外的配置项，使用环境变量进行设置：
 
 #### 基础配置
-|      环境变量       | 类型 |          描述          |                            示例                             |
-|:---------------:|:--:|:--------------------:|:---------------------------------------------------------:|
-| `ADMIN_PASSWORD` | 必选 | 管理员访问密码 | `qbin.me` |
-| `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 | `ww1998mail@gmail.com` |
-| `DATABASE_URL`  | 必选 | Postgres 数据库连接地址 | `postgresql://user:password@localhost:5432:/local:main?sslmode=require` |
-| `JWT_SECRET`   | 必选 | JWT签名密钥 | `XTV0STZzYFxxxxxxxxxx5ecm50W04v` |
-| `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 | `31536000` |
-| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认50MB | `52428800` |
+|      环境变量       | 类型 |         描述          |                                   示例                                    |
+|:---------------:|:--:|:-------------------:|:-----------------------------------------------------------------------:|
+| `ADMIN_PASSWORD` | 必选 |       管理员访问密码       |                                `qbin.me`                                |
+| `ADMIN_EMAIL` | 必选 |       管理员邮箱地址       |                         `ww1998mail@gmail.com`                          |
+| `DATABASE_URL`  | 必选 |  Postgres 数据库连接地址   | `postgresql://user:password@localhost:5432:/local:main?sslmode=require` |
+| `JWT_SECRET`   | 必选 |       JWT签名密钥       |                    `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                     |
+| `PORT` | 可选 |       服务访问端口        |                                 `8000`                                  |
+| `TOKEN_EXPIRE` | 可选 |    令牌有效期(秒)，默认一年    |                               `31536000`                                |
+| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认50MB |                               `52428800`                                |
 
 #### GitHub OAuth配置
 |      环境变量       | 类型 |          描述          |                            示例                             |
