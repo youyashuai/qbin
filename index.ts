@@ -1,6 +1,6 @@
 import { closePool } from "./src/db/pool.ts";
 import { createServer } from "./src/server.ts";
-import {get_env} from "./src/config/constants";
+import {get_env} from "./src/config/constants.ts";
 
 /**
  * 程序入口
