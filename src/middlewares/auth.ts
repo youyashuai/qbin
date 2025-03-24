@@ -3,7 +3,7 @@ import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client@^2.0.0";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
 import {PasteError} from "../utils/response.ts";
-import {ADMIN, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, LEVEL} from "../config/constants.ts";
+import {ADMIN, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, LEVEL, EMAIL} from "../config/constants.ts";
 import {getLoginPageHtml} from "../utils/render.ts";
 
 // 定义 OAuth2 提供商配置
@@ -183,8 +183,9 @@ export const handleAdminLogin = async (ctx: Context) => {
     return;
   }
   const jwtToken = await generateJwtToken({
-    id: ADMIN[apikey],
-    name: apikey,
+    id: 0,
+    email: EMAIL,
+    name: EMAIL,
     level: ADMIN[apikey],
   });
   await ctx.cookies.set("token", jwtToken, {
