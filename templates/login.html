@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <link href=https://qbin.me/ rel=canonical>
     <title>QuickBin</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href=/favicon.ico rel=icon type=image/svg+xml>
+    <link rel="icon" type="image/svg+xml" href="https://ik.imagekit.io/naihe/logo/qbin.svg">
+    <title>QuickBin</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -198,68 +199,14 @@
             transform: translateY(0);
         }
 
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-            color: var(--subtitle-color);
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--divider-color);
-        }
-
         .auth-divider span {
             padding: 0 1rem;
             font-size: 0.875rem;
         }
 
-        .oauth-button {
-            background-color: var(--container-bg);
-            border: 1px solid var(--border-color);
-            padding: 0.875rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1rem;
-            font-weight: 500;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            box-shadow:
-                0 1px 2px rgba(0, 0, 0, 0.02),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        .oauth-button:hover {
-            background-color: var(--oauth-hover);
-            transform: translateY(-1px);
-            box-shadow:
-                0 4px 8px rgba(0, 0, 0, 0.03),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
         .oauth-button img {
             width: 20px;
             height: 20px;
-        }
-
-        .login-options {
-            margin-bottom: 1.5rem;
-            animation: fadeInUp 0.6s ease-out 0.1s backwards;
-        }
-
-        .logo-svg {
-            width: 180px;
-            height: 40px;
-            margin-bottom: 0.5rem;
         }
 
         .error-message {
@@ -323,10 +270,6 @@
             .oauth-button:hover {
                 transform: translateY(-2px);
             }
-        }
-
-        .loading-animation {
-            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
@@ -423,7 +366,6 @@
             }
         }
 
-        /* 添加 SVG 图标样式 */
         .icon {
             width: 16px;
             height: 16px;
@@ -432,109 +374,396 @@
             fill: currentColor;
         }
 
-        /* New styles for the auth buttons container */
-        .auth-buttons {
+        .oauth-container {
             display: flex;
-            justify-content: center;
-            gap: 1.25rem;
-            margin-top: 1.5rem;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
-        .auth-icon-button {
-            background-color: var(--container-bg);
-            border: 1px solid var(--border-color);
+        .oauth-login-button {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.25rem;
             border-radius: 12px;
-            width: 50px;
-            height: 50px;
+            border: 1px solid var(--border-color);
+            background-color: var(--container-bg);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .oauth-login-button:hover {
+            background-color: var(--oauth-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .oauth-login-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--subtitle-color);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 1.25rem;
+            }
+
+            .oauth-login-button {
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* 标签式切换样式 */
+        .tab-navigation {
+            display: flex;
+            margin: 0 auto 2rem;
+            border-bottom: 1px solid var(--divider-color);
+            padding-bottom: 0;
+            max-width: 320px;
+            position: relative;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.75rem 0.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--subtitle-color);
+            cursor: pointer;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            gap: 0.5rem;
+            position: relative;
         }
 
-        .auth-icon-button:hover {
+        .tab-indicator {
+            position: absolute;
+            bottom: -1px;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: calc(50% - 10px);
+            left: 5px;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+        }
+
+        .admin-tab.active ~ .tab-indicator {
+            transform: translateX(calc(100% - 10px));
+        }
+
+        .tab-button:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 美化内容区域 */
+        .tab-content {
+            position: relative;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-panel {
+            width: 100%;
+            max-width: 320px;
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeSlideIn 0.4s forwards;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化表单元素 */
+        .oauth-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            padding: 0.5rem 0;
+        }
+
+        .oauth-login-button {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--container-bg);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .oauth-login-button:hover {
             background-color: var(--oauth-hover);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-md);
         }
 
-        .auth-icon-button img {
-            width: 24px;
-            height: 24px;
+        .oauth-login-button:active {
+            transform: translateY(-1px);
         }
 
-        /* Improved spacing */
-        .auth-divider {
-            margin: 2rem 0 1.5rem;
+        /* 优化错误提示 */
+        .error-message {
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0 0 1rem;
+            border-radius: 8px;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-message.visible {
+            height: auto;
+            padding: 0.75rem;
+            opacity: 1;
+        }
+
+        .error-icon {
+            flex-shrink: 0;
+            color: var(--error-color);
+        }
+
+        /* 改进按钮样式 */
+        .access-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .access-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .access-button:active {
+            transform: translateY(-1px);
+        }
+
+        .access-button:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s ease;
+        }
+
+        .access-button:hover:after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* 确保输入框样式一致 */
+        .access-input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .access-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+            transform: translateY(-2px);
+        }
+
+        /* 移动端适配优化 */
+        @media (max-width: 480px) {
+            .tab-navigation {
+                max-width: 100%;
+            }
+
+            .tab-content {
+                min-height: 280px;
+            }
+
+            .tab-panel {
+                max-width: 100%;
+            }
+
+            .oauth-login-button,
+            .access-button,
+            .access-input {
+                padding-top: 0.875rem;
+                padding-bottom: 0.875rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="qbin-container">
     <div class="qbin-header">
-        <img src="https://ik.imagekit.io/naihe/logo/qbin.svg" alt="QBin Logo" width="25%">
-        <p class="qbin-subtitle">Secure cloud QBin access</p>
+        <img src="https://ik.imagekit.io/naihe/logo/qbin.svg" alt="QBin Logo">
+        <p class="qbin-subtitle">Open-source secure sharing & editing platform</p>
     </div>
-    <form id="accessForm" class="access-form">
-        <div class="input-wrapper">
-            <svg class="icon input-icon" viewBox="0 0 24 24">
+
+    <!-- 标签切换导航 -->
+    <div class="tab-navigation">
+        <button id="userTabBtn" class="tab-button user-tab active">
+            <svg class="icon tab-icon" viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span>Guest</span>
+        </button>
+        <button id="adminTabBtn" class="tab-button admin-tab">
+            <svg class="icon tab-icon" viewBox="0 0 24 24">
                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.96-7 10.27-3.87-1.31-7-5.6-7-10.27V6.3l7-3.12z"/>
                 <path d="M12 6a2 2 0 012 2v3a2 2 0 01-4 0V8a2 2 0 012-2z"/>
             </svg>
-            <input
-                    type="password"
-                    id="accessKey"
-                    class="access-input"
-                    required
-                    placeholder="Enter access key"
-                    autocomplete="current-password"
-            >
-        </div>
-        <p id="errorMessage" class="error-message">Invalid access key. Please try again.</p>
-        <button type="submit" class="access-button">
-            <svg class="icon" id="submitIcon" viewBox="0 0 24 24">
-                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-            </svg>
-            <span>Access QBin</span>
+            <span>Admin</span>
         </button>
-    </form>
-    <div class="auth-divider">
-        <span>OR</span>
+        <div class="tab-indicator"></div>
     </div>
-    <div class="auth-buttons">
-        <button onclick="handleOAuthLogin('google')" class="auth-icon-button" title="Login with Google">
-            <img src="https://ik.imagekit.io/naihe/logo/google.svg" alt="Google">
-        </button>
-        <button onclick="handleOAuthLogin('github')" class="auth-icon-button" title="Login with GitHub">
-            <img src="https://ik.imagekit.io/naihe/logo/github.svg" alt="GitHub">
-        </button>
-        <button onclick="handleOAuthLogin('linuxdo')" class="auth-icon-button" title="Login with Linuxdo">
-            <img src="https://ik.imagekit.io/naihe/logo/linux.do.svg" alt="Linux.do">
-        </button>
+
+    <!-- 内容面板区域 -->
+    <div class="tab-content">
+        <!-- OAuth用户登录面板 -->
+        <div id="userPanel" class="tab-panel active">
+            <p class="login-subtitle">Connect to QBin via</p>
+            <div class="oauth-container">
+                <button onclick="handleOAuthLogin('google')" class="oauth-login-button" title="Login with Google">
+                    <img src="https://ik.imagekit.io/naihe/logo/google.svg" alt="Google">
+                    <span>Google</span>
+                </button>
+                <button onclick="handleOAuthLogin('github')" class="oauth-login-button" title="Login with GitHub">
+                    <img src="https://ik.imagekit.io/naihe/logo/github.svg" alt="GitHub">
+                    <span>GitHub</span>
+                </button>
+                <button onclick="handleOAuthLogin('linuxdo')" class="oauth-login-button" title="Login with LinuxDO">
+                    <img src="https://ik.imagekit.io/naihe/logo/linuxdo.svg" alt="LinuxDO">
+                    <span>LinuxDO</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="adminPanel" class="tab-panel">
+            <p class="login-subtitle">QBin Admin Access</p>
+            <form id="accessForm" class="access-form">
+                <div class="input-wrapper">
+                    <svg class="icon input-icon" viewBox="0 0 24 24">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.96-7 10.27-3.87-1.31-7-5.6-7-10.27V6.3l7-3.12z"/>
+                        <path d="M12 6a2 2 0 012 2v3a2 2 0 01-4 0V8a2 2 0 012-2z"/>
+                    </svg>
+                    <input
+                            type="password"
+                            id="password"
+                            class="access-input"
+                            required
+                            placeholder="Enter password"
+                            autocomplete="current-password"
+                    >
+                </div>
+                <div id="errorMessage" class="error-message">
+                    <svg class="icon error-icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span id="errorText">Invalid password. Please try again.</span>
+                </div>
+                <button type="submit" class="access-button">
+                    <svg class="icon" id="submitIcon" viewBox="0 0 24 24">
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                    </svg>
+                    <span>Enter QBin</span>
+                </button>
+            </form>
+        </div>
     </div>
 </div>
-<div class="copyright">© 2025 QBin.me</div>
+<div class="copyright">© 2025 QBin - Open Source sharing & editing</div>
 <script>
-    // 获取必要的DOM元素
     const accessForm = document.getElementById('accessForm');
     const errorMessage = document.getElementById('errorMessage');
     const submitButton = accessForm.querySelector('.access-button');
     const submitButtonText = submitButton.querySelector('span');
     const submitButtonIcon = submitButton.querySelector('svg');
+    const userTabBtn = document.getElementById('userTabBtn');
+    const adminTabBtn = document.getElementById('adminTabBtn');
+    const userPanel = document.getElementById('userPanel');
+    const adminPanel = document.getElementById('adminPanel');
+    const tabIndicator = document.querySelector('.tab-indicator');
 
-    // 按钮状态配置
     const BUTTON_STATES = {
         default: {
-            text: 'Access QBin',
+            text: 'Access Editor',
             icon: `<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>`
         },
         loading: {
             text: 'Processing...',
-            icon: `<path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>`
+            icon: `<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="30 120">
+                   <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
+                   </circle>`
         },
         success: {
             text: 'Success!',
@@ -542,111 +771,138 @@
         }
     };
 
-    // 设置按钮状态的函数
-    const setButtonState = (state) => {
-        const config = BUTTON_STATES[state];
-        submitButtonText.textContent = config.text;
-        submitButtonIcon.innerHTML = config.icon;
+    const UI = {
+        setButtonState(state) {
+            const config = BUTTON_STATES[state];
+            submitButtonText.textContent = config.text;
+            submitButtonIcon.innerHTML = config.icon;
+            submitButton.disabled = state === 'loading';
+        },
 
-        if (state === 'loading') {
-            submitButtonIcon.style.animation = 'spin 1s linear infinite';
-        } else {
-            submitButtonIcon.style.animation = 'none';
+        showError(message) {
+            document.getElementById('errorText').textContent = message;
+            errorMessage.classList.add('visible');
+        },
+
+        hideError() {
+            errorMessage.classList.remove('visible');
+        },
+
+        switchTab(isAdmin) {
+            if (isAdmin) {
+                adminTabBtn.classList.add('active');
+                userTabBtn.classList.remove('active');
+                adminPanel.classList.add('active');
+                userPanel.classList.remove('active');
+                this.updateTabIndicator(adminTabBtn);
+            } else {
+                userTabBtn.classList.add('active');
+                adminTabBtn.classList.remove('active');
+                userPanel.classList.add('active');
+                adminPanel.classList.remove('active');
+                this.updateTabIndicator(userTabBtn);
+            }
+        },
+
+        updateTabIndicator(activeTab) {
+            const tabWidth = activeTab.offsetWidth;
+            const tabLeft = activeTab.offsetLeft;
+
+            // 设置指示器宽度和位置为活动标签的宽度和位置
+            tabIndicator.style.width = `${tabWidth - 20}px`;
+            tabIndicator.style.left = `${tabLeft + 10}px`;
+            tabIndicator.style.transform = 'none';
         }
     };
 
-    // 显示错误信息的函数
-    const displayError = (message) => {
-        errorMessage.innerHTML = `
-            <svg class="icon" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-            ${message}
-        `;
-        errorMessage.style.display = 'block';
-    };
-
-    // 表单提交处理
     accessForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const accessKey = document.getElementById('accessKey').value;
-        errorMessage.style.display = 'none';
-        if (accessKey.trim() === '') {
-            displayError('Access key cannot be empty');
+        const password = document.getElementById('password').value;
+
+        UI.hideError();
+
+        if (!password?.trim()) {
+            UI.showError('Password cannot be empty');
             return;
         }
 
-        submitButton.disabled = true;
-        setButtonState('loading');
+        UI.setButtonState('loading');
+
         try {
             const response = await fetch(`/api/login/admin`, {
                 method: 'GET',
                 headers: {
-                    "x-apikey": accessKey,
+                    "x-password": password,
                     "Content-Type": "application/json",
                 },
             });
 
-            // 更新错误状态处理
             if (!response.ok) {
-                switch (response.status) {
-                    case 403:
-                        throw new Error('Invalid access key');
-                    case 404:
-                        throw new Error('Resource not found');
-                    case 429:
-                        throw new Error('Too many attempts, please try again later');
-                    case 500:
-                    case 502:
-                    case 503:
-                    case 504:
-                        throw new Error('Server error, please try again later');
-                    default:
-                        throw new Error('An unexpected error occurred');
-                }
+                const errorMessages = {
+                    401: 'Unauthorized access, please login again',
+                    403: 'Invalid password',
+                    404: 'Resource not found',
+                    429: 'Too many attempts, please try again later',
+                    500: 'Server error, please try again later',
+                    502: 'Server error, please try again later',
+                    503: 'Server error, please try again later',
+                    504: 'Server error, please try again later'
+                };
+
+                throw new Error(errorMessages[response.status] || 'An unexpected error occurred');
             }
 
-            if(response.headers.get("content-type").includes("text/html")){
-                throw new Error("Cookie 已失效，请重新登录");
+            if (response.headers.get("content-type")?.includes("text/html")) {
+                throw new Error("Session expired, please login again");
             }
 
-            const data = await response.json();
+            UI.setButtonState('success');
 
-            setButtonState('success');
-            // 登录成功，重定向到首页
-            setTimeout(() => {
-                window.location.assign('/');
-            }, 300);
+            setTimeout(() => window.location.assign('/'), 300);
+
         } catch (error) {
-            displayError(error.message);
-            submitButton.disabled = false;
-            setButtonState('default');
+            UI.showError(error.message);
+            UI.setButtonState('default');
         }
     });
 
-    // OAuth 登录处理 - 更新为支持多种登录方式
-    async function handleOAuthLogin(provider) {
+    function handleOAuthLogin(provider) {
+        const button = document.querySelector(`button[onclick="handleOAuthLogin('${provider}')"]`);
+        const originalHTML = button.innerHTML;
         try {
-            // 根据提供商重定向到相应的登录页面
-            window.location.assign(`/api/login/${provider}`);
+            button.innerHTML = `<img src="https://ik.imagekit.io/naihe/logo/${provider}.svg" alt="${provider}" style="width:20px;height:20px;"> Connecting...`;
+            button.disabled = true;
+            setTimeout(() => window.location.assign(`/api/login/${provider}`), 200);
         } catch (error) {
             console.error(`${provider} login error:`, error);
-            errorMessage.textContent = `Failed to initialize ${provider} login. Please try again.`;
-            errorMessage.style.display = 'block';
+            UI.showError(`Failed to initialize ${provider} login`);
+            button.innerHTML = originalHTML;
+            button.disabled = false;
         }
     }
 
-    // 页面加载时检查 URL 中的错误信息
-    window.addEventListener('load', () => {
+    function initialize() {
         const urlParams = new URLSearchParams(window.location.search);
         const error = urlParams.get('error');
         const errorDesc = urlParams.get('error_description');
 
         if (error) {
-            errorMessage.textContent = errorDesc || 'Authentication failed. Please try again.';
-            errorMessage.style.display = 'block';
+            UI.showError(errorDesc || 'Authentication failed');
+            UI.switchTab(error.includes('admin'));
+        } else {
+            UI.updateTabIndicator(userTabBtn);
         }
-    });
+
+        userTabBtn.addEventListener('click', () => UI.switchTab(false));
+        adminTabBtn.addEventListener('click', () => UI.switchTab(true));
+
+        window.addEventListener('resize', () => {
+            const activeTab = document.querySelector('.tab-button.active');
+            UI.updateTabIndicator(activeTab);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initialize);
 </script>
 </body>
 </html>
