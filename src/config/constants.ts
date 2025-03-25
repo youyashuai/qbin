@@ -25,6 +25,7 @@ const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin.me";
 export const EMAIL = parseInt(get_env("ADMIN_EMAIL")) || "ww1998mail@gmail.com";
 export const LEVEL = parseInt(get_env("LINUXDO_USER_LEVEL")) || 0;
 export const ADMIN = {[PASSWORD]: LEVEL,};
+export const ISDEMO = get_env("ISDEMO") || false;
 // 匹配可用字符
 export const VALID_CHARS_REGEX = /^[a-zA-Z0-9-\.\_]+$/;
 // MIME 类型校验正则
