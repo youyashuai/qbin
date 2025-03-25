@@ -1,9 +1,9 @@
 <div align="center"><a name="readme-top"></a>
 
 <img src=https://s3.tebi.io/lite/favicon.svg width=20% alt="QBin LOGO" title="QBin LOGO" />
-<h1>QBin - 快捷数据存储</h1>
+<h1>QBin - 快捷存储</h1>
 
-简洁高效的数据存储服务，以编辑器为核心，轻松存储文字、图片、视频等任意数据。
+✨ 轻盈优雅的全能数据存储服务，像记事本般简单，比云盘更便捷，随存随取。
 
 **简体中文** · [English](README_EN.md) · [官网](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md)
 
@@ -13,7 +13,8 @@
 
 ## 📝 项目简介
 
-QBin 是一个轻量级数据存储服务，使用 Deno + PostgreSQL 构建，支持多级缓存。无需购买服务器即可拥有个人数据仓库，随开随用，像纸一样方便记录。
+✨ 轻盈优雅的全能数据存储服务，以编辑器为核心，一键存储文字、代码、图片、视频等任何数据。 <br/>
+分布式架构+多级缓存让存取速度飞快，像记事本般简单，比云盘更便捷，随手记录，即存即用，开启您的云上数据自由时代！
 
 ## ✨ 核心特性
 
