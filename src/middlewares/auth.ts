@@ -176,17 +176,17 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
 }
 
 export const handleAdminLogin = async (ctx: Context) => {
-  const apikey = ctx.request.headers.get("x-apikey");
-  if (apikey && !(ADMIN[apikey] >= LEVEL)){
+  const password = ctx.request.headers.get("x-password");
+  if (password && !(ADMIN[password] >= LEVEL)){
     ctx.response.status = 403;
-    ctx.response.body = { msg: "apikey error" };
+    ctx.response.body = { msg: "password error" };
     return;
   }
   const jwtToken = await generateJwtToken({
     id: 0,
     email: EMAIL,
     name: EMAIL,
-    level: ADMIN[apikey],
+    level: ADMIN[password],
   });
   await ctx.cookies.set("token", jwtToken, {
     maxAge: TOKEN_EXPIRE * 1000,
