@@ -2,7 +2,7 @@ import {Context} from "https://deno.land/x/oak/mod.ts";
 import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client@^2.0.0";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
-import {PasteError} from "../utils/response.ts";
+import {PasteError, Response} from "../utils/response.ts";
 import {ADMIN, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, LEVEL, EMAIL} from "../config/constants.ts";
 import {getLoginPageHtml} from "../utils/render.ts";
 
@@ -177,10 +177,11 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
 
 export const handleAdminLogin = async (ctx: Context) => {
   const password = ctx.request.headers.get("x-password");
-  if (password && !(ADMIN[password] >= LEVEL)){
-    ctx.response.status = 403;
-    ctx.response.body = { msg: "password error" };
-    return;
+  if (!password) {
+    return new Response(ctx, 403, "Unauthorized");
+  }
+  if (!(password in ADMIN) || ADMIN[password] < LEVEL) {
+    return new Response(ctx, 403, "Unauthorized");
   }
   const jwtToken = await generateJwtToken({
     id: 0,
