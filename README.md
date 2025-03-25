@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 
-<img src=https://s3.tebi.io/lite/favicon.svg width=25% alt="QBin LOGO" title="QBin LOGO" />
+<img src=https://s3.tebi.io/lite/favicon.svg width=20% alt="QBin LOGO" title="QBin LOGO" />
 <h1>QBin - 快捷数据存储</h1>
 
 简洁高效的数据存储服务，以编辑器为核心，轻松存储文字、图片、视频等任意数据。
