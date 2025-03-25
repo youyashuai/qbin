@@ -16,7 +16,7 @@ export const CACHE_CHANNEL = "qbin-cache-sync";
 
 export const jwtSecret = get_env("JWT_SECRET") || "input-your-jwtSecret";  // 从环境变量获取jwt密钥
 export const exactPaths = ["/favicon.ico", "/document", "/health"]
-export const prefixPaths = ['/r/', '/static/', '/api/login/']
+export const prefixPaths = ['/r/', '/p/', '/static/', '/api/login/']
 export const basePath = Deno.cwd();
 
 // 分布式缓存唯一标识
