@@ -135,9 +135,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
         sameSite: "lax",
         path: '/'
       });
-      ctx.response.status = 401;
-      ctx.response.body = { msg: "Cookie Expired" };
-      return;
+      return new Response(ctx, 401, "cookie expired");
     }
   }
 
@@ -154,8 +152,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
         sameSite: "lax",
         path: '/'
       });
-      ctx.response.status = 401;
-      ctx.response.body = { msg: "auth error" };
+      return new Response(ctx, 401, "auth error");
     }
     return;
   }
@@ -195,8 +192,7 @@ export const handleAdminLogin = async (ctx: Context) => {
     sameSite: "lax",
     path: "/",
   });
-  ctx.response.status = 200;
-  ctx.response.body = { msg: "ok" };
+  return new Response(ctx, 200, "ok");
   // ctx.response.body = { token: jwtToken, expire: TOKEN_EXPIRE * 1000};
 }
 
@@ -205,9 +201,7 @@ export const handleLogin = async (ctx: Context) => {
   try {
     const provider = ctx.params.provider;
     if (!oauthProviders[provider]) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "无效的 OAuth 提供商" };
-      return;
+      return new Response(ctx, 400, "无效的 OAuth 提供商");
     }
 
     const oauth2Client = oauthProviders[provider].client;
@@ -224,8 +218,7 @@ export const handleLogin = async (ctx: Context) => {
     ctx.response.redirect(uri);
   } catch (error) {
     console.error("OAuth 登录错误:", error);
-    ctx.response.status = 500;
-    ctx.response.body = { error: "认证错误" };
+    return new Response(ctx, 500, "认证错误");
   }
 }
 
@@ -284,11 +277,9 @@ export const handleOAuthCallback = async (ctx: Context) => {
     console.error("OAuth 回调错误:", error);
 
     if (error instanceof PasteError) {
-      ctx.response.status = error.status;
-      ctx.response.body = { error: error.message };
+      return new Response(ctx, error.status, error.message);
     } else {
-      ctx.response.status = 500;
-      ctx.response.body = { error: "认证回调错误" };
+      return new Response(ctx, 500, "认证回调错误");
     }
   }
 };
