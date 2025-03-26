@@ -230,7 +230,6 @@ class Viewer {
         this.hideLoading();
     }
 
-    // Viewer 类中用于渲染图片的方法
     async renderImageContent(response, contentType, contentLengthHeader) {
         const totalLength = contentLengthHeader ? parseInt(contentLengthHeader, 10) : 0;
         if (response.body && totalLength) {
@@ -476,9 +475,35 @@ class Viewer {
                 content = viewer.value;
                 await navigator.clipboard.writeText(content);
             } else if (imageViewer) {
-                // 图片内容 - 复制图片链接
+                if (navigator.clipboard && navigator.clipboard.write) {
+                    // 创建Canvas并绘制图片
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = imageViewer.naturalWidth;
+                    canvas.height = imageViewer.naturalHeight;
+                    ctx.drawImage(imageViewer, 0, 0);
+                    
+                    // 转换为Blob并复制
+                    try {
+                        const blob = await new Promise(resolve => {
+                            canvas.toBlob(resolve, 'image/png');
+                        });
+                        
+                        await navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]);
+                        this.showToast('图片已复制到剪贴板');
+                        return;
+                    } catch (err) {
+                        console.warn('复制图片数据失败，回退到复制URL:', err);
+                    }
+                }
+                
+                // 降级处理：复制图片URL
                 content = imageViewer.src;
                 await navigator.clipboard.writeText(content);
+                this.showToast('图片链接已复制到剪贴板 (您的浏览器不支持直接复制图片)');
+                return;
             } else {
                 // 其他文件 - 复制下载链接
                 content = window.location.href.replace('/p/', '/r/');
