@@ -67,7 +67,7 @@ export class MetadataDB {
         return result;
       } catch (error) {
         await transaction.rollback();
-        throw error;
+        console.error(error);
       }
     });
   }
