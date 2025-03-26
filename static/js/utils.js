@@ -156,7 +156,8 @@ class StorageManager {
             // 首先检查键是否存在
             const exists = await this.getCache(key);
             if (!exists && !options.silent) {
-                throw new Error(`Cache key '${key}' not found`);
+                console.log(`Cache key '${key}' not found`)
+                return ;
             }
 
             return new Promise((resolve, reject) => {

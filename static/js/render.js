@@ -77,7 +77,6 @@ class Viewer {
                 throw new Error('内容加载失败');
             }
             const contentType = headResponse.headers.get('Content-Type');
-            console.log(headResponse.headers)
 
             const contentLength = headResponse.headers.get('Content-Length');
             this.clearContent();
@@ -535,10 +534,7 @@ class Viewer {
 
     // 清除本地缓存
     async clearLocalCache() {
-        try {
-            await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
-        } catch (error) {
-        }
+        await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
     }
 
     parsePath(pathname) {
