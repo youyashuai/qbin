@@ -175,7 +175,7 @@ class Qbin {
             // 如果当前地址为 "/"、"/p" 或 "/p/"，则自动生成 key 并更新地址
             if (this.currentPath.key.length < 2) {
                 const newKey = API.generateKey(6);
-                this.updateURL(newKey, this.currentPath.pwd, "");
+                this.updateURL(newKey, this.currentPath.pwd);
             }
             this.initializeUI();
             this.setupAutoSave();
@@ -869,9 +869,8 @@ class Qbin {
         const {render} = this.parsePath(window.location.pathname);
         const renderPath = ["e", "p", "c", "m"].includes(render) ? `/${render}` : '/e';
 
-        const newPath = key || pwd
-            ? `${renderPath}/${key}/${pwd}`
-            : renderPath || '/e';
+        const pathSegments = [renderPath, key, pwd].filter(Boolean);
+        const newPath = pathSegments.join('/');
 
         this.currentPath = {render, key, pwd};
 

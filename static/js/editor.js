@@ -142,7 +142,14 @@ class Qbin {
         this.lastUploadedHash = '';
         this.autoUploadTimer = null;
         this.emoji = {online: "☁️", inline: "☁", no: '⊘'}
-        this.status = this.emoji.online; // ☁️ 🌐 | 🏠✈️⊘ ✈ | ☁️ ☁
+        this.status = this.emoji.online; // ☁️ 🌐 | 🏠✈️🚫 ✈ | ☁️ ☁ ❗❌
+        // 在线 远程、本地都有缓存 🟢 ✅
+        // 在线2 远程有缓存 🔵 ☁️
+        // 离线 本地有缓存 🟠 或 💾
+        // 错误 网络出错 🔴 或 ❌
+        // 同步中: 🔄 或 ⏳
+        // 需要授权: 🔒 或 🔑
+        // 禁用: ⛔ 或 🚫
         this.editor = document.getElementById('editor');
         // 检查缓存API是否可用
         this.cacheSupported = 'caches' in window;
@@ -151,8 +158,7 @@ class Qbin {
         // 如果当前地址为 "/"、"/p" 或 "/p/"，则自动生成 key 并更新地址
         if (this.currentPath.key.length < 2) {
             const newKey = API.generateKey(6);
-            // this.updateURL(newKey, this.currentPath.pwd, "replaceState")
-            this.updateURL(newKey, this.currentPath.pwd, "")
+            this.updateURL(newKey, this.currentPath.pwd);
         }
         this.initializeUI();
         this.setupAutoSave();
@@ -805,9 +811,8 @@ class Qbin {
         const {render} = this.parsePath(window.location.pathname);
         const renderPath = ["e", "p", "c", "m"].includes(render) ? `/${render}` : '/e';
 
-        const newPath = key || pwd
-            ? `${renderPath}/${key}/${pwd}`
-            : renderPath || '/e';
+        const pathSegments = [renderPath, key, pwd].filter(Boolean);
+        const newPath = pathSegments.join('/');
 
         this.currentPath = {render, key, pwd};
 
