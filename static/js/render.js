@@ -475,8 +475,7 @@ class Viewer {
                 await navigator.clipboard.writeText(content);
                 this.showToast('内容已复制到剪贴板');
             } else if (imageViewer) {
-                // 图片复制 - 优先使用标准 API，然后是共享 API，最后降级到其他方法
-                // 1. 首先尝试 Clipboard API 直接复制图片
+                // 图片复制 - 优先使用标准 API，然后是共享 API，最后降级到复制链接
                 if (navigator.clipboard && navigator.clipboard.write) {
                     try {
                         // 创建Canvas并绘制图片
@@ -497,11 +496,10 @@ class Viewer {
                         this.showToast('图片已复制到剪贴板');
                         return;
                     } catch (err) {
-                        console.warn('标准复制图片失败:', err);
+                        console.warn('复制图片失败:', err);
                     }
                 }
                 
-                // 2. 再尝试使用 Web Share API (移动设备友好)
                 if (navigator.share && navigator.canShare) {
                     try {
                         // 创建可分享的文件对象
@@ -529,29 +527,10 @@ class Viewer {
                         console.warn('分享API失败:', err);
                     }
                 }
-                
-                // 3. 使用临时下载方法 (移动设备通用方法)
-                try {
-                    // 创建临时链接触发下载
-                    const link = document.createElement('a');
-                    link.href = imageViewer.src;
-                    link.download = `image_${Date.now()}.png`;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                    }, 100);
-                    this.showToast('图片已准备下载');
-                    return;
-                } catch (err) {
-                    console.warn('下载图片失败:', err);
-                }
-                
-                // 4. 最后降级为复制图片URL
+
                 content = imageViewer.src;
                 await navigator.clipboard.writeText(content);
-                this.showToast('已复制图片链接 (您的设备不支持直接复制图片)');
+                this.showToast('已复制图片链接');
             } else {
                 // 其他文件 - 复制下载链接
                 content = window.location.href.replace('/p/', '/r/');
