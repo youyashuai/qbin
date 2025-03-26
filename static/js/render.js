@@ -53,8 +53,7 @@ class Viewer {
 
     async init() {
         try {
-            // 尝试注册 Service Worker
-            await this.registerServiceWorker();
+            // await this.registerServiceWorker();
 
             const {key, pwd} = this.currentPath;
             if (!key) {
@@ -556,7 +555,7 @@ class Viewer {
     }
 
     async loadQRLibrary2() {
-        // 不能本地赤经缓存
+        // 不能本地缓存
         if (this.qrLoaded) return;
 
         return new Promise((resolve, reject) => {
