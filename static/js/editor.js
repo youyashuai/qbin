@@ -191,7 +191,7 @@ class Qbin {
                     this.status = this.emoji.inline;
                     this.editor.value = cacheData.content;
                     const uploadArea = document.querySelector('.upload-area');
-                    uploadArea.classList.toggle('visible', false);
+                    if (uploadArea) uploadArea.classList.toggle('visible', false);
                     this.lastUploadedHash = cyrb53(cacheData.content);
                     return [true, cacheData.timestamp];
                 }
@@ -208,20 +208,24 @@ class Qbin {
         if (key.length > 1) {
             const [isCahce, last] = await this.loadFromLocalCache()  // 如果是新页面，尝试加载缓存
             this.updateURL(key, pwd, "replaceState");   // 更新路径
-            document.querySelector('.key-watermark').textContent = `${this.status} ${this.currentPath.key}`;
+            const keyWatermark = document.querySelector('.key-watermark');
+            if (keyWatermark) keyWatermark.textContent = `${this.status} ${this.currentPath.key}`;
             if (render === "e" && (getTimestamp() - last) > 5) {
                 await this.loadOnlineCache(key, pwd, isCahce);
-                document.querySelector('.key-watermark').textContent = `${this.status} ${this.currentPath.key}`;
+                if (keyWatermark) keyWatermark.textContent = `${this.status} ${this.currentPath.key}`;
             }
         } else {
             const cacheData = JSON.parse(sessionStorage.getItem('qbin/last') || '{"key": null}')
             if (!cacheData.key) return null;
             await this.loadFromLocalCache(cacheData.key);  // 如果是新页面，尝试加载缓存
             this.updateURL(cacheData.key, cacheData.pwd, "replaceState");   // 更新路径
-            document.getElementById('key-input').value = cacheData.key.trim() || '';
-            document.getElementById('password-input').value = cacheData.pwd.trim() || '';
-            document.querySelector('.key-watermark').textContent = `${this.status} ${this.currentPath.key}`;
-            // sessionStorage.removeItem('qbin/last');
+            const keyInput = document.getElementById('key-input');
+            const passwordInput = document.getElementById('password-input');
+            const keyWatermark = document.querySelector('.key-watermark');
+            
+            if (keyInput) keyInput.value = cacheData.key.trim() || '';
+            if (passwordInput) passwordInput.value = cacheData.pwd.trim() || '';
+            if (keyWatermark) keyWatermark.textContent = `${this.status} ${this.currentPath.key}`;
         }
     }
 
