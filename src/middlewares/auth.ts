@@ -160,7 +160,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   const currentPath = ctx.request.url.pathname;
   const method = ctx.request.method;
   const isExactPathAuth = method === "GET" && exactPaths.includes(currentPath);
-  const isPrefixPathAuth = method === "GET" && prefixPaths.some(prefix => currentPath.startsWith(prefix));
+  const isPrefixPathAuth = (method === "GET" || method === "HEAD") && prefixPaths.some(prefix => currentPath.startsWith(prefix));
   // 允许匿名访问的接口
   if (isPrefixPathAuth || isExactPathAuth){
     // 公开路径，无需认证
