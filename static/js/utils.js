@@ -163,7 +163,7 @@ class StorageManager {
                 const transaction = this._getTransaction('readwrite');
                 const store = transaction.objectStore(this.storeName);
 
-                const request = store.delete({key});
+                const request = store.delete(key);
 
                 request.onerror = () => {
                     reject(request.error);
