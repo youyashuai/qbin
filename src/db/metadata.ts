@@ -1,6 +1,7 @@
 import { PoolClient, Transaction } from "https://deno.land/x/postgres/mod.ts";
 import { getPool } from "./pool.ts";
 import { Metadata } from "../types.ts";
+import {ISDEMO} from "../config/constants.ts";
 
 export class MetadataDB {
   private pool: Pool;
@@ -8,10 +9,12 @@ export class MetadataDB {
 
   private constructor() {
     this.pool = getPool();
-    // 初始化表（若已存在不会重复创建）
-    this.initTable().catch((err) => {
-      console.error("Failed to init qbindb table:", err);
-    });
+    if(!ISDEMO){
+      // 初始化表（若已存在不会重复创建）
+      this.initTable().catch((err) => {
+        console.error("Failed to init qbindb table:", err);
+      });
+    }
   }
 
   // 单例模式获取实例

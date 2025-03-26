@@ -71,10 +71,10 @@ function cyrb53(buffer: ArrayBuffer, seed = 0): number {
  * 上传（POST/PUT）处理函数
  */
 async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: string, pdb: MetadataDB) {
-  // TODO 更新缓存？
   const request = ctx.request;
   const headers = request.headers;
 
+  // TODO 解决伪装header问题
   const clientIp = headers.get("cf-connecting-ip") || ctx.request.ip;
   const expire = getTimestamp() + ~~(headers.get("x-expire") || "315360000");
 
@@ -114,6 +114,7 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
     uname,
     hash
   };
+  
   // 5) 在 KV 中预占 key (防止重复)
   const kvRes = await kv.atomic()
     .check({ key: [PASTE_STORE, key], versionstamp: null })
@@ -127,36 +128,55 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
       pwd,
     }, { expireIn: null })
     .commit();
+    
   if (!kvRes.ok) {
     return new Response(ctx, 409, "Key already exists");
   }
+  
   // 6) 先更新内存 / Cache API
   memCache.set(key, metadata);
+  
   // 7) 后台异步写 Postgres
+  const cleanupKV = async (retries = 3, delay = 500) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await kv.delete([PASTE_STORE, key]);
+        console.log(`KV cleanup success for key: ${key}`);
+        return true;
+      } catch (err) {
+        console.error(`KV cleanup attempt ${i+1} failed:`, err);
+        if (i < retries - 1) await new Promise(r => setTimeout(r, delay));
+      }
+    }
+    console.error(`Failed to cleanup KV for key ${key} after ${retries} attempts`);
+    return false;
+  };
+
   queueMicrotask(async () => {
     try {
-      const fkey = await pdb.create(metadata); // 更新三级缓存
+      const fkey = await pdb.create(metadata);
       await updateCache(key, metadata);
       console.log("Background DB create success:", fkey);
     } catch (err) {
       console.error("Background DB create error:", err);
-      // 保证原子性
-      await kv.delete([PASTE_STORE, key]);  // 先执行异步的 KV 删除
-      memCache.delete(key);                 // 再执行同步的 Map 删除
+      // 保证原子性 - 使用带重试的清理函数
+      memCache.delete(key);                 // 先执行同步的 Map 删除（这个不会失败）
+      await cleanupKV();                    // 再执行异步的 KV 删除（带重试机制）
+      cacheBroadcast.postMessage({ type: "delete", key });  // 通知其他节点删除
     }
   });
+  
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = JSON.stringify({ status: "success", key });
 }
 
-async function handleContentUpdate(ctx, key: any, pwd: any, pdb: any) {
+async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: string, pdb: MetadataDB) {
   const request = ctx.request;
   const headers = request.headers;
   const clientIp = headers.get("cf-connecting-ip") || ctx.request.ip;
   const expire = getTimestamp() + ~~(headers.get("x-expire") || "315360000");
 
-  // TODO 对 post headers参数校验 expire, clength > 0 && str.length < 9
   // 1) 基础验证
   const contentLength = parseInt(headers.get("Content-Length") || "0", 10);
   if (contentLength > MAX_UPLOAD_FILE_SIZE) {
@@ -193,7 +213,11 @@ async function handleContentUpdate(ctx, key: any, pwd: any, pdb: any) {
     uname,
     hash
   };
-  // 5) 在 KV 中预占 key (防止重复)
+  
+  // 保存原始 KV 数据，以便出错时回滚
+  const originalKvData = await kv.get([PASTE_STORE, key]);
+  
+  // 5) 在 KV 中更新 key
   const kvRes = await kv.atomic()
     .set([PASTE_STORE, key], {
       email,
@@ -205,25 +229,69 @@ async function handleContentUpdate(ctx, key: any, pwd: any, pdb: any) {
       pwd,
     }, { expireIn: null })
     .commit();
+    
   if (!kvRes.ok) {
-    return new Response(ctx, 409, "Key already exists");
+    return new Response(ctx, 500, "Failed to update key in KV store");
   }
+  
+  // 缓存旧值用于恢复
+  const oldMetadata = memCache.get(key);
+  
   // 6) 先更新内存 / Cache API
   memCache.set(key, metadata);
+  
   // 7) 后台异步写 Postgres
+  const restoreKV = async (retries = 3, delay = 500) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        if (originalKvData.value) {
+          await kv.set([PASTE_STORE, key], originalKvData.value);
+          console.log(`KV restore success for key: ${key}`);
+          return true;
+        } else {
+          await kv.delete([PASTE_STORE, key]);
+          console.log(`KV cleanup success for key: ${key} (no original data)`);
+          return true;
+        }
+      } catch (err) {
+        console.error(`KV restore attempt ${i+1} failed:`, err);
+        if (i < retries - 1) await new Promise(r => setTimeout(r, delay));
+      }
+    }
+    console.error(`Failed to restore KV for key ${key} after ${retries} attempts`);
+    return false;
+  };
+
   queueMicrotask(async () => {
     try {
-      const result = await pdb.update(key, metadata); // 更新三级缓存
-      if(!result){
+      const result = await pdb.update(key, metadata);
+      if (!result) {
         throw new PasteError(400, "PG更新数据失败!");
       }
       await updateCache(key, metadata);
       cacheBroadcast.postMessage({ type: "update", key, metadata });  // 通知更新状态
     } catch (err) {
-      console.error("Background DB create error:", err);
-      memCache.delete(key);
+      console.error("Background DB update error:", err);
+      
+      // 恢复内存缓存
+      if (oldMetadata) {
+        memCache.set(key, oldMetadata);
+      } else {
+        memCache.delete(key);
+      }
+      
+      // 恢复 KV 缓存（带重试逻辑）
+      await restoreKV();
+      
+      // 通知其他节点
+      cacheBroadcast.postMessage({ 
+        type: oldMetadata ? "update" : "delete", 
+        key, 
+        metadata: oldMetadata 
+      });
     }
   });
+  
   ctx.response.status = 200;
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = JSON.stringify({ status: "success", key });
