@@ -14,7 +14,7 @@ async function main() {
     Deno.addSignalListener("SIGINT", async () => {
       // 处理 SIGINT 信号
       console.log("Received SIGINT signal");
-      await closePool();
+      closePool();
       // 退出程序或执行清理操作
       Deno.exit();
     });
@@ -22,7 +22,7 @@ async function main() {
     Deno.addSignalListener("SIGTERM", async () => {
       // 处理 SIGTERM 信号
       console.log("Received SIGTERM signal");
-      await closePool();
+      closePool();
       // 退出程序或执行清理操作
       Deno.exit();
     });
