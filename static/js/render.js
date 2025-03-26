@@ -471,20 +471,22 @@ class Viewer {
             const imageViewer = document.getElementById('imageViewer');
 
             if (viewer) {
-                // 文本内容
                 content = viewer.value;
                 await navigator.clipboard.writeText(content);
+                this.showToast('内容已复制到剪贴板');
             } else if (imageViewer) {
+                // 图片复制 - 优先使用标准 API，然后是共享 API，最后降级到其他方法
+                // 1. 首先尝试 Clipboard API 直接复制图片
                 if (navigator.clipboard && navigator.clipboard.write) {
-                    // 创建Canvas并绘制图片
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = imageViewer.naturalWidth;
-                    canvas.height = imageViewer.naturalHeight;
-                    ctx.drawImage(imageViewer, 0, 0);
-                    
-                    // 转换为Blob并复制
                     try {
+                        // 创建Canvas并绘制图片
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = imageViewer.naturalWidth;
+                        canvas.height = imageViewer.naturalHeight;
+                        ctx.drawImage(imageViewer, 0, 0);
+                        
+                        // 转换为Blob并复制
                         const blob = await new Promise(resolve => {
                             canvas.toBlob(resolve, 'image/png');
                         });
@@ -495,22 +497,67 @@ class Viewer {
                         this.showToast('图片已复制到剪贴板');
                         return;
                     } catch (err) {
-                        console.warn('复制图片数据失败，回退到复制URL:', err);
+                        console.warn('标准复制图片失败:', err);
                     }
                 }
                 
-                // 降级处理：复制图片URL
+                // 2. 再尝试使用 Web Share API (移动设备友好)
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        // 创建可分享的文件对象
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = imageViewer.naturalWidth;
+                        canvas.height = imageViewer.naturalHeight;
+                        ctx.drawImage(imageViewer, 0, 0);
+                        
+                        const blob = await new Promise(resolve => {
+                            canvas.toBlob(resolve, 'image/png');
+                        });
+                        
+                        const file = new File([blob], 'image.png', { type: 'image/png' });
+                        const shareData = {
+                            files: [file]
+                        };
+                        
+                        if (navigator.canShare(shareData)) {
+                            await navigator.share(shareData);
+                            this.showToast('已打开分享面板');
+                            return;
+                        }
+                    } catch (err) {
+                        console.warn('分享API失败:', err);
+                    }
+                }
+                
+                // 3. 使用临时下载方法 (移动设备通用方法)
+                try {
+                    // 创建临时链接触发下载
+                    const link = document.createElement('a');
+                    link.href = imageViewer.src;
+                    link.download = `image_${Date.now()}.png`;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                    }, 100);
+                    this.showToast('图片已准备下载');
+                    return;
+                } catch (err) {
+                    console.warn('下载图片失败:', err);
+                }
+                
+                // 4. 最后降级为复制图片URL
                 content = imageViewer.src;
                 await navigator.clipboard.writeText(content);
-                this.showToast('图片链接已复制到剪贴板 (您的浏览器不支持直接复制图片)');
-                return;
+                this.showToast('已复制图片链接 (您的设备不支持直接复制图片)');
             } else {
                 // 其他文件 - 复制下载链接
                 content = window.location.href.replace('/p/', '/r/');
                 await navigator.clipboard.writeText(content);
+                this.showToast('内容已复制到剪贴板');
             }
-
-            this.showToast('内容已复制到剪贴板');
         } catch (err) {
             console.error('复制内容失败:', err);
             this.showToast('复制失败，请手动复制');
