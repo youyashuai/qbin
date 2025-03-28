@@ -92,6 +92,7 @@ docker run -it -p 8000:8000 \
 如需使用 Deno Deploy 或本地开发，请参考 [自托管教程](Docs/self-host.md) 获取详细步骤。
 
 ## 🚀 TODO 计划
+- [ ] 增加 API 第三方调用接口
 - [ ] 增加 MarkDown 编辑器
 - [ ] 增加个人中心面板
 - [ ] 实现端到端加密
