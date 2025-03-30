@@ -39,7 +39,7 @@ export function checkPassword(dbpwd:string, pwd?: string) {
  * 生成随机 key
  */
 export function generateKey(): string {
-  return `${crypto.randomUUID().split("-").pop()}-${Date.now()}`;
+  return `${crypto.randomUUID().split("-").pop()}${Date.now()}`;
 }
 
 export async function isCached(key: string, pwd?: string | undefined, pdb: MetadataDB): Promise<Metadata | null> {

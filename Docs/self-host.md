@@ -29,7 +29,7 @@ Coming soon.
 |      环境变量       | 类型 |         描述          |                                   示例                                    |
 |:---------------:|:--:|:-------------------:|:-----------------------------------------------------------------------:|
 | `ADMIN_PASSWORD` | 必选 |       管理员访问密码       |                                `qbin.me`                                |
-| `ADMIN_EMAIL` | 必选 |       管理员邮箱地址       |                         `ww1998mail@gmail.com`                          |
+| `ADMIN_EMAIL` | 必选 |       管理员邮箱地址       |                         `admin@qbin.me`                          |
 | `DATABASE_URL`  | 必选 |  Postgres 数据库连接地址   | `postgresql://user:password@localhost:5432:/local:main?sslmode=require` |
 | `JWT_SECRET`   | 必选 |       JWT签名密钥       |                    `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                     |
 | `PORT` | 可选 |       服务访问端口        |                                 `8000`                                  |

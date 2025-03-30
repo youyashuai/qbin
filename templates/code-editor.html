@@ -8,6 +8,7 @@
     <link href=/static/css/code-editor.css rel=stylesheet>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js defer></script>
     <script src=/static/js/utils.js defer></script>
+    <script src=/static/js/base-editor.js defer></script>
     <script src=/static/js/code-editor.js defer></script>
     <link href=/favicon.ico rel=icon type=image/svg+xml>
 </head>
@@ -26,7 +27,7 @@
                         </svg>
                     </a>
                     <!-- 添加编辑器跳转链接 -->
-                    <a title="通用编辑器" href="javascript:void(0)" class="social-link editor-link code-editor-link" id="edit-button">
+                    <a title="通用编辑器" href="javascript:void(0)" class="social-link editor-link code-editor-link" id="edit1-button">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor">
                           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="7" y1="8" x2="17" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -36,7 +37,7 @@
                         </svg>
                     </a>
                     <!-- 添加Markdown编辑器跳转链接 -->
-                    <a title="Markdown编辑器" href="javascript:void(0)" class="social-link editor-link markdown-editor-link" id="md-button">
+                    <a title="Markdown编辑器" href="javascript:void(0)" class="social-link editor-link markdown-editor-link" id="edit2-button">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor">
                           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M7 16V8h2l2 5 2-5h2v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -64,7 +65,7 @@
                     <span class="section-icon">🔑</span>访问凭据
                 </div>
                 <div class="input-wrapper">
-                    <label for="key-input" class="form-label required-label">访问 KEY</label>
+                    <label for="key-input" class="form-label required-label">访问路径</label>
                     <input type="text" id="key-input" placeholder="设置您的访问密钥" minlength="2" maxlength="32"
                            required autocomplete="off"/>
                 </div>

@@ -1,10 +1,9 @@
-class Viewer {
+class QBinViewer {
     constructor() {
-        this.currentPath = this.parsePath(window.location.pathname);
+        this.currentPath = parsePath(window.location.pathname);
         this.lastClickTime = 0;
         this.clickTimeout = null;
         this.CACHE_KEY = 'qbin/';
-        this.cacheName = 'qbin-cache-v1';
         this.buttonBar = document.getElementById('buttonBar');
         this.contentArea = document.getElementById('contentArea');
         this.isProcessing = false;
@@ -76,7 +75,6 @@ class Viewer {
                 throw new Error('内容加载失败');
             }
             const contentType = headResponse.headers.get('Content-Type');
-
             const contentLength = headResponse.headers.get('Content-Length');
             this.clearContent();
             this.setupButtons(contentType);
@@ -93,7 +91,7 @@ class Viewer {
 
             // 如果文件是文本或图片，继续发起 GET 请求下载文件内容
             this.showLoading();
-            const response = await this.fetchWithCache(url);
+            const response = await API.fetchWithCache(url);
             if (contentType?.startsWith('text/')) {
                 await this.renderTextContent(response, contentLength);
             } else if (contentType?.startsWith('image/')) {
@@ -120,45 +118,6 @@ class Viewer {
             // const debouncedFork = this.debounce(() => this.handleFork());
             // this.buttonBar.appendChild(this.addButton('Fork', debouncedFork));
             this.hideLoading();
-        }
-    }
-
-    async fetchWithCache(url) {
-        // 如果不支持 Cache API，直接使用普通fetch
-        if (!this.cacheSupported) {
-            return fetch(url);
-        }
-
-        try {
-            const cacheResponse = await caches.match(url);
-            const fetchRequest = new Request(url, {
-                headers: {
-                    'If-None-Match': cacheResponse?.headers.get('ETag'),
-                    'If-Modified-Since': cacheResponse?.headers.get('Last-Modified')
-                },
-            });
-
-            try {
-                const response = await fetch(fetchRequest);
-                if (response.status === 304 && cacheResponse) {
-                    return cacheResponse;
-                }
-                if (response.ok) {
-                    const clonedResponse = response.clone();
-                    const cache = await caches.open(this.cacheName);
-                    await cache.put(url, clonedResponse);
-                }
-                return response;
-            } catch (fetchError) {
-                console.warn('Fetch failed, falling back to cache:', fetchError);
-                if (cacheResponse) {
-                    return cacheResponse;
-                }
-                throw fetchError;
-            }
-        } catch (error) {
-            console.warn('Cache API failed, falling back to normal fetch:', error);
-            return fetch(url);
         }
     }
 
@@ -425,7 +384,7 @@ class Viewer {
             storage.setCache(this.CACHE_KEY + this.currentPath.key, cacheData);
             sessionStorage.setItem(this.CACHE_KEY + 'last', JSON.stringify(this.currentPath));
         }catch(e) {}
-        window.location.assign('/e');
+        window.location.assign(`/e`);
     }
 
     async handleNew() {
@@ -484,12 +443,12 @@ class Viewer {
                         canvas.width = imageViewer.naturalWidth;
                         canvas.height = imageViewer.naturalHeight;
                         ctx.drawImage(imageViewer, 0, 0);
-                        
+
                         // 转换为Blob并复制
                         const blob = await new Promise(resolve => {
                             canvas.toBlob(resolve, 'image/png');
                         });
-                        
+
                         await navigator.clipboard.write([
                             new ClipboardItem({ 'image/png': blob })
                         ]);
@@ -499,7 +458,7 @@ class Viewer {
                         console.warn('复制图片失败:', err);
                     }
                 }
-                
+
                 if (navigator.share && navigator.canShare) {
                     try {
                         // 创建可分享的文件对象
@@ -508,16 +467,16 @@ class Viewer {
                         canvas.width = imageViewer.naturalWidth;
                         canvas.height = imageViewer.naturalHeight;
                         ctx.drawImage(imageViewer, 0, 0);
-                        
+
                         const blob = await new Promise(resolve => {
                             canvas.toBlob(resolve, 'image/png');
                         });
-                        
+
                         const file = new File([blob], 'image.png', { type: 'image/png' });
                         const shareData = {
                             files: [file]
                         };
-                        
+
                         if (navigator.canShare(shareData)) {
                             await navigator.share(shareData);
                             this.showToast('已打开分享面板');
@@ -587,24 +546,6 @@ class Viewer {
         await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
     }
 
-    parsePath(pathname) {
-        const parts = pathname.split('/').filter(Boolean);
-        let result = {key: '', pwd: '', render: ''};
-        if (parts.length === 0) {
-            return result
-        }
-        if (parts[0].length === 1) {
-            result.key = parts[1] || '';
-            result.pwd = parts[2] || '';
-            result.render = parts[0];
-        } else {
-            result.key = parts[0] || '';
-            result.pwd = parts[1] || '';
-            result.render = "";
-        }
-        return result;
-    }
-
     async loadQRLibrary2() {
         // 不能本地缓存
         if (this.qrLoaded) return;
@@ -633,11 +574,8 @@ class Viewer {
                 }
                 await cache.put(scriptUrl, response.clone());
             }
-            // 将响应内容转换为 Blob 对象
             const scriptBlob = await response.blob();
-            // 生成 Blob URL
             const blobUrl = URL.createObjectURL(scriptBlob);
-            // 返回 Promise，保证只有脚本加载完毕后才 resolve
             return new Promise((resolve, reject) => {
                 const scriptElem = document.createElement('script');
                 scriptElem.src = blobUrl;
@@ -734,4 +672,4 @@ class Viewer {
     }
 }
 
-new Viewer();
+new QBinViewer();

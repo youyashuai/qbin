@@ -183,8 +183,8 @@ export const handleAdminLogin = async (ctx: Context) => {
   const jwtToken = await generateJwtToken({
     id: 0,
     email: EMAIL,
-    name: EMAIL,
-    level: ADMIN[password],
+    name: EMAIL.includes('@') ? EMAIL.split('@')[0] : EMAIL,
+    level: ADMIN[password]+1,
   });
   await ctx.cookies.set("token", jwtToken, {
     maxAge: TOKEN_EXPIRE * 1000,

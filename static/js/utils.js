@@ -1,5 +1,5 @@
 const getTimestamp = () => Math.floor(Date.now() / 1000);
-function cyrb53(str, seed = 512) {
+function cyrb53(str, seed = 0) {
     let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
     for (let i = 0, ch; i < str.length; i++) {
         ch = str.charCodeAt(i);
@@ -11,6 +11,47 @@ function cyrb53(str, seed = 512) {
     h1 ^= h2 >>> 16;
     h2 ^= h1 >>> 16;
     return 2097152 * (h2 >>> 0) + (h1 >>> 11);
+}
+function parsePath(pathname) {
+    const parts = pathname.split('/').filter(Boolean);
+    let result = {key: '', pwd: '', render: ''};
+    if (parts.length === 0) {
+        return result
+    }
+    if (parts[0].length === 1) {
+        result.key = parts[1] || '';
+        result.pwd = parts[2] || '';
+        result.render = parts[0];
+    } else {
+        result.key = parts[0] || '';
+        result.pwd = parts[1] || '';
+        result.render = "";
+    }
+    return result;
+}
+/**
+ * 移动设备检测函数
+ * @returns {boolean} true: 移动设备，false: 桌面设备
+ */
+function isMobile() {
+  if (typeof isMobile.cached === 'boolean') return isMobile.cached;
+  if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+    return (isMobile.cached = navigator.userAgentData.mobile);
+  }
+  const ua = navigator.userAgent || '';
+  if (/iPhone|Android.*Mobile|Mobile.*Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+    return (isMobile.cached = true);
+  }
+  if (/iPad/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua))) {
+    return (isMobile.cached = true);
+  }
+  if (/Tablet|Android(?!.*Mobile)|Silk/i.test(ua)) {
+    return (isMobile.cached = true);
+  }
+  if (window.matchMedia && window.matchMedia('(pointer: coarse) and (hover: none)').matches) {
+    return (isMobile.cached = true);
+  }
+  return (isMobile.cached = false);
 }
 class StorageManager {
     constructor(dbName = 'qbin', version = 2) {
@@ -357,3 +398,148 @@ class StorageManager {
     }
 }
 const storage = new StorageManager();
+const API = {
+    cacheConfig: {
+        cacheName: 'qbin-cache-v1',
+        cacheSupported: 'caches' in window
+    },
+
+    generateKey(length = 10) {
+        // 默认去掉了容易混淆的字符：oOLl,9gq,Vv,Uu,I1
+        const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+        return Array.from(
+            {length},
+            () => chars.charAt(Math.floor(Math.random() * chars.length))
+        ).join('');
+    },
+
+    async getContent(key, pwd) {
+        try {
+            const response = await this.fetchWithCache(`/r/${key}/${pwd}`);
+            if (!response.ok && response.status !== 404) {
+                const errorMessage = await this.handleAPIError(response);
+                throw new Error(errorMessage);
+            }
+
+            const contentType = response.headers.get('Content-Type') || '';
+            if (!contentType.startsWith('text/') &&
+                !contentType.includes('json') &&
+                !contentType.includes('javascript') &&
+                !contentType.includes('xml')) {
+                throw new Error('不支持的文件类型');
+            }
+
+            return {
+                status: response.status,
+                content: await response.text(),
+                contentType
+            };
+        } catch (error) {
+            console.error('获取数据失败:', error);
+            throw error;
+        }
+    },
+
+    async uploadContent(content, key, pwd = '', mimetype = 'application/octet-stream') {
+        const select = document.querySelector('.expiry-select');
+        try {
+            const method = mimetype.includes("text/") ? 'POST' : 'PUT';
+            const headers = {
+                "x-expire": select.options[select.selectedIndex].value,
+                "Content-Type": mimetype,
+            };
+
+            const response = await this.fetchWithCache(`/s/${key}/${pwd}`, {
+                method,
+                body: content,
+                headers
+            });
+
+            if (!response.ok) {
+                const errorMessage = await this.handleAPIError(response);
+                throw new Error(errorMessage);
+            }
+            const result = await response.json();
+            return result.status === 200;
+        } catch (error) {
+            console.error('上传失败:', error);
+            throw error;
+        }
+    },
+
+    async fetchWithCache(url, options = {}) {
+        if (!this.cacheConfig.cacheSupported) {
+            return fetch(url, options);
+        }
+
+        try {
+            const cache = await caches.open(this.cacheConfig.cacheName);
+            const cacheResponse = await cache.match(url);
+            const headers = new Headers(options.headers || {});
+
+            if (cacheResponse) {
+                const etag = cacheResponse.headers.get('ETag');
+                const lastModified = cacheResponse.headers.get('Last-Modified');
+                if (etag) headers.set('If-None-Match', etag);
+                if (lastModified) headers.set('If-Modified-Since', lastModified);
+            }
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers,
+                    credentials: 'include'
+                });
+
+                if (response.status === 304 && cacheResponse) {
+                    return cacheResponse;
+                }
+
+                if (response.ok && !options.method) {
+                    await cache.put(url, response.clone());
+                }
+
+                if (!response.ok) {
+                    await cache.delete(url);
+                }
+                return response;
+            } catch (fetchError) {
+                console.warn('Fetch failed, falling back to cache:', fetchError);
+                if (cacheResponse) {
+                    return cacheResponse;
+                }
+                throw fetchError;
+            }
+        } catch (error) {
+            console.warn('Cache API failed, falling back to normal fetch:', error);
+            return fetch(url, { ...options, credentials: 'include' });
+        }
+    },
+
+    async handleAPIError(response) {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType.includes('application/json')) {
+            try {
+                const errorData = await response.json();
+                return errorData.message || '请求失败';
+            } catch (e) {
+                return this.getErrorMessageByStatus(response.status);
+            }
+        }
+        return this.getErrorMessageByStatus(response.status);
+    },
+
+    getErrorMessageByStatus(status) {
+        const messages = {
+            400: '请求参数错误',
+            401: '未授权访问',
+            403: '访问被禁止',
+            404: '资源不存在',
+            413: '内容太大',
+            429: '请求过于频繁',
+            500: '服务器错误',
+            503: '服务暂时不可用'
+        };
+        return messages[status] || '未知错误';
+    },
+};
