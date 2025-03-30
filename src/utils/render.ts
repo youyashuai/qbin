@@ -48,8 +48,8 @@ export async function getEditHtml(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "text/html; charset=utf-8");
   // ctx.response.headers.set("Cache-Control", "public, max-age=300");
-  ctx.response.body = await Deno.readTextFile(join(basePath, './templates/editor.html'));
-  const hash = cyrb53_str("editor.html" + ctx.response.body.length);
+  ctx.response.body = await Deno.readTextFile(join(basePath, './templates/multi-editor.html'));
+  const hash = cyrb53_str("multi-editor.html" + ctx.response.body.length);
   ctx.state.metadata = { etag: hash };
 }
 
