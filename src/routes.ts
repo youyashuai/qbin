@@ -18,36 +18,20 @@ import {
   getFavicon,
   getJS,
   getCSS,
-  getDocumentHtml
+  getFONTS,
+  getDocumentHtml, getHomeHtml, getMDEditHtml
 } from "./utils/render.ts";
 import { handleAdminLogin, handleLogin, handleOAuthCallback } from "./middlewares/auth.ts";
 
 
-/**
- * 解析 URL 路径参数，拿到 key/pwd
- */
 function parsePathParams(params: Record<string, string>) {
-  // 有效路径 < 3
-  // 路径长度 1 < x < 32
-  // 如果是 /p/:key/:pwd? 走一套逻辑
-  const isCommandPath = !params.type || params.type.length === 1;
-  let key, pwd;
-  if (isCommandPath){
-    if (params.key === undefined || (params.key.length > 32 || params.key.length < 2) || !VALID_CHARS_REGEX.test(params.key))
-      return {key: null, pwd: null};
-    if (params.pwd && (params.pwd.length > 32 || params.pwd.length < 1) || !VALID_CHARS_REGEX.test(params.pwd))
-      return {key: null, pwd: null};
-    key = params.key;
-    pwd = params.pwd;
-  }
-  else{
-    if ((params.type.length > 32 || params.type.length < 2) || !VALID_CHARS_REGEX.test(params.type))
-      return {key: null, pwd: null};
-    if (params.key && (params.key.length > 32 || params.key.length < 1) || !VALID_CHARS_REGEX.test(params.key))
-      return {key: null, pwd: null};
-    key = params.type;
-    pwd = params.key;
-  }
+  // 访问路径长度 path >= 2 && path <= 32
+  const key = params.key;
+  const pwd = params.pwd;
+  if (key && (key.length > 32 || key.length < 2 || !VALID_CHARS_REGEX.test(key)))
+    return {key: null, pwd: null};
+  if (pwd && (pwd.length > 32 || pwd.length < 1 || !VALID_CHARS_REGEX.test(pwd)))
+    return {key: null, pwd: null};
   return {
     key: key || generateKey(),
     pwd: pwd || "",
@@ -74,8 +58,8 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
   const request = ctx.request;
   const headers = request.headers;
 
-  // TODO 解决伪装header问题
-  const clientIp = headers.get("cf-connecting-ip") || ctx.request.ip;
+  // const clientIp = headers.get("cf-connecting-ip") || request.ip;
+  const clientIp = request.ip;
   const expire = getTimestamp() + ~~(headers.get("x-expire") || "315360000");
 
   // 1) 基础验证
@@ -83,7 +67,7 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
   if (contentLength > MAX_UPLOAD_FILE_SIZE) {
     throw new PasteError(413, "Content too large");
   }
-  const contentType = headers.get("Content-Type") || "";
+  const contentType = headers.get("Content-Type") || "application/octet-stream";
   if (!mimeTypeRegex.test(contentType) || contentType.length > 100) {
     throw new PasteError(415, "Invalid Content-Type format");
   }
@@ -165,41 +149,35 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
       cacheBroadcast.postMessage({ type: "delete", key });  // 通知其他节点删除
     }
   });
-  
-  ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", "application/json");
-  ctx.response.body = JSON.stringify({ status: "success", key });
+  return new Response(ctx, 200, "success", { key, pwd, url: `${request.url.origin}/r/${key}/${pwd}` })
 }
 
 async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: string, pdb: MetadataDB) {
   const request = ctx.request;
   const headers = request.headers;
-  const clientIp = headers.get("cf-connecting-ip") || ctx.request.ip;
+  // const clientIp = headers.get("cf-connecting-ip") || request.ip;
+  const clientIp = request.ip;
   const expire = getTimestamp() + ~~(headers.get("x-expire") || "315360000");
 
-  // 1) 基础验证
   const contentLength = parseInt(headers.get("Content-Length") || "0", 10);
   if (contentLength > MAX_UPLOAD_FILE_SIZE) {
     throw new PasteError(413, "Content too large");
   }
-  const contentType = headers.get("Content-Type") || "";
+  const contentType = headers.get("Content-Type") || "application/octet-stream";
   if (!mimeTypeRegex.test(contentType) || contentType.length > 100) {
     throw new PasteError(415, "Invalid Content-Type format");
   }
 
-  // 2) 读取 body
   const content = await request.body.arrayBuffer();
   if (content.byteLength > MAX_UPLOAD_FILE_SIZE || contentLength !== content.byteLength) {
     throw new PasteError(413, "Content too large");
   }
 
   const hash = cyrb53(content);
-  // 3) 从 JWT 中读取用户信息
   const payload = ctx.state.session?.get("user");
   const email = payload.email as string;
   const uname = payload.name as string;
 
-  // 4) 构造 Metadata
   const metadata: Metadata = {
     fkey: key,
     time: getTimestamp(),
@@ -214,10 +192,8 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
     hash
   };
   
-  // 保存原始 KV 数据，以便出错时回滚
   const originalKvData = await kv.get([PASTE_STORE, key]);
   
-  // 5) 在 KV 中更新 key
   const kvRes = await kv.atomic()
     .set([PASTE_STORE, key], {
       email,
@@ -234,13 +210,10 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
     return new Response(ctx, 500, "Failed to update key in KV store");
   }
   
-  // 缓存旧值用于恢复
   const oldMetadata = memCache.get(key);
   
-  // 6) 先更新内存 / Cache API
   memCache.set(key, metadata);
   
-  // 7) 后台异步写 Postgres
   const restoreKV = async (retries = 3, delay = 500) => {
     for (let i = 0; i < retries; i++) {
       try {
@@ -261,7 +234,6 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
     console.error(`Failed to restore KV for key ${key} after ${retries} attempts`);
     return false;
   };
-
   queueMicrotask(async () => {
     try {
       const result = await pdb.update(key, metadata);
@@ -292,9 +264,7 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
     }
   });
   
-  ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", "application/json");
-  ctx.response.body = JSON.stringify({ status: "success", key });
+  return new Response(ctx, 200, "success", { key, pwd, url: `${request.url.origin}/r/${key}/${pwd}` })
 }
 
 /**
@@ -412,16 +382,23 @@ router
   .get("/static/css/:file", async (ctx) => {
     return await getCSS(ctx, ctx.params.file, 200);
   })
+  .get("/static/css/fonts/:file", async (ctx) => {
+      return await getFONTS(ctx, ctx.params.file, 200);
+    })
+  .get("/home", async (ctx) => {
+    return await getHomeHtml(ctx, 200);
+  })    // 用户主页
   .get("/r/:key?/:pwd?", async (ctx) => {
+    if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
     if (key === null || reservedWords.has(key)) {
-      return new Response(ctx, 403, "该KEY为保留字");
+      return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
     // 先检查缓存内容
     const _metadata = await isCached(key, pwd, pdb);
-    if (_metadata?.email === undefined || _metadata.expire < getTimestamp()) {
-      return new Response(ctx, 404, "KEY不存在");
+    if (_metadata?.email === undefined || (_metadata.expire || 0) < getTimestamp()) {
+      return new Response(ctx, 404, "访问内容不存在");
     }
     // 密码验证
     if (_metadata.pwd && !checkPassword(_metadata.pwd, pwd)) {
@@ -429,7 +406,7 @@ router
     }
     const metadata = await getCachedContent(key, pwd, pdb);
     if(!(metadata && "content" in metadata)){
-      return new Response(ctx, 404, "KEY不存在");
+      return new Response(ctx, 404, "访问内容不存在");
     }
     ctx.state.metadata = { etag: metadata?.hash, time: metadata?.time ?? null };
     ctx.response.headers.set('Pragma', 'no-cache');
@@ -439,13 +416,14 @@ router
     ctx.response.body = metadata.content;
   })    // get raw
   .head("/r/:key?/:pwd?", async (ctx) => {
+    if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
     if (key === null || reservedWords.has(key)) {
-      return new Response(ctx, 403, "该KEY为保留字");
+      return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
     const _metadata = await isCached(key, pwd, pdb);
-    if (_metadata?.email === undefined || _metadata.expire < getTimestamp()) {
+    if (_metadata?.email === undefined || (_metadata.expire || 0) < getTimestamp()) {
       ctx.response.status = 404;
       return;
     }
@@ -463,19 +441,20 @@ router
   .get("/c/:key?/:pwd?", async (ctx) => {
     return await getCodeEditHtml(ctx, 200);
   })    // code edit
-  // .get("/m/:key?/:pwd?", async (ctx) => {
-  // })    // markdown edit
-  // 首页，/p或/p/ 所有单字符
+  .get("/m/:key?/:pwd?", async (ctx) => {
+    return await getMDEditHtml(ctx, 200);
+  })    // markdown edit
   .get(/^\/?[a-zA-Z0-9]?\/?$/, async (ctx) => {
     return await getEditHtml(ctx, 200);
   })
   .post("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
     if (key === null || reservedWords.has(key)) {
-      return new Response(ctx, 403, "该KEY为保留字");
+      return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
     const metadata = await isCached(key, pwd, pdb);
+
     if(metadata && "email" in metadata) {
       if (metadata.expire > getTimestamp()){
         const email = await ctx.state.session?.get("user")?.email;
@@ -491,12 +470,12 @@ router
   .put("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
     if (key === null || reservedWords.has(key)) {
-      return new Response(ctx, 403, "该KEY为保留字");
+      return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
     const metadata = await isCached(key, pwd, pdb);
-    if(metadata){
-      if (metadata.expire > getTimestamp()){
+    if(metadata && "email" in metadata) {
+      if ((metadata.expire || 0) > getTimestamp()){
         return new Response(ctx, 409, "Key already exists");
       }
       await handleContentUpdate(ctx, key, pwd || "", pdb);  // 更新
@@ -505,22 +484,23 @@ router
     }
   })
   .delete("/d/:key/:pwd?", async (ctx) => {
+    if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
     if (key === null || reservedWords.has(key)) {
-      return new Response(ctx, 403, "该KEY为保留字");
+      return new Response(ctx, 403, "该访问路径不可用");
     }
 
     const pdb = MetadataDB.getInstance();
     // 先检查缓存内容
     const metadata = await isCached(key, pwd, pdb);
     // 排除减少查询次数缓存, 但不是真数据
-    if (!metadata || metadata.expire < getTimestamp()) {
+    if (!metadata || (metadata.expire || 0) < getTimestamp()) {
       return new Response(ctx, 404, "内容不存在");
     }
     if(!(checkPassword(metadata.pwd, pwd) && "email" in metadata)){
       return new Response(ctx, 403, "密码错误");
     }
-    // 验证是否作者本人或管理员
+    // 验证是否本人或管理员
     const email = await ctx.state.session?.get("user")?.email;
     if (!(email !== undefined && metadata.email === email)) {
       return new Response(ctx, 403, "您没有删除该内容的权限");
@@ -556,9 +536,9 @@ router
   })    // kv与pg同步
   .get("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
-  .get("/api/login/oauth2/callback/:provider", handleOAuthCallback);
+  .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
   // .post("/api/data/clean", async (ctx) => {
-  // })   // 清理过期key
+  // });   // 清理过期key
 
 
 export default router;

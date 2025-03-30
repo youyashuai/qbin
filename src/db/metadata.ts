@@ -1,5 +1,6 @@
 import { PoolClient, Transaction } from "https://deno.land/x/postgres/mod.ts";
-import { getPool } from "./pool.ts";
+import { Pool } from "https://deno.land/x/postgres/mod.ts";
+import { getPool, withRetry } from "./pool.ts";
 import { Metadata } from "../types.ts";
 import {ISDEMO} from "../config/constants.ts";
 
@@ -27,48 +28,56 @@ export class MetadataDB {
 
   // 初始化表
   private async initTable(): Promise<void> {
-    await this.withClient(async (client) => {
-      await client.queryObject(`
-        CREATE TABLE IF NOT EXISTS qbindb (
-          fkey    VARCHAR(40) PRIMARY KEY,
-          time    BIGINT NOT NULL,
-          expire    BIGINT NOT NULL,
-          ip      VARCHAR(45) NOT NULL,
-          content BYTEA NOT NULL,                 -- 这里用 BYTEA 存储二进制数据
-          type    VARCHAR(255) NOT NULL,
-          len     INTEGER NOT NULL,
-          pwd     VARCHAR(40),
-          email     VARCHAR(255),
-          uname   VARCHAR(255),
-          hash    BIGINT
-        )
-      `);
-    });
+    try {
+      await this.withClient(async (client) => {
+        await client.queryObject(`
+          CREATE TABLE IF NOT EXISTS qbindb (
+            fkey    VARCHAR(40) PRIMARY KEY,
+            time    BIGINT NOT NULL,
+            expire    BIGINT NOT NULL,
+            ip      VARCHAR(45) NOT NULL,
+            content BYTEA NOT NULL,                 -- 这里用 BYTEA 存储二进制数据
+            type    VARCHAR(255) NOT NULL,
+            len     INTEGER NOT NULL,
+            pwd     VARCHAR(40),
+            email     VARCHAR(255),
+            uname   VARCHAR(255),
+            hash    BIGINT
+          )
+        `);
+      });
+    } catch (error) {
+      console.error("Failed to initialize database table:", error);
+    }
   }
 
   // 获取连接的工具方法
   private async withClient<T>(operation: (client: PoolClient) => Promise<T>): Promise<T> {
-    const client = await this.pool.connect();
-    try {
-      return await operation(client);
-    } finally {
-      client.release();
-    }
+    return await withRetry(async () => {
+      const client = await this.pool.connect();
+      try {
+        return await operation(client);
+      } finally {
+        client.release();
+      }
+    });
   }
 
   // 事务执行的工具方法
   private async withTransaction<T>(operation: (tx: Transaction) => Promise<T>): Promise<T> {
-    return await this.withClient(async (client) => {
-      const transaction = client.createTransaction("metadata_transaction");
-      await transaction.begin();
-      try {
-        const result = await operation(transaction);
-        await transaction.commit();
-        return result;
-      } catch (error) {
-        await transaction.rollback();
-        console.error(error);
-      }
+    return await withRetry(async () => {
+      return await this.withClient(async (client) => {
+        const transaction = client.createTransaction("metadata_transaction");
+        await transaction.begin();
+        try {
+          const result = await operation(transaction);
+          await transaction.commit();
+          return result;
+        } catch (error) {
+          await transaction.rollback();
+          throw error; // 重新抛出错误以触发重试
+        }
+      });
     });
   }
 
