@@ -66,11 +66,23 @@ class QBinCodeEditor extends QBinEditorBase {
             this.autoUploadTimer = setTimeout(() => {
                 const content = this.getEditorContent();
                 if (content && cyrb53(content) !== this.lastUploadedHash) {
-                    this.handleUpload(content, "text/plain; charset=UTF-8");
+                    const lang = document.getElementById('language-select').value;
+                    const mimetype = this.getMimeTypeFromLang(lang);
+                    this.handleUpload(content, mimetype);
                 }
             }, 2000);
         });
     }
+
+    getMimeTypeFromLang(lang) {
+        const extension = lang.toLowerCase();
+        const mimeTypes = {
+            'html': 'text/html; charset=UTF-8',
+            'css': 'text/css; charset=UTF-8',
+            'javascript': 'text/javascript; charset=UTF-8',
+        };
+        return mimeTypes[extension] || 'text/plain; charset=UTF-8';
+    };
 
     async initMonacoEditor() {
         return new Promise((resolve) => {
