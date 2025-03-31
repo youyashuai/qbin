@@ -472,49 +472,6 @@ body {
     }
 }
 
-/* 添加版权信息样式 */
-.copyright {
-    position: fixed;
-    bottom: max(env(safe-area-inset-bottom, 0px), 0px);
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 12px;
-    color: #999;
-    opacity: 0.6;
-    pointer-events: none;
-    z-index: 1;
-    padding: 8px;
-    transition: opacity 0.3s ease;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-/* 当内容区域滚动到底部时，降低版权信息透明度 */
-.content:hover + .copyright {
-    opacity: 0.4;
-}
-
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-    .copyright {
-        color: rgba(255, 255, 255, 0.4);
-    }
-
-    .content:hover + .copyright {
-        opacity: 0.2;
-    }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-    .copyright {
-        font-size: 11px;
-        bottom: max(env(safe-area-inset-bottom, 8px), 8px);
-    }
-}
-
-/* 自定义滚动条样式，让滚动条更优雅地融入整体界面 */
-
 /* 针对 WebKit 内核浏览器 */
 ::-webkit-scrollbar {
     width: 8px;
