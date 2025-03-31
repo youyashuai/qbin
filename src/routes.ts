@@ -445,7 +445,17 @@ router
     return await getMDEditHtml(ctx, 200);
   })    // markdown edit
   .get(/^\/?[a-zA-Z0-9]?\/?$/, async (ctx) => {
-    return await getEditHtml(ctx, 200);
+    const defaultEditor = await ctx.cookies.get("default");
+    switch (defaultEditor) {
+      case "e":
+        return await getEditHtml(ctx, 200);
+      case "c":
+        return await getCodeEditHtml(ctx, 200);
+      case "m":
+        return await getMDEditHtml(ctx, 200);
+      default:
+        return await getEditHtml(ctx, 200);
+    }
   })
   .post("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
@@ -533,6 +543,19 @@ router
     }
     const pdb = MetadataDB.getInstance();
     return await syncPostgresToKV(ctx, pdb);
+  })    // kv与pg同步
+  .get("/api/setdefault/:editor", async (ctx) => {
+    const editor = ctx.params.editor;
+    if (!["e", "c", "m"].includes(editor)) {
+      return new Response(ctx, 400, "无效的编辑器类型");
+    }
+    ctx.cookies.set("default", editor, {
+      path: "/",
+      maxAge: 315360000000,
+      httpOnly: true,
+      sameSite: "lax"
+    });
+    return new Response(ctx, 200, "success");
   })    // kv与pg同步
   .get("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
