@@ -7,8 +7,6 @@
 
 **简体中文** · [English](README_EN.md) · [官网](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md)
 
-<img alt="GitHub" src="https://img.shields.io/github/license/quick-bin/qbin">
-<img alt="GitHub issues" src="https://img.shields.io/github/issues/quick-bin/qbin">
 </div>
 
 ## 📝 项目简介
