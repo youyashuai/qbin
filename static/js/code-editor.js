@@ -2,6 +2,7 @@ class QBinCodeEditor extends QBinEditorBase {
     constructor() {
         super();
         this.currentEditor = "code";
+        this._pendingContent = null;  // 添加一个属性来存储待设置的内容
         this.initialize();
     }
 
@@ -14,7 +15,11 @@ class QBinCodeEditor extends QBinEditorBase {
     }
 
     setEditorContent(content) {
-        this.editor.setValue(content);
+        if (this.editor) {
+            this.editor.setValue(content);
+        } else {
+            this._pendingContent = content;  // 如果编辑器未准备好，先保存内容
+        }
     }
 
     setupEditorThemes() {
@@ -91,7 +96,7 @@ class QBinCodeEditor extends QBinEditorBase {
             require(['vs/editor/editor.main'], () => {
                 this.setupEditorThemes();
                 this.editor = monaco.editor.create(document.getElementById('editor'), {
-                    value: '',
+                    value: this._pendingContent || '',  // 使用待设置的内容或空字符串
                     language: 'plaintext',
                     automaticLayout: true,
                     theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'qbin-dark' : 'qbin-light',
@@ -110,6 +115,7 @@ class QBinCodeEditor extends QBinEditorBase {
                     matchBrackets: "always"
                 });
 
+                this._pendingContent = null;  // 清除待设置的内容
                 this.initLanguageSelector();
                 this.setupEditorThemeListener();
                 this.setupEditorChangeListener();
