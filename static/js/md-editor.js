@@ -177,7 +177,7 @@ class QBinMDEditor extends QBinEditorBase {
             this.autoUploadTimer = setTimeout(() => {
                 const content = this.getEditorContent();
                 if (content && cyrb53(content) !== this.lastUploadedHash) {
-                    this.handleUpload(content, "text/plain; charset=UTF-8");
+                    this.handleUpload(content, "text/markdown; charset=UTF-8");
                 }
             }, 2000);
         };
