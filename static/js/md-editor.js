@@ -205,7 +205,7 @@ class QBinMDEditor extends QBinEditorBase {
         clearTimeout(this.uploadDebounceTimeout);
         this.uploadDebounceTimeout = setTimeout(() => {
             if (content && cyrb53(content) !== this.lastUploadedHash) {
-                this.handleUpload(content, "text/plain; charset=UTF-8");
+                this.handleUpload(content, "text/markdown; charset=UTF-8");
             }
         }, 3000);
     }
