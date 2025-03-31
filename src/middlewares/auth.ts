@@ -272,7 +272,7 @@ export const handleOAuthCallback = async (ctx: Context) => {
       sameSite: "lax",
       path: "/",
     });
-    ctx.response.redirect("/");
+    ctx.response.redirect("/home");
   } catch (error) {
     console.error("OAuth 回调错误:", error);
 
