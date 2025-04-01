@@ -771,30 +771,6 @@ body::-webkit-scrollbar {
     }
 }
 
-/* 修改密码面板样式和位置 - 增强水墨阴影效果 */
-.password-panel {
-    position: fixed;
-    top: 44px;
-    right: 24px;
-    background: rgba(252, 252, 252, 0.95);
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
-    0 6px 24px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 10px 40px rgba(0, 0, 0, 0.04),
-    0 1px 2px rgba(0, 0, 0, 0.08);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: all 0.3s ease;
-    width: 280px;
-    max-width: calc(100vw - 48px);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-}
-
 #key-input,
 #password-input,
 .expiry-select {
