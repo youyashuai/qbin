@@ -1,70 +1,150 @@
-Coming soon.
+## QBin 自托管部署教程
 
----
+本文将帮助您快速部署 QBin 服务，分别提供三种灵活的部署方式，适合不同的使用场景和技术偏好。
 
-#### 获取免费Postgres 数据库
+## ⚡ 部署方式选择
 
-|    名称    |           免费容量           |
-|:--------:|:------------------------:|
-| [Aiven](https://aiven.io/) |       免费5 GB数据库空间        |
-| [Neon](https://neon.tech/) | 免费0.5 GB数据库空间，弹性扩展，零停机时间 |
-| [Render](https://render.com/docs/deploy-mysql) |      免费10 GB 数据库空间       |
+| 部署方式 | 适用场景 | 难度 | 稳定性 |
+|:-------:|:--------:|:----:|:------:|
+| Docker Compose | 本地或服务器部署，适合生产环境 | 很简单 | 高 |
+| Docker 命令行 | 快速测试或简单部署 | 简单 | 高 |
+| Deno Deploy | 无需服务器，快速云端部署 | 一般 | 高 |
 
-### Deno 部署
+## 🛢 数据库准备
 
-1. 准备一个 Postgres 数据库
-2. 🌟Star 和 [Fork](https://github.com/Quick-Bin/Qbin/fork) 此项目
-3. 登录/注册 https://dash.deno.com
-4. 创建项目 https://dash.deno.com/new_project
-5. 选择此项目，填写项目名字（请仔细填写项目名字，关系到自动分配的域名）
-6. Entrypoint 填写 index.ts 其他字段留空
-7. 配置环境变量
-7. 点击 Deploy Project
-8. 部署成功后获得域名，点开即用。
+Docker 和 Deno Deploy部署方式需要手动创建 PostgreSQL 数据库。如果你没有，那么可以使用以下几个提供免费方案的服务商：
 
-### 环境变量
-本项目提供了一些额外的配置项，使用环境变量进行设置：
+| 服务商 | 免费方案 | 特点 |
+|:-----:|:-------:|:----:|
+| [Render](https://render.com/docs/deploy-mysql) | 免费 10 GB 空间 | 与 Render 应用集成方便 |
+| [Aiven](https://aiven.io/) | 免费 5 GB 空间 | 稳定可靠，简单易用 |
+| [Neon](https://neon.tech/) | 免费 0.5 GB 空间 | 弹性扩展，零停机时间，开发者友好 |
 
-#### 基础配置
-|      环境变量       | 类型 |         描述          |                                   示例                                    |
-|:---------------:|:--:|:-------------------:|:-----------------------------------------------------------------------:|
-| `ADMIN_PASSWORD` | 必选 |       管理员访问密码       |                                `qbin.me`                                |
-| `ADMIN_EMAIL` | 必选 |       管理员邮箱地址       |                         `admin@qbin.me`                          |
-| `DATABASE_URL`  | 必选 |  Postgres 数据库连接地址   | `postgresql://user:password@localhost:5432:/local:main?sslmode=require` |
-| `JWT_SECRET`   | 必选 |       JWT签名密钥       |                    `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                     |
-| `PORT` | 可选 |       服务访问端口        |                                 `8000`                                  |
-| `TOKEN_EXPIRE` | 可选 |    令牌有效期(秒)，默认一年    |                               `31536000`                                |
-| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认50MB |                               `52428800`                                |
+## 🐳 Docker Compose 一键部署（推荐）
 
-#### GitHub OAuth配置
-|      环境变量       | 类型 |          描述          |                            示例                             |
-|:---------------:|:--:|:--------------------:|:---------------------------------------------------------:|
-| `GITHUB_CLIENT_ID` | 可选 | GitHub OAuth应用客户端ID | `Ovxxxxxxxxxfle8Oyi` |
-| `GITHUB_CLIENT_SECRET` | 可选 | GitHub OAuth应用客户端密钥 | `56ab9xxxxxxxxxxxxxx4012184b426` |
-| `GITHUB_CALLBACK_URL` | 可选 | GitHub OAuth回调地址 | `http://localhost:8000/api/login/oauth2/callback/github` |
+最简单的部署方式，一键完成环境配置和应用启动：
 
-#### Google OAuth配置
-|      环境变量       | 类型 |          描述          |                            示例                             |
-|:---------------:|:--:|:--------------------:|:---------------------------------------------------------:|
-| `GOOGLE_CLIENT_ID` | 可选 | Google OAuth应用客户端ID | `84932xxxxx-gbxxxxxxxxxxxxjg8s3v.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | 可选 | Google OAuth应用客户端密钥 | `GOCSPX-xxxxxxxxxxxxxxxxxxxx` |
-| `GOOGLE_CALLBACK_URL` | 可选 | Google OAuth回调地址 | `http://localhost:8000/api/login/oauth2/callback/google` |
+```bash
+# 克隆项目仓库
+git clone https://github.com/Quick-Bin/qbin.git
 
-#### LinuxDO OAuth配置
-|      环境变量       | 类型 |          描述          |                            示例                             |
-|:---------------:|:--:|:--------------------:|:---------------------------------------------------------:|
-| `LINUXDO_CLIENT_ID` | 可选 | LinuxDO OAuth应用客户端ID | `V4HmbQixxxxxxxxxxxxCJ2CVypqL` |
-| `LINUXDO_CLIENT_SECRET` | 可选 | LinuxDO OAuth应用客户端密钥 | `hZtE3cxxxxxxxxxxxxxkZ0al01Hi` |
-| `LINUXDO_CALLBACK_URL` | 可选 | LinuxDO OAuth回调地址 | `http://localhost:8000/api/login/oauth2/callback/linuxdo` |
-| `LINUXDO_USER_LEVEL` | 可选 | LinuxDO用户登录所需的最低等级 | `0` |
+# 进入项目目录
+cd qbin
 
----
+# 启动服务
+docker-compose up -d
+```
 
-2. 点击 [Deploy on Deno](https://dash.deno.com/new_project?url=https://github.com/Quick-Bin/Qbin)（首次点击要先登录Deno Deploy，登录完成之后重新点击这个链接即可进行部署）
-3. 部署完成后设置环境变量
-- 环境变量设置方法
-  
-  在project的setting中的Environment Variables点击Add Variable
-<img src="https://s3.tebi.io/lite/Environment.jpg" width="80%">
-3. 在project的settings中自定义自己的二级域名或者绑定自己的域名
-<img src="https://s3.tebi.io/lite/custom_url.jpg" width="80%">
+完成后，访问 `http://localhost:8000` 即可使用 QBin 服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin.me`）。
+
+## 🐋 Docker 命令行部署
+
+适合需要更灵活配置的场景：
+
+```bash
+# 拉取最新镜像
+docker pull naiher/qbin:latest
+
+# 启动容器
+docker run -it -p 8000:8000 \
+  -e DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require" \
+  -e JWT_SECRET="your_jwt_secret" \
+  -e ADMIN_PASSWORD="qbin.me" \
+  -e ADMIN_EMAIL="admin@qbin.me" \
+  naiher/qbin
+```
+
+启动后，访问 `http://localhost:8000` 即可使用 QBin 服务。
+
+> **注意**：使用 Docker 命令行部署需要提前准备好 PostgreSQL 数据库。
+
+## ☁️ Deno Deploy 云端部署
+
+无需服务器，快速部署到 Deno 云平台：
+
+### 方式二：手动部署
+
+1. 准备一个 PostgreSQL 数据库
+2. [Fork QBin](https://github.com/Quick-Bin/Qbin/fork) 项目仓库
+3. 登录/注册 [Deno Deploy](https://dash.deno.com)
+4. 创建新项目：https://dash.deno.com/new_project
+5. 选择您 Fork 的项目，填写项目名称（关系到自动分配的域名）
+6. Entrypoint 填写 `index.ts`，其他字段留空
+7. 配置环境变量（详见下方环境变量说明）
+8. 点击 Deploy Project
+9. 部署成功后，点击生成的域名即可使用
+10. 部署完成后配置环境变量：
+     - 在 Project 的 Settings 中找到 Environment Variables
+     - 点击 Add Variable 添加必要的环境变量
+   
+   ![环境变量设置](https://s3.tebi.io/lite/Environment.jpg)
+
+11. 自定义域名（可选）：
+     - 在 Project 的 Settings 中设置自定义二级域名或绑定自己的域名
+   
+   ![自定义域名](https://s3.tebi.io/lite/custom_url.jpg)
+
+## ⚙️ 环境变量配置说明
+
+### 基础配置
+
+| 环境变量 | 类型 | 描述 | 示例 |
+|:-------:|:----:|:----:|:----:|
+| `ADMIN_PASSWORD` | 必选 | 管理员访问密码 | `qbin.me` |
+| `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 | `admin@qbin.me` |
+| `DATABASE_URL` | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database?sslmode=require` |
+| `JWT_SECRET` | 必选 | JWT 签名密钥（建议使用随机字符串） | `XTV0STZzYFxxxxxxxxxx5ecm50W04v` |
+| `PORT` | 可选 | 服务访问端口，默认 8000 | `8000` |
+| `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 | `31536000` |
+| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认 50MB | `52428800` |
+
+### 社交登录配置（可选）
+
+#### GitHub OAuth 配置
+
+| 环境变量 | 类型 | 描述 | 示例 |
+|:-------:|:----:|:----:|:----:|
+| `GITHUB_CLIENT_ID` | 可选 | GitHub OAuth 应用客户端 ID | `Ovxxxxxxxxxfle8Oyi` |
+| `GITHUB_CLIENT_SECRET` | 可选 | GitHub OAuth 应用客户端密钥 | `56ab9xxxxxxxxxxxxxx4012184b426` |
+| `GITHUB_CALLBACK_URL` | 可选 | GitHub OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/github` |
+
+#### Google OAuth 配置
+
+| 环境变量 | 类型 | 描述 | 示例 |
+|:-------:|:----:|:----:|:----:|
+| `GOOGLE_CLIENT_ID` | 可选 | Google OAuth 应用客户端 ID | `84932xxxxx-gbxxxxxxxxxxxxjg8s3v.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | 可选 | Google OAuth 应用客户端密钥 | `GOCSPX-xxxxxxxxxxxxxxxxxxxx` |
+| `GOOGLE_CALLBACK_URL` | 可选 | Google OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/google` |
+
+#### LinuxDO OAuth 配置
+
+| 环境变量 | 类型 | 描述 | 示例 |
+|:-------:|:----:|:----:|:----:|
+| `LINUXDO_CLIENT_ID` | 可选 | LinuxDO OAuth 应用客户端 ID | `V4HmbQixxxxxxxxxxxxCJ2CVypqL` |
+| `LINUXDO_CLIENT_SECRET` | 可选 | LinuxDO OAuth 应用客户端密钥 | `hZtE3cxxxxxxxxxxxxxkZ0al01Hi` |
+| `LINUXDO_CALLBACK_URL` | 可选 | LinuxDO OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/linuxdo` |
+| `LINUXDO_USER_LEVEL` | 可选 | LinuxDO 用户登录所需的最低等级 | `0` |
+
+## 🔧 常见问题与故障排除
+
+1. **数据库连接失败**
+   - 检查 DATABASE_URL 格式是否正确
+   - 确认数据库服务是否已启动
+   - 验证用户名密码是否正确
+   - 检查防火墙是否允许连接
+
+2. **部署成功但无法访问**
+   - 检查端口是否被其他程序占用
+   - 确认防火墙是否允许该端口访问
+   - 检查 Deno Deploy 日志查看错误信息
+
+3. **社交登录无法使用**
+   - 确认 OAuth 配置信息是否正确
+   - 检查回调 URL 是否与应用配置一致
+   - 确认已在对应平台启用了正确的 OAuth 权限
+
+## 📚 更多信息
+
+有关本项目的更多详细说明、API 文档和高级配置，请参考[完整文档](https://github.com/Quick-Bin/Qbin/blob/main/README.md)。
+
+如有任何问题，欢迎[提交 Issue](https://github.com/Quick-Bin/Qbin/issues) 。
