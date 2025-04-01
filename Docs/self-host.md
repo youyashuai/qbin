@@ -76,13 +76,10 @@ docker run -it -p 8000:8000 \
 10. 部署完成后配置环境变量：
      - 在 Project 的 Settings 中找到 Environment Variables
      - 点击 Add Variable 添加必要的环境变量
-   
-   ![环境变量设置](https://s3.tebi.io/lite/Environment.jpg)
-
+     <img src="https://s3.tebi.io/lite/Environment.jpg" width="60%" alt="环境变量设置" title="环境变量设置" />
 11. 自定义域名（可选）：
      - 在 Project 的 Settings 中设置自定义二级域名或绑定自己的域名
-   
-   ![自定义域名](https://s3.tebi.io/lite/custom_url.jpg)
+     <img src="https://s3.tebi.io/lite/custom_url.jpg" width="60%" alt="自定义域名" title="自定义域名" />
 
 ## ⚙️ 环境变量配置说明
 
@@ -145,6 +142,6 @@ docker run -it -p 8000:8000 \
 
 ## 📚 更多信息
 
-有关本项目的更多详细说明、API 文档和高级配置，请参考[完整文档](https://github.com/Quick-Bin/Qbin/blob/main/README.md)。
+有关本项目的更多详细说明、API 文档和高级配置，请参考 [完整文档](https://github.com/Quick-Bin/Qbin/blob/main/README.md)。
 
-如有任何问题，欢迎[提交 Issue](https://github.com/Quick-Bin/Qbin/issues) 。
+如有任何问题，欢迎 [提交 Issue](https://github.com/Quick-Bin/Qbin/issues) 。
