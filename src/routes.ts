@@ -544,7 +544,10 @@ router
     const pdb = MetadataDB.getInstance();
     return await syncPostgresToKV(ctx, pdb);
   })    // kv与pg同步
-  .get("/api/setdefault/:editor", async (ctx) => {
+  .get("/api/login/admin", handleAdminLogin)
+  .get("/api/login/:provider", handleLogin)
+  .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
+  .get("/api/user/default/:editor", async (ctx) => {
     const editor = ctx.params.editor;
     if (!["e", "c", "m"].includes(editor)) {
       return new Response(ctx, 400, "无效的编辑器类型");
@@ -556,10 +559,7 @@ router
       sameSite: "lax"
     });
     return new Response(ctx, 200, "success");
-  })    // kv与pg同步
-  .get("/api/login/admin", handleAdminLogin)
-  .get("/api/login/:provider", handleLogin)
-  .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
+  })
   .post("/api/user/logout", async (ctx) => {
     await ctx.cookies.delete("token", {
       path: "/",
@@ -567,6 +567,29 @@ router
       sameSite: "strict"
     });
     return new Response(ctx, 200, "Logged out successfully");
+  })
+  .post("/api/user/token", async (ctx) => {
+    // const policy = ctx.request.headers.get("referrer-policy");
+    // if (policy) {
+    //   return new Response(ctx, 403, "不允许从分享链接页面请求token");
+    // }
+    // 获取基本请求信息
+    const referer = ctx.request.headers.get("referer");
+    const origin = ctx.request.headers.get("origin");
+
+    if (!referer || referer.includes("/r/") || referer.includes("/m/")) {
+      return new Response(ctx, 403, "不允许从同源链接页面请求token");
+    }
+    if (referer === origin) {
+      return new Response(ctx, 403, "检测到可疑的Referer策略");
+    }
+    const refererUrl = new URL(referer);
+    if (refererUrl.pathname === "/" || refererUrl.pathname === "") {
+      return new Response(ctx, 403, "不允许使用仅包含域名的Referer");
+    }
+
+    const token = await ctx.cookies.get("token");
+    return new Response(ctx, 200, "success", { token: token });
   })
   // .post("/api/data/clean", async (ctx) => {
   // });   // 清理过期key
