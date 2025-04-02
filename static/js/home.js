@@ -63,10 +63,15 @@ class QBinHome {
             console.error('Failed to load storage data:', error);
             container.innerHTML = `
                 <div class="error-message">
-                    <p>加载数据失败: ${error.message}</p>
-                    <button onclick="document.querySelector('a[href=\'#storage\']').click()">重试</button>
+                    <p>功能暂未实现，敬请期待</p>
                 </div>
             `;
+            // container.innerHTML = `
+            //     <div class="error-message">
+            //         <p>加载数据失败: ${error.message}</p>
+            //         <button onclick="document.querySelector('a[href=\'#storage\']').click()">重试</button>
+            //     </div>
+            // `;
         }
     }
 
@@ -91,10 +96,15 @@ class QBinHome {
             console.error('Failed to load share data:', error);
             container.innerHTML = `
                 <div class="error-message">
-                    <p>加载数据失败: ${error.message}</p>
-                    <button onclick="document.querySelector('a[href=\'#shares\']').click()">重试</button>
+                    <p>功能暂未实现，敬请期待</p>
                 </div>
             `;
+            // container.innerHTML = `
+            //     <div class="error-message">
+            //         <p>加载数据失败: ${error.message}</p>
+            //         <button onclick="document.querySelector('a[href=\'#shares\']').click()">重试</button>
+            //     </div>
+            // `;
         }
     }
 
