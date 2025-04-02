@@ -107,7 +107,7 @@ export async function getDocumentHtml(ctx, status=200): Promise<string> {
 export async function getFavicon(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "image/svg+xml");
-  ctx.response.headers.set("Cache-Control", "public, max-age=604800, immutable");
+  ctx.response.headers.set("Cache-Control", "public, max-age=2678400, immutable");
   ctx.response.body = await Deno.readTextFile(join(basePath, './static/img/favicon.svg'));
 }
 
