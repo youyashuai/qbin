@@ -128,12 +128,10 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
     }
     catch (e) {
       console.warn("JWT verify error:", e);
-      // token 无效或过期，可根据需求决定是否清除 Cookie
-      await ctx.cookies.set('token', '', {
-        maxAge: 0,
+      await ctx.cookies.delete("token", {
+        path: "/",
         httpOnly: true,
-        sameSite: "lax",
-        path: '/'
+        sameSite: "lax"
       });
       return new Response(ctx, 401, "cookie expired");
     }
@@ -146,11 +144,10 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
       });
       await next();
     }else {
-      await ctx.cookies.set('token', '', {
-        maxAge: 0,
+      await ctx.cookies.delete("token", {
+        path: "/",
         httpOnly: true,
-        sameSite: "lax",
-        path: '/'
+        sameSite: "lax"
       });
       return new Response(ctx, 401, "auth error");
     }
@@ -271,6 +268,11 @@ export const handleOAuthCallback = async (ctx: Context) => {
       httpOnly: true,
       sameSite: "lax",
       path: "/",
+    });
+    await ctx.cookies.delete("session_id", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax"
     });
     ctx.response.redirect("/home");
   } catch (error) {
