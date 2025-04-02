@@ -560,6 +560,14 @@ router
   .get("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
   .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
+  .post("/api/user/logout", async (ctx) => {
+    await ctx.cookies.delete("token", {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict"
+    });
+    return new Response(ctx, 200, "Logged out successfully");
+  })
   // .post("/api/data/clean", async (ctx) => {
   // });   // 清理过期key
 
