@@ -77,6 +77,20 @@ body {
     border-left-color: var(--primary-color);
 }
 
+.sidebar nav a.logout-link {
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    margin-top: 20px;
+    padding-top: 15px;
+    color: #e53935;
+}
+
+.sidebar nav a.logout-link:hover,
+.sidebar nav a.logout-link.active {
+    background: rgba(229, 57, 53, 0.1);
+    border-left-color: #e53935;
+}
+
 .main-content {
     flex: 1;
     padding: 30px;
@@ -172,17 +186,56 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 }
 
 .setting-item label {
     font-weight: 500;
+    flex-shrink: 0;
 }
 
-select, input[type="checkbox"] {
-    padding: 8px;
+select, 
+input[type="text"],
+input[type="number"] {
+    padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    background: var(--bg-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: border-color 0.3s;
+    -webkit-appearance: none;  /* Remove default styling in Safari */
+    appearance: none;
+}
+
+/* Custom select styling */
+select {
+    padding-right: 30px; /* Space for the arrow */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Dark mode select arrow */
+:root[data-theme="dark"] select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+}
+
+/* Focus states */
+select:focus,
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+
+/* Update existing checkbox styling */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
 }
 
 @keyframes fadeIn {
@@ -233,6 +286,18 @@ select, input[type="checkbox"] {
         padding: 0 16px;
         margin-bottom: 10px;
     }
+
+    .sidebar nav a.logout-link {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 8px;
+    }
+    
+    .sidebar nav a.logout-link:hover,
+    .sidebar nav a.logout-link.active {
+        background: transparent;
+        border-bottom-color: #e53935;
+    }
 }
 
 @media (max-width: 480px) {
@@ -248,4 +313,266 @@ select, input[type="checkbox"] {
         width: 24px;
         height: 24px;
     }
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    text-align: center;
+    padding: 20px;
+    color: #e53935;
+}
+
+.error-message button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.error-message button:hover {
+    background-color: #1976d2;
+}
+
+/* Common styles */
+.setting-group {
+    border-top: 1px solid var(--border-color);
+    margin-top: 24px;
+    padding-top: 16px;
+}
+
+.setting-group h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.hint-text {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+.message {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.message.hidden {
+    display: none;
+}
+
+.message.error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.message.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+
+/* Token specific styles */
+.token-field {
+    display: flex;
+    flex: 1;
+    position: relative;
+    margin-right: 12px;
+}
+
+.token-field input {
+    flex: 1;
+    padding: 10px 40px 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: monospace;
+    transition: border-color 0.3s;
+}
+
+.token-field input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.token-field input::placeholder {
+    color: #999;
+}
+
+.icon-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #666;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color);
+}
+
+.icon-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.icon-btn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    background: #1976d2;
+}
+
+.action-btn:active {
+    transform: translateY(1px);
+}
+
+.action-btn.loading {
+    opacity: 0.8;
+    cursor: wait;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .setting-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .token-field {
+        margin-right: 0;
+        margin-bottom: 12px;
+    }
+}
+
+/* Ensure dark mode compatibility - add theme attribute handling */
+html[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --border-color: #333;
+    --hover-color: #2a2a2a;
+}
+
+@-moz-document url-prefix() {
+    select {
+        color: var(--text-color);
+        background-color: var(--bg-color);
+    }
+    
+    select option {
+        color: var(--text-color);
+        background-color: var(--bg-color);
+    }
+}
+
+/* 添加深色主题变量 */
+html.dark-theme {
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --border-color: #333333;
+    --hover-color: #2a2a2a;
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* 表单控件样式 - 确保在深色模式正常显示 */
+select {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+    padding-right: 30px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(128, 128, 128, 0.8)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* 添加 loading 状态样式 */
+select.loading {
+    opacity: 0.7;
+    cursor: wait;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(128, 128, 128, 0.8)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83'%3E%3Canimate attributeName='stroke-dasharray' values='0 80;40 40;80 0' dur='1.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dashoffset' values='0;-80;-80' dur='1.5s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Toast 提示样式 */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    padding: 10px 16px;
+    margin-top: 10px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    animation: slideIn 0.3s ease;
+    max-width: 300px;
+}
+
+.toast.success {
+    background-color: #4caf50;
+}
+
+.toast.error {
+    background-color: #f44336;
+}
+
+.toast.hide {
+    animation: slideOut 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
 }
