@@ -52,8 +52,6 @@ class QBinViewer {
 
     async init() {
         try {
-            // await this.registerServiceWorker();
-
             const {key, pwd} = this.currentPath;
             if (!key) {
                 this.hideLoading();
@@ -118,18 +116,6 @@ class QBinViewer {
             // const debouncedFork = this.debounce(() => this.handleFork());
             // this.buttonBar.appendChild(this.addButton('Fork', debouncedFork));
             this.hideLoading();
-        }
-    }
-
-    // 添加检查缓存支持的方法
-    async registerServiceWorker() {
-        if ('serviceWorker' in navigator && this.cacheSupported) {
-            try {
-                await navigator.serviceWorker.register('/static/js/service-worker.js');
-                console.log('Service Worker registered successfully');
-            } catch (error) {
-                console.warn('Service Worker registration failed:', error);
-            }
         }
     }
 
@@ -546,7 +532,7 @@ class QBinViewer {
         await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
     }
 
-    async loadQRLibrary2() {
+    async loadQRLibrary() {
         // 不能本地缓存
         if (this.qrLoaded) return;
 
@@ -560,39 +546,6 @@ class QBinViewer {
             script.onerror = reject;
             document.head.appendChild(script);
         });
-    }
-
-    async loadQRLibrary() {
-        try {
-            const scriptUrl = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
-            const cache = await caches.open('qbin-cache-v1');
-            let response = await cache.match(scriptUrl);
-            if (!response) {
-                response = await fetch(scriptUrl, {mode: 'cors'});
-                if (!response.ok) {
-                    throw new Error(`Network error: ${response.statusText}`);
-                }
-                await cache.put(scriptUrl, response.clone());
-            }
-            const scriptBlob = await response.blob();
-            const blobUrl = URL.createObjectURL(scriptBlob);
-            return new Promise((resolve, reject) => {
-                const scriptElem = document.createElement('script');
-                scriptElem.src = blobUrl;
-                scriptElem.onload = () => {
-                    URL.revokeObjectURL(blobUrl);
-                    resolve();
-                };
-                scriptElem.onerror = () => {
-                    URL.revokeObjectURL(blobUrl);
-                    reject(new Error('Failed to load the QR library script'));
-                };
-                document.head.appendChild(scriptElem);
-            });
-        } catch (error) {
-            console.error('Error loading QR library:', error);
-            throw error;
-        }
     }
 
     async showQRCode() {
