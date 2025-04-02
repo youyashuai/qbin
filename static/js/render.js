@@ -66,43 +66,17 @@ class QBinViewer {
             if (!headResponse.ok) {
                 const status = headResponse.status;
                 if(status === 403) {
-                    throw new Error('访问密码错误');
+                    // 处理密码错误的情况 - 显示密码输入界面
+                    this.showPasswordDialog(key, pwd);
+                    return;
                 } else if(status === 404) {
                     throw new Error('访问内容不存在');
                 }
                 throw new Error('内容加载失败');
             }
-            const contentType = headResponse.headers.get('Content-Type');
-            const contentLength = headResponse.headers.get('Content-Length');
-            this.clearContent();
-            this.setupButtons(contentType);
-
-            // 如果文件格式既不是文本也不是图片，则不进行完整下载
-            if (!contentType?.startsWith('text/') && !contentType?.startsWith('image/')) {
-                const fileInfo = document.createElement('div');
-                fileInfo.className = 'file-info';
-                const size = headResponse.headers.get('Content-Length');
-                fileInfo.textContent = `文件类型: ${contentType}\t大小: ${size ? Math.ceil(size / 1024) : '未知'}KB`;
-                this.contentArea.appendChild(fileInfo);
-                return;
-            }
-
-            // 如果文件是文本或图片，继续发起 GET 请求下载文件内容
-            this.showLoading();
-            const response = await API.fetchWithCache(url);
-            if (contentType?.startsWith('text/')) {
-                await this.renderTextContent(response, contentLength);
-            } else if (contentType?.startsWith('image/')) {
-                await this.renderImageContent(response, contentType, contentLength);
-            }
-            else {
-                // 兜底情况
-                const fileInfo = document.createElement('div');
-                fileInfo.className = 'file-info';
-                fileInfo.textContent = `文件类型: ${contentType}\t大小: ${contentLength ? Math.ceil(contentLength / 1024) : '未知'}KB`;
-                this.contentArea.appendChild(fileInfo);
-                this.hideLoading();
-            }
+            
+            // 执行正常的内容加载逻辑
+            await this.loadContent(headResponse);
         } catch (error) {
             console.error('Error loading content:', error);
             const errorDiv = document.createElement('div');
@@ -112,9 +86,44 @@ class QBinViewer {
             this.contentArea.appendChild(errorDiv);
 
             const debouncedNew = this.debounce(() => this.handleNew());
+            this.buttonBar.innerHTML = '';
             this.buttonBar.appendChild(this.addButton('New', debouncedNew));
-            // const debouncedFork = this.debounce(() => this.handleFork());
-            // this.buttonBar.appendChild(this.addButton('Fork', debouncedFork));
+            this.hideLoading();
+        }
+    }
+
+    // 拆分内容加载逻辑，便于密码验证后重用
+    async loadContent(headResponse) {
+        const contentType = headResponse.headers.get('Content-Type');
+        const contentLength = headResponse.headers.get('Content-Length');
+        this.clearContent();
+        this.setupButtons(contentType);
+
+        // 如果文件格式既不是文本也不是图片，则不进行完整下载
+        if (!contentType?.startsWith('text/') && !contentType?.startsWith('image/')) {
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'file-info';
+            const size = headResponse.headers.get('Content-Length');
+            fileInfo.textContent = `文件类型: ${contentType}\t大小: ${size ? Math.ceil(size / 1024) : '未知'}KB`;
+            this.contentArea.appendChild(fileInfo);
+            return;
+        }
+
+        // 如果文件是文本或图片，继续发起 GET 请求下载文件内容
+        this.showLoading();
+        const url = `/r/${this.currentPath.key}/${this.currentPath.pwd}`;
+        const response = await API.fetchWithCache(url);
+        if (contentType?.startsWith('text/')) {
+            await this.renderTextContent(response, contentLength);
+        } else if (contentType?.startsWith('image/')) {
+            await this.renderImageContent(response, contentType, contentLength);
+        }
+        else {
+            // 兜底情况
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'file-info';
+            fileInfo.textContent = `文件类型: ${contentType}\t大小: ${contentLength ? Math.ceil(contentLength / 1024) : '未知'}KB`;
+            this.contentArea.appendChild(fileInfo);
             this.hideLoading();
         }
     }
@@ -533,7 +542,6 @@ class QBinViewer {
     }
 
     async loadQRLibrary() {
-        // 不能本地缓存
         if (this.qrLoaded) return;
 
         return new Promise((resolve, reject) => {
@@ -622,6 +630,129 @@ class QBinViewer {
             console.error('QR码生成失败:', error);
             this.showToast('QR码生成失败');
         }
+    }
+
+    // 添加新方法：显示密码输入对话框
+    showPasswordDialog(key, currentPwd = '') {
+        this.hideLoading();
+        this.contentArea.innerHTML = '';
+        this.buttonBar.innerHTML = '';
+        
+        // 创建密码输入界面
+        const container = document.createElement('div');
+        container.className = 'file-info password-dialog';
+        
+        // 错误信息区域
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'password-error';
+        
+        // 创建表单
+        const form = document.createElement('form');
+        form.innerHTML = `
+            <div class="lock-icon">🔒</div>
+            <h3>访问内容有密码保护</h3>
+            <div class="password-input-container">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    class="password-input"
+                    placeholder="请输入访问密码" 
+                    autocomplete="off"
+                    value="${currentPwd || ''}"
+                />
+                <button type="submit" id="submitPasswordBtn" class="button primary" style="min-width:70px;position:relative;">
+                    <span id="submitBtnText">验证</span>
+                    <span id="submitBtnSpinner">
+                        <div class="spinner"></div>
+                    </span>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(form);
+        container.appendChild(errorMessage);
+        this.contentArea.appendChild(container);
+        
+        // 显示New按钮
+        const newButton = this.addButton('New', this.debounce(() => this.handleNew()));
+        this.buttonBar.appendChild(newButton);
+        
+        // 处理表单提交 - 不刷新页面
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const passwordInput = document.getElementById('passwordInput');
+            const submitBtn = document.getElementById('submitPasswordBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const submitBtnSpinner = document.getElementById('submitBtnSpinner');
+            const password = passwordInput.value.trim();
+            
+            if (!password) {
+                errorMessage.textContent = '请输入密码';
+                errorMessage.classList.add('visible');
+                return;
+            }
+            
+            // 显示加载状态但不改变按钮文字，避免布局变化
+            submitBtn.disabled = true;
+            submitBtnText.style.visibility = 'hidden';
+            submitBtnSpinner.style.display = 'block';
+            errorMessage.classList.remove('visible');
+            
+            try {
+                // 验证密码
+                const validationResult = await this.validatePassword(key, password);
+                if (validationResult.valid) {
+                    // 验证成功，更新当前路径中的密码并添加到URL历史（不刷新页面）
+                    this.currentPath.pwd = password;
+                    
+                    // 更新浏览器URL，但不刷新页面
+                    if (history.pushState) {
+                        const newUrl = `/p/${key}/${password}`;
+                        history.pushState({path: newUrl}, '', newUrl);
+                    }
+                    
+                    // 重新获取内容
+                    this.showLoading();
+                    await this.loadContent(validationResult.headResponse);
+                } else {
+                    // 验证失败，显示错误信息
+                    errorMessage.textContent = '密码错误，请重试';
+                    errorMessage.classList.add('visible');
+                    passwordInput.focus();
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message || '验证过程中出现错误';
+                errorMessage.classList.add('visible');
+            } finally {
+                // 恢复按钮状态
+                submitBtn.disabled = false;
+                submitBtnText.style.visibility = 'visible';
+                submitBtnSpinner.style.display = 'none';
+            }
+        };
+        
+        // 聚焦到密码输入框
+        setTimeout(() => {
+            const input = document.getElementById('passwordInput');
+            input.focus();
+            if (currentPwd) {
+                input.select(); // 如果已有密码则全选以便修改
+            }
+        }, 100);
+    }
+
+    // 验证密码的方法
+    async validatePassword(key, password) {
+        const url = `/r/${key}/${password}`;
+        
+        // 使用 HEAD 请求来验证密码是否正确
+        const headResponse = await fetch(url, { method: 'HEAD' });
+        
+        return {
+            valid: headResponse.ok,
+            headResponse: headResponse
+        };
     }
 }
 
