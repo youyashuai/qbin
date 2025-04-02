@@ -38,6 +38,7 @@ export const HEADERS = {
     "X-Content-Type-Options": "nosniff",    // 禁止嗅探MIME类型
     "X-XSS-Protection": "1; mode=block",    // 启用XSS过滤器
     "X-Frame-Options": "DENY",              // 禁止页面在frame中展示
+    // "Content-Security-Policy": "default-src 'self'",  // 同源加载
     "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",  // HSTS强制使用HTTPS
     "Referrer-Policy": "strict-origin-when-cross-origin",      // 引用策略
   },
