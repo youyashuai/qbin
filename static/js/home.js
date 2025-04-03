@@ -149,9 +149,13 @@ class QBinHome {
         document.querySelector(`input[name="default-editor"][value="${savedEditor}"]`).checked = true;
         this.updateEditorRadioVisualFeedback(savedEditor);
 
-        // 设置默认主题选择
-        const savedTheme = localStorage.getItem('qbin-theme') || 'system';
-        document.querySelector(`input[name="qbin-theme"][value="${savedTheme}"]`).checked = true;
+        try {
+            // 设置默认主题选择
+            const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+            document.querySelector(`input[name="qbin-theme"][value="${savedTheme}"]`).checked = true;
+        }catch (e) {
+            localStorage.clear()
+        }
 
         // 确保主题设置已应用
         this.applyTheme(savedTheme);
