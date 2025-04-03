@@ -142,7 +142,7 @@ class QBinHome {
 
     initializeSettings() {
         const editorRadios = document.querySelectorAll('input[name="default-editor"]');
-        const themeRadios = document.querySelectorAll('input[name="theme-mode"]');
+        const themeRadios = document.querySelectorAll('input[name="qbin-theme"]');
 
         // 设置默认编辑器选择
         const savedEditor = localStorage.getItem('default-editor') || 'e';
@@ -150,8 +150,8 @@ class QBinHome {
         this.updateEditorRadioVisualFeedback(savedEditor);
 
         // 设置默认主题选择
-        const savedTheme = localStorage.getItem('theme-mode') || 'system';
-        document.querySelector(`input[name="theme-mode"][value="${savedTheme}"]`).checked = true;
+        const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+        document.querySelector(`input[name="qbin-theme"][value="${savedTheme}"]`).checked = true;
 
         // 确保主题设置已应用
         this.applyTheme(savedTheme);
@@ -206,7 +206,7 @@ class QBinHome {
             radio.addEventListener('change', (e) => {
                 if (e.target.checked) {
                     const themeValue = e.target.value;
-                    localStorage.setItem('theme-mode', themeValue);
+                    localStorage.setItem('qbin-theme', themeValue);
                     this.applyTheme(themeValue);
                     this.showToast(`已切换到${themeValue === 'light' ? '浅色' : themeValue === 'dark' ? '深色' : '系统'}主题`);
 
@@ -263,7 +263,7 @@ class QBinHome {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
             const handleThemeChange = (e) => {
-                if (localStorage.getItem('theme-mode') === 'system') {
+                if (localStorage.getItem('qbin-theme') === 'system') {
                     // 添加过渡效果
                     document.documentElement.classList.add('theme-transition');
                     document.documentElement.classList.remove('light-theme', 'dark-theme');
@@ -318,7 +318,7 @@ class QBinHome {
 
     // 更新主题选择器的视觉反馈
     updateThemeRadioVisualFeedback(themeValue) {
-        this.updateRadioVisualFeedback('theme-mode', themeValue, 'active-theme');
+        this.updateRadioVisualFeedback('qbin-theme', themeValue, 'active-theme');
     }
 
     // 更新编辑器选择器的视觉反馈
