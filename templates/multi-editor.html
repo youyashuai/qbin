@@ -5,7 +5,50 @@
     <title>QBin</title>
     <meta charset=UTF-8>
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name=viewport>
+    <link href=/static/css/panel-common.css rel=stylesheet>
     <link href=/static/css/multi-editor.css rel=stylesheet>
+    <script>
+        (function() {
+            function applyTheme() {
+                // 先移除现有主题类
+                document.documentElement.classList.remove('dark-theme', 'light-theme');
+                
+                const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                } else if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light-theme');
+                } else {
+                    // 系统偏好
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark-theme');
+                    } else {
+                        document.documentElement.classList.add('light-theme');
+                    }
+                }
+            }
+            applyTheme();
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (localStorage.getItem('qbin-theme') === 'system' || !localStorage.getItem('qbin-theme')) {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'qbin-theme') {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('themeChange', () => {
+                applyTheme();
+            });
+            if (!window.qbinToggleTheme) {
+                window.qbinToggleTheme = (theme) => {
+                    localStorage.setItem('qbin-theme', theme);
+                    window.dispatchEvent(new CustomEvent('themeChange'));
+                };
+            }
+        })();
+    </script>
     <script src=/static/js/utils.js defer></script>
     <script src=/static/js/base-editor.js defer></script>
     <script src=/static/js/multi-editor.js defer></script>
@@ -25,11 +68,11 @@
                     <a title="Markdown Editor" href="javascript:void(0)" class="social-link editor-link markdown-editor-link" id="edit2-button">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V8h2l2 5 2-5h2v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 12l-1.5 2 1.5 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
-                    <a title="Go Home" href="/home" rel="noopener" class="social-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="M2 10l10-7 10 7M4.5 10.5V20a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-9.5"/><path d="M10 21v-6h4v6"/></svg>
-                    </a>
                     <a title="Preview & Manage" href="javascript:void(0)" class="social-link preview-link" id="preview-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><path fill="none" stroke="currentColor" d="M8 4.5h6m-12 0h2.5m0 0a2 2 0 1 0 4 0a2 2 0 0 0-4 0Zm-2.5 7h6m3.5 0H14m-2.5 0a2 2 0 1 1-4 0a2 2 0 0 1 4 0Z"/></svg>
+                    </a>
+                    <a title="Go Home" href="/home" rel="noopener" class="social-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="M2 10l10-7 10 7M4.5 10.5V20a1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-9.5"/><path d="M10 21v-6h4v6"/></svg>
                     </a>
                     <a title="Guide" href="https://qbin.me/r/document" target="_blank" rel="noopener" class="social-link">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a3 3 0 0 1 5 0c0 1.5-2.5 2.5-2.5 4"/><circle cx="12" cy="17" r="0.5"/></svg>

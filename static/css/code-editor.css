@@ -1,3 +1,226 @@
+/* Add CSS variables to support panel-common.css */
+:root {
+    /* Light theme default colors */
+    --background-color: #f5f6f7;
+    --text-color: #2c3e50;
+    --editor-bg: #ffffff;
+    --editor-shadow: 0 1px 3px rgba(0, 0, 0, 0.04),
+                     0 2px 8px rgba(0, 0, 0, 0.06),
+                     0 0 0 1px rgba(0, 0, 0, 0.02),
+                     inset 0 0 20px rgba(0, 0, 0, 0.005),
+                     0 4px 16px rgba(0, 0, 0, 0.02);
+    --editor-focus-shadow: 0 2px 6px rgba(0, 0, 0, 0.05),
+                          0 4px 12px rgba(0, 0, 0, 0.08),
+                          0 0 0 1px rgba(24, 144, 255, 0.08),
+                          inset 0 0 30px rgba(0, 0, 0, 0.002),
+                          0 8px 24px rgba(0, 0, 0, 0.03);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.4);
+
+    /* Panel & Form elements */
+    --panel-bg: rgba(252, 252, 252, 0.92);
+    --panel-gradient: radial-gradient(circle at top right,
+                                      rgba(240, 240, 240, 0.8) 0%,
+                                      rgba(252, 252, 252, 0.3) 60%,
+                                      rgba(252, 252, 252, 0.92) 100%);
+    --panel-shadow: 0 3px 16px rgba(0, 0, 0, 0.06),
+                    0 8px 30px rgba(0, 0, 0, 0.08),
+                    0 0 0 1px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                    0 14px 45px rgba(0, 0, 0, 0.05),
+                    0 1px 3px rgba(0, 0, 0, 0.1);
+    --section-bg: rgba(255, 255, 255, 0.5);
+    --section-hover-bg: rgba(255, 255, 255, 0.65);
+    --section-title-color: #444;
+    --section-border: rgba(0, 0, 0, 0.06);
+    --section-shadow: 0 1px 3px rgba(0, 0, 0, 0.02),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                      0 1px 2px rgba(0, 0, 0, 0.03);
+    --section-hover-shadow: 0 2px 5px rgba(0, 0, 0, 0.03),
+                           inset 0 1px 0 rgba(255, 255, 255, 1),
+                           0 1px 3px rgba(0, 0, 0, 0.04);
+    --input-bg: rgba(255, 255, 255, 0.7);
+    --input-color: #333;
+    --input-border: rgba(0, 0, 0, 0.08);
+    --input-shadow: 0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    --input-focus-border: rgba(24, 144, 255, 0.4);
+    --input-focus-bg: rgba(255, 255, 255, 0.95);
+    --input-focus-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1),
+                         inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    --label-color: #555;
+    --label-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    --label-dot-bg: rgba(0, 0, 0, 0.3);
+    --label-dot-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+
+    /* Social & UI elements */
+    --social-link-bg: rgba(255, 255, 255, 0.6);
+    --social-link-color: #666;
+    --social-link-hover-bg: rgba(255, 255, 255, 0.9);
+    --social-link-hover-color: #1890ff;
+    --social-link-border: rgba(0, 0, 0, 0.04);
+    --social-link-shadow: 0 1px 2px rgba(0, 0, 0, 0.02),
+                         inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    --social-link-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.04),
+                               0 2px 4px rgba(24, 144, 255, 0.08),
+                               inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --bookmark-bg: rgba(252, 252, 252, 0.92);
+    --bookmark-hover-bg: rgba(255, 255, 255, 0.97);
+    --bookmark-shadow: 0 2px 6px rgba(0, 0, 0, 0.08),
+                      0 4px 10px rgba(0, 0, 0, 0.05),
+                      0 0 0 1px rgba(0, 0, 0, 0.04),
+                      inset 0 0 16px rgba(0, 0, 0, 0.01),
+                      0 6px 16px rgba(0, 0, 0, 0.03);
+    --bookmark-hover-shadow: 0 3px 10px rgba(24, 144, 255, 0.12),
+                            0 4px 14px rgba(0, 0, 0, 0.08),
+                            0 0 0 1px rgba(24, 144, 255, 0.15),
+                            inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+                            0 8px 20px rgba(0, 0, 0, 0.06);
+
+    /* Status messages */
+    --status-bg: rgba(255, 255, 255, 0.95);
+    --status-success-bg: rgba(246, 255, 237, 0.95);
+    --status-success-color: #52c41a;
+    --status-error-bg: rgba(255, 241, 240, 0.95);
+    --status-error-color: #ff4d4f;
+    --status-info-color: #666;
+
+    /* Checkbox */
+    --checkbox-bg: rgba(255, 255, 255, 0.7);
+    --checkbox-border: rgba(0, 0, 0, 0.15);
+    --checkbox-shadow: 0 1px 2px rgba(0, 0, 0, 0.02),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --checkbox-checked-bg: rgba(24, 144, 255, 0.2);
+    --checkbox-checked-border: rgba(24, 144, 255, 0.4);
+    --checkbox-check-color: #1890ff;
+    --option-text-color: #555;
+}
+
+/* Dark theme variables */
+.dark-theme {
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --editor-bg: #242424;
+    --editor-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+                     0 0 0 1px rgba(255, 255, 255, 0.05);
+    --editor-focus-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+                          0 6px 16px rgba(0, 0, 0, 0.2),
+                          0 0 0 1px rgba(24, 144, 255, 0.15),
+                          inset 0 0 20px rgba(0, 0, 0, 0.15),
+                          0 8px 24px rgba(0, 0, 0, 0.18);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
+
+    /* Panel & Form elements */
+    --panel-bg: rgba(36, 36, 36, 0.92);
+    --panel-gradient: radial-gradient(circle at top right,
+                                     rgba(50, 50, 50, 0.8) 0%,
+                                     rgba(36, 36, 36, 0.3) 60%,
+                                     rgba(36, 36, 36, 0.92) 100%);
+    --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.25),
+                    0 10px 40px rgba(0, 0, 0, 0.3),
+                    0 0 0 1px rgba(255, 255, 255, 0.08),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                    0 1px 3px rgba(0, 0, 0, 0.3);
+    --section-bg: rgba(50, 50, 50, 0.3);
+    --section-hover-bg: rgba(55, 55, 55, 0.4);
+    --section-title-color: rgba(255, 255, 255, 0.85);
+    --section-border: rgba(255, 255, 255, 0.08);
+    --section-shadow: 0 1px 3px rgba(0, 0, 0, 0.1),
+                     inset 0 1px 0 rgba(255, 255, 255, 0.03),
+                     0 1px 2px rgba(0, 0, 0, 0.15);
+    --section-hover-shadow: 0 2px 5px rgba(0, 0, 0, 0.15),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                           0 1px 3px rgba(0, 0, 0, 0.2);
+    --input-bg: rgba(48, 48, 48, 0.7);
+    --input-color: rgba(255, 255, 255, 0.92);
+    --input-border: rgba(255, 255, 255, 0.12);
+    --input-shadow: 0 1px 2px rgba(0, 0, 0, 0.15),
+                   inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    --input-focus-border: rgba(24, 144, 255, 0.6);
+    --input-focus-bg: rgba(52, 52, 52, 0.95);
+    --input-focus-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15),
+                         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --label-color: rgba(255, 255, 255, 0.75);
+    --label-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+    --label-dot-bg: rgba(255, 255, 255, 0.4);
+    --label-dot-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+
+    /* Social & UI elements */
+    --social-link-bg: rgba(255, 255, 255, 0.05);
+    --social-link-color: rgba(255, 255, 255, 0.7);
+    --social-link-hover-bg: rgba(255, 255, 255, 0.1);
+    --social-link-hover-color: #40a9ff;
+    --social-link-border: rgba(255, 255, 255, 0.08);
+    --social-link-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                         inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    --social-link-hover-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),
+                               0 2px 5px rgba(24, 144, 255, 0.1),
+                               inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --bookmark-bg: rgba(36, 36, 36, 0.9);
+    --bookmark-hover-bg: rgba(42, 42, 42, 0.95);
+    --bookmark-shadow: 0 1px 3px rgba(0, 0, 0, 0.25),
+                      0 2px 6px rgba(0, 0, 0, 0.2),
+                      0 0 0 1px rgba(255, 255, 255, 0.06),
+                      inset 0 0 16px rgba(0, 0, 0, 0.15),
+                      0 4px 10px rgba(0, 0, 0, 0.2);
+    --bookmark-hover-shadow: 0 3px 8px rgba(0, 0, 0, 0.3),
+                            0 2px 10px rgba(24, 144, 255, 0.18),
+                            0 0 0 1px rgba(24, 144, 255, 0.25),
+                            inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+                            0 6px 16px rgba(0, 0, 0, 0.25);
+
+    /* Status messages */
+    --status-bg: rgba(40, 40, 40, 0.85);
+    --status-success-bg: rgba(82, 196, 26, 0.12);
+    --status-success-color: #52c41a;
+    --status-error-bg: rgba(255, 77, 79, 0.12);
+    --status-error-color: #ff4d4f;
+    --status-info-color: rgba(255, 255, 255, 0.7);
+
+    /* Checkbox */
+    --checkbox-bg: rgba(60, 60, 60, 0.5);
+    --checkbox-border: rgba(255, 255, 255, 0.2);
+    --checkbox-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    --checkbox-checked-bg: rgba(24, 144, 255, 0.2);
+    --checkbox-checked-border: rgba(24, 144, 255, 0.4);
+    --checkbox-check-color: #1890ff;
+    --option-text-color: rgba(255, 255, 255, 0.75);
+}
+
+/* Light theme variables - explicitly set to ensure theme switching works */
+.light-theme {
+    /* All variables remain as defined in :root */
+}
+
+/* Add theme-based animation for transitions */
+.light-theme .password-panel,
+.dark-theme .password-panel {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Enhanced theme-specific overrides for panel elements */
+.dark-theme #editor {
+    color: #e0e0e0 !important;
+    background-color: #242424 !important;
+    /*color: var(--text-color);*/
+    /*background-color: var(--editor-bg);*/
+    box-shadow: var(--editor-shadow);
+}
+
+.dark-theme #editor:focus {
+    box-shadow: var(--editor-focus-shadow);
+}
+
+.dark-theme .content::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+}
+
+.dark-theme .content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
 .header {
     position: absolute;
     top: 0;
@@ -91,7 +314,9 @@ body::-webkit-scrollbar {
         #editor, #editor:focus, #editor:active, #editor:hover, #editor:focus {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(24, 144, 255, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.18) !important;
         }
-    }.content {
+    }
+    
+    .content {
          scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
      }
 
@@ -104,36 +329,7 @@ body::-webkit-scrollbar {
     }
 }
 
-.editor-link {
-    position: relative;
-    overflow: hidden;
-}
-
-.editor-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0;
-    background: rgba(24, 144, 255, 0.1);
-    transition: height 0.3s ease;
-    z-index: -1;
-    border-radius: 4px;
-}
-
-.editor-link:hover::after {
-    height: 100%;
-}
-
-.code-editor-link svg {
-    transform: scale(0.9);
-}
-
-.markdown-editor-link svg {
-    transform: scale(0.9);
-}
-
+/* Editor-specific styles */
 #editor {
     height: 100% !important;
     width: 100% !important;
@@ -147,875 +343,6 @@ body::-webkit-scrollbar {
 #editor:focus {
     outline: none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(24, 144, 255, 0.06), inset 0 0 30px rgba(0, 0, 0, 0.002), 0 8px 24px rgba(0, 0, 0, 0.02);
-}
-
-.upload-status {
-    position: fixed;
-    top: env(safe-area-inset-top, 16px);
-    left: 50%;
-    transform: translateX(-50%) translateY(-120%);
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    line-height: 1.4;
-    max-width: 280px;
-    background: rgba(255, 255, 255, 0.95);
-    transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-    z-index: 1000;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-    text-align: center;
-    border: none;
-}
-
-.upload-status.visible {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-}
-
-.upload-status[data-status="success"] {
-    color: #52c41a;
-    background: rgba(246, 255, 237, 0.95);
-    border: none;
-}
-
-.upload-status[data-status="error"] {
-    color: #ff4d4f;
-    background: rgba(255, 241, 240, 0.95);
-    border: none;
-}
-
-.upload-status[data-status="info"] {
-    color: #666;
-    background: rgba(255, 255, 255, 0.95);
-    border: none;
-}
-
-@media (prefers-color-scheme: dark) {
-    .upload-status {
-        background: rgba(40, 40, 40, 0.85);
-    }
-
-    .upload-status[data-status="success"] {
-        background: rgba(82, 196, 26, 0.12);
-    }
-
-    .upload-status[data-status="error"] {
-        background: rgba(255, 77, 79, 0.12);
-    }
-
-    .upload-status[data-status="info"] {
-        background: rgba(40, 40, 40, 0.85);
-    }
-
-    @media (max-width: 768px) {
-        .upload-status {
-            background: rgba(40, 40, 40, 0.92);
-        }
-    }
-}
-
-@media (max-width: 768px) {
-    .upload-status {
-        left: 50%;
-        transform: translateX(-50%) translateY(-120%);
-        width: auto;
-        max-width: min(280px, 85%);
-        margin: 0 auto;
-        font-size: 12px;
-        padding: 7px 12px;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.95);
-    }
-
-    .upload-status.visible {
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
-.password-container {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    height: auto;
-    z-index: 101;
-    transition: all 0.3s ease;
-}
-
-.bookmark {
-    position: fixed;
-    top: 0;
-    right: 24px;
-    width: 40px;
-    height: 28px;
-    padding-top: 6px;
-    background: rgba(252, 252, 252, 0.92);
-    border-radius: 0 0 8px 8px;
-    border-style: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04), inset 0 0 16px rgba(0, 0, 0, 0.01), 0 6px 16px rgba(0, 0, 0, 0.03);
-    backdrop-filter: blur(4px);
-}
-
-.bookmark::before {
-    content: "⚙️";
-    font-size: 14px;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
-}
-
-.bookmark:hover {
-    height: 32px;
-    padding-top: 10px;
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 3px 10px rgba(24, 144, 255, 0.12), 0 4px 14px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(24, 144, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 8px 20px rgba(0, 0, 0, 0.06);
-    transform: translateY(1px);
-}
-
-.bookmark:hover::before {
-    opacity: 0.9;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
-}
-
-.bookmark:hover {
-    opacity: 1;
-}
-
-.password-panel {
-    position: fixed;
-    top: 44px;
-    right: 24px;
-    background: rgba(252, 252, 252, 0.95);
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 6px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 40px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.08);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: all 0.3s ease;
-    width: 280px;
-    max-width: calc(100vw - 48px);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-    max-height: calc(90vh - 60px);
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-.password-panel::-webkit-scrollbar {
-    width: 5px;
-}
-
-.password-panel::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.password-panel::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-}
-
-.password-panel::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-    .password-panel {
-        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    }
-
-    .password-panel::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .password-panel::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-}
-
-@media (max-height: 600px) {
-    .password-panel {
-        max-height: calc(100vh - 60px);
-        top: 40px;
-    }
-}
-
-.scroll-indicator {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 36px;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.password-panel.can-scroll .scroll-indicator {
-    opacity: 1;
-}
-
-@media (prefers-color-scheme: dark) {
-    .scroll-indicator {
-        background: rgba(255, 255, 255, 0.15);
-    }
-}
-
-.password-panel.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.form-section {
-    margin-bottom: 16px;
-    padding: 14px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.form-section:last-child {
-    margin-bottom: 0;
-}
-
-.form-section:hover {
-    background: rgba(255, 255, 255, 0.65);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 1), 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.section-title {
-    font-size: 15px;
-    color: #444;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-    letter-spacing: 0.06em;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-}
-
-.section-icon {
-    margin-right: 6px;
-    opacity: 0.7;
-    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-    font-size: 16px;
-}
-
-.social-links-section {
-    display: flex;
-    justify-content: center;
-}
-
-.social-links {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    padding: 8px 0;
-    position: relative;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    color: #666;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    text-decoration: none;
-    position: relative;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.social-link:hover {
-    transform: translateY(-3px);
-    color: #1890ff;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(24, 144, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.form-label {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 6px;
-    display: block;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-    letter-spacing: 0.03em;
-    position: relative;
-    padding-left: 14px;
-}
-
-.form-label::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.3);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.required-label::after {
-    content: "*";
-    color: rgba(213, 77, 77, 0.8);
-    margin-left: 4px;
-    font-weight: bold;
-}
-
-.input-wrapper {
-    position: relative;
-    margin-bottom: 6px;
-}
-
-.input-wrapper:last-child {
-    margin-bottom: 0;
-}
-
-#key-input, #password-input, .expiry-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.09);
-    border-radius: 8px;
-    font-size: 14px;
-    -webkit-appearance: none;
-    transition: all 0.25s ease;
-    background: rgba(255, 255, 255, 0.65);
-    color: #333;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), inset 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
-    box-sizing: border-box;
-}
-
-.option-toggle {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.option-toggle:hover {
-    color: #1890ff;
-}
-
-.custom-checkbox {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
-    margin-right: 8px;
-    background: rgba(255, 255, 255, 0.7);
-    display: inline-block;
-    vertical-align: middle;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-.custom-checkbox.checked {
-    background: rgba(24, 144, 255, 0.2);
-    border-color: rgba(24, 144, 255, 0.4);
-}
-
-.custom-checkbox.checked::after {
-    content: "✓";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #1890ff;
-    font-size: 12px;
-    line-height: 1;
-}
-
-.option-text {
-    font-size: 14px;
-    color: #555;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-
-.option-text del {
-    opacity: 0.7;
-    text-decoration-color: rgba(0, 0, 0, 0.3);
-}
-
-@media (prefers-color-scheme: dark) {
-    .form-section {
-        background: rgba(50, 50, 50, 0.3);
-        border-color: rgba(255, 255, 255, 0.06);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 1px 2px rgba(0, 0, 0, 0.15);
-    }
-
-    .form-section:hover {
-        background: rgba(55, 55, 55, 0.4);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-
-    .section-title {
-        color: rgba(255, 255, 255, 0.85);
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-    }
-
-    .form-label {
-        color: rgba(255, 255, 255, 0.75);
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-    }
-
-    .form-label::before {
-        background: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-    }
-
-    .option-text {
-        color: rgba(255, 255, 255, 0.75);
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-    }
-
-    .option-text del {
-        text-decoration-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .custom-checkbox {
-        border-color: rgba(255, 255, 255, 0.2);
-        background: rgba(60, 60, 60, 0.5);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-}
-
-.password-panel {
-    position: fixed;
-    top: 44px;
-    right: 24px;
-    background: rgba(252, 252, 252, 0.95);
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 6px 24px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 40px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.08);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-8px);
-    transition: all 0.3s ease;
-    width: 280px;
-    max-width: calc(100vw - 48px);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-}
-
-#key-input, #password-input, .expiry-select {
-    width: 90%;
-    padding: 10px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 8px;
-    font-size: 14px;
-    -webkit-appearance: none;
-    transition: all 0.25s ease;
-    background: rgba(255, 255, 255, 0.7);
-    color: #333;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-}
-
-#key-input:focus, #password-input:focus, .expiry-select:focus {
-    outline: none;
-    border-color: rgba(24, 144, 255, 0.4);
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-}
-
-@media (prefers-color-scheme: dark) {
-    #key-input, #password-input, .expiry-select {
-        background: rgba(48, 48, 48, 0.7);
-        border-color: rgba(255, 255, 255, 0.12);
-        color: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-    }
-
-    #key-input:focus, #password-input:focus, .expiry-select:focus {
-        background: rgba(52, 52, 52, 0.95);
-        border-color: rgba(24, 144, 255, 0.6);
-        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    }
-}
-
-@media (max-width: 768px) {
-    body {
-        background-color: #f8f9fa;
-    }
-
-    .content {
-        padding: calc(16px + env(safe-area-inset-top, 12px)) 6px calc(16px + env(safe-area-inset-bottom, 12px));
-        height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-        overflow-y: auto;
-        justify-content: flex-start;
-    }
-
-    #editor {
-        padding: 16px;
-        border-radius: 8px;
-        font-size: 16px;
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.01), inset 0 0 16px rgba(0, 0, 0, 0.003);
-    }
-}
-
-@supports (-webkit-touch-callout:none) {
-    @media (max-width: 768px) {
-        .content {
-            margin-top: max(env(safe-area-inset-top, 12px), 20px);
-        }
-
-        #editor {
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.02), 0 2px 10px rgba(0, 0, 0, 0.01);
-        }
-    }.upload-status {
-    top: max(env(safe-area-inset-top, 12px), 12px);
-}
-}
-
-@media (prefers-color-scheme: dark) and (max-width: 768px) {
-    body {
-        background-color: #1a1a1a;
-    }
-
-    .content {
-        background-color: transparent !important;
-    }
-
-    #editor {
-        background: #242424 !important;
-        color: #e0e0e0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    }
-
-    #editor:focus {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(24, 144, 255, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.18) !important;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1024px) {
-    .content {
-        padding: 16px;
-        width: calc(100% - 32px);
-    }
-}
-
-@media (min-width: 1440px) {
-    .content {
-        max-width: 100%;
-        padding: 10px;
-    }
-
-    #editor {
-        max-width: 100%;
-        padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.02), inset 0 0 30px rgba(0, 0, 0, 0.004);
-    }
-}
-
-.password-panel {
-    background: rgba(252, 252, 252, 0.95);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
-}
-
-@media (prefers-color-scheme: dark) {
-    .bookmark {
-        background: rgba(36, 36, 36, 0.9);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 0 16px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .bookmark::before {
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
-    }
-
-    .bookmark:hover {
-        background: rgba(42, 42, 42, 0.95);
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), 0 2px 10px rgba(24, 144, 255, 0.18), 0 0 0 1px rgba(24, 144, 255, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.25);
-    }
-
-    .bookmark:hover::before {
-        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
-    }
-
-    .password-panel {
-        background: rgba(36, 36, 36, 0.92);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25), 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-
-    #key-input, #password-input, .expiry-select {
-        background: rgba(48, 48, 48, 0.7);
-        border-color: rgba(255, 255, 255, 0.12);
-        color: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-    }
-
-    #key-input:focus, #password-input:focus, .expiry-select:focus {
-        background: rgba(52, 52, 52, 0.95);
-        border-color: rgba(24, 144, 255, 0.6);
-        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    }
-
-    #key-input::placeholder, #password-input::placeholder {
-        color: rgba(255, 255, 255, 0.3);
-    }
-
-    .expiry-select option {
-        background: #242424;
-        color: rgba(255, 255, 255, 0.9);
-    }
-}
-
-@media (prefers-color-scheme: dark) and (max-width: 768px) {
-    .bookmark {
-        background: rgba(36, 36, 36, 0.9);
-    }
-
-    .password-panel {
-        background: rgba(36, 36, 36, 0.98);
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.08);
-    }
-
-    #key-input, #password-input, .expiry-select {
-        background: rgba(48, 48, 48, 0.9);
-    }
-}
-
-.social-links {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    color: #666;
-    background: rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
-    text-decoration: none;
-    position: relative;
-}
-
-.social-link:hover {
-    background: rgba(0, 0, 0, 0.04);
-    transform: translateY(-2px);
-    color: #1890ff;
-}
-
-.social-link svg {
-    width: 20px;
-    height: 20px;
-    transition: all 0.2s ease;
-}
-
-@media (prefers-color-scheme: dark) {
-    .social-link {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-
-    .social-link:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #40a9ff;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), 0 2px 5px rgba(24, 144, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-
-    .editor-link::after {
-        background: rgba(24, 144, 255, 0.15);
-    }
-
-    .key-watermark {
-        color: rgba(255, 255, 255, 0.6);
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-    }
-}
-
-@media (max-width: 768px) {
-    .social-links {
-        gap: 8px;
-        padding: 6px 0;
-    }
-
-    .social-link {
-        width: 32px;
-        height: 32px;
-    }
-
-    .key-watermark {
-        font-size: 14px;
-        padding: 3px 10px;
-    }
-
-    .editor-link svg {
-        transform: scale(0.85);
-    }
-}
-
-.confirm-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    background: rgba(255, 255, 255, 0.98);
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-    max-width: 320px;
-    width: 85%;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-}
-
-.confirm-dialog.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.confirm-dialog-content {
-    white-space: pre-line;
-    margin-bottom: 20px;
-    color: #333;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-.confirm-dialog-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-}
-
-.confirm-button {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.confirm-button.primary {
-    background: #1890ff;
-    color: white;
-}
-
-.confirm-button.secondary {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.confirm-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.confirm-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.1);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 999;
-    backdrop-filter: blur(1px);
-}
-
-.confirm-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-@media (prefers-color-scheme: dark) {
-    .confirm-dialog {
-        background: rgba(36, 36, 36, 0.98);
-    }
-
-    .confirm-dialog-content {
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .confirm-button.secondary {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
-    }
-}
-
-#upload-status:empty {
-    display: none;
-}
-
-body {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-body::-webkit-scrollbar {
-    display: none;
-}
-
-.content {
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
-}
-
-.content::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.content::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.content::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    border: none;
-    background-clip: content-box;
-    transition: background-color 0.3s ease;
-}
-
-.content::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 768px) {
@@ -1036,9 +363,25 @@ body::-webkit-scrollbar {
         background-color: rgba(0, 0, 0, 0.3);
     }
 
+    body {
+        background-color: #f8f9fa;
+}
+
     .content {
+        padding: calc(16px + env(safe-area-inset-top, 12px)) 6px calc(16px + env(safe-area-inset-bottom, 12px));
+        height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        overflow-y: auto;
+        justify-content: flex-start;
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+    }
+
+    #editor {
+        padding: 12px;
+        font-size: 16px;
+        line-height: 1.5;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.01), inset 0 0 16px rgba(0, 0, 0, 0.003);
     }
 }
 
@@ -1080,117 +423,14 @@ body::-webkit-scrollbar {
     }
 }
 
-.key-watermark {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 4px 12px;
-    opacity: 0.75;
-    z-index: 100;
-    pointer-events: none;
-    user-select: none;
-    font-family: monospace;
-    font-size: 15px;
-    color: rgba(0, 0, 0, 0.8);
-    white-space: nowrap;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
+@supports (-webkit-touch-callout:none) {
+    @media (max-width: 768px) {
+        .content {
+            margin-top: max(env(safe-area-inset-top, 12px), 20px);
+        }
 
-.editor-focused .key-watermark {
-    opacity: 0.35;
-    transform: translateX(-50%) translateY(-1px);
-    transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-    .key-watermark {
-        color: rgba(255, 255, 255, 0.8);
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
-        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-    }
-
-    .editor-focused .key-watermark {
-        opacity: 0.3;
-    }
-}
-
-@media (max-width: 768px) {
-    .key-watermark {
-        font-size: 14px;
-        top: 8px;
-    }
-}
-
-@media (max-width: 768px) {
-    #editor {
-        padding: 12px;
-        font-size: 16px;
-        line-height: 1.5;
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.01), inset 0 0 16px rgba(0, 0, 0, 0.003);
-    }
-
-    .upload-status {
-        max-width: 85%;
-        padding: 8px 14px;
-        font-size: 13px;
-    }
-
-    .content {
-        padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)) 16px;
-    }
-}
-
-#language-select, .language-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.09);
-    border-radius: 8px;
-    font-size: 14px;
-    -webkit-appearance: none;
-    transition: all 0.25s ease;
-    background: rgba(255, 255, 255, 0.65);
-    color: #333;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), inset 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.7);
-    box-sizing: border-box;
-}
-
-#language-select:focus, .language-select:focus {
-    outline: none;
-    border-color: rgba(24, 144, 255, 0.4);
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-}
-
-@media (prefers-color-scheme: dark) {
-    #language-select, .language-select {
-        background: rgba(48, 48, 48, 0.7);
-        border-color: rgba(255, 255, 255, 0.12);
-        color: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-    }
-
-    #language-select:focus, .language-select:focus {
-        background: rgba(52, 52, 52, 0.95);
-        border-color: rgba(24, 144, 255, 0.6);
-        box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    }
-
-    #language-select option {
-        background: #242424;
-        color: rgba(255, 255, 255, 0.9);
-    }
-}
-
-@media (max-resolution: 96dpi) {
-    #editor {
-        transform: scale(0.98);
-        transform-origin: center center;
-    }
-}
-
-@media (min-resolution: 192dpi) {
-    #editor {
-        font-size: clamp(14px, 1vw, 16px) !important;
+        #editor {
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.02), 0 2px 10px rgba(0, 0, 0, 0.01);
+        }
     }
 }

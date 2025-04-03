@@ -5,7 +5,38 @@
     <title>QBin</title>
     <meta charset=UTF-8>
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name=viewport>
+    <link href=/static/css/panel-common.css rel=stylesheet>
     <link href=/static/css/code-editor.css rel=stylesheet>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+            function applyTheme(theme) {
+                document.documentElement.classList.remove('light-theme', 'dark-theme');
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                } else if (theme === 'light') {
+                    document.documentElement.classList.add('light-theme');
+                } else if (theme === 'system') {
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark-theme');
+                    } else {
+                        document.documentElement.classList.add('light-theme');
+                    }
+                }
+                window.dispatchEvent(new CustomEvent('themeChange'));
+            }
+            applyTheme(savedTheme);
+            if (savedTheme === 'system' && window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    applyTheme('system');
+                });
+            }
+            window.qbinApplyTheme = function(theme) {
+                localStorage.setItem('qbin-theme', theme);
+                applyTheme(theme);
+            };
+        })();
+    </script>
     <script src=https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js defer></script>
     <script src=/static/js/utils.js defer></script>
     <script src=/static/js/base-editor.js defer></script>
@@ -74,19 +105,9 @@
                         <option value="2592000">1 个月</option>
                     </select>
                 </div>
-                <div class="option-toggle">
-                    <span class="custom-checkbox" id="encrypt-checkbox"></span>
-                    <span class="option-text"><del>端到端加密</del> (开发中)</span>
-                    <input type="checkbox" id="encryptData" name="encryptData" style="display:none">
-                </div>
-            </div>
-            <div class="form-section">
-                <div class="section-title">
-                    <span class="section-icon">💻</span>编辑器设置
-                </div>
                 <div class="input-wrapper">
                     <label for="language-select" class="form-label">编程语言</label>
-                    <select id="language-select" class="language-select">
+                    <select id="language-select" class="expiry-select">
                         <option value="plaintext">纯文本</option>
                         <option value="javascript">JavaScript</option>
                         <option value="typescript">TypeScript</option>
@@ -108,12 +129,15 @@
                         <option value="shell">Shell/Bash</option>
                     </select>
                 </div>
+                <div class="option-toggle">
+                    <span class="custom-checkbox" id="encrypt-checkbox"></span>
+                    <span class="option-text"><del>端到端加密</del> (开发中)</span>
+                    <input type="checkbox" id="encryptData" name="encryptData" style="display:none">
+                </div>
             </div>
-            <div class="scroll-indicator"></div>
         </div>
     </div>
 </div>
-<!--<div class="key-watermark"></div>-->
 <div class="content">
     <div id="editor"></div>
     <div id="upload-status" class="upload-status"></div>
