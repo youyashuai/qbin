@@ -154,7 +154,7 @@ class QBinHome {
             const savedTheme = localStorage.getItem('qbin-theme') || 'system';
             document.querySelector(`input[name="qbin-theme"][value="${savedTheme}"]`).checked = true;
         }catch (e) {
-            localStorage.clear()
+            localStorage.clear();
         }
 
         // 确保主题设置已应用
