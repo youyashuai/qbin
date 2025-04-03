@@ -194,7 +194,7 @@ body {
     flex-shrink: 0;
 }
 
-select, 
+select,
 input[type="text"],
 input[type="number"] {
     padding: 8px 12px;
@@ -292,7 +292,7 @@ input[type="checkbox"] {
         margin-top: 0;
         padding-top: 8px;
     }
-    
+
     .sidebar nav a.logout-link:hover,
     .sidebar nav a.logout-link.active {
         background: transparent;
@@ -476,10 +476,50 @@ input[type="checkbox"] {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .token-field {
         margin-right: 0;
         margin-bottom: 12px;
+    }
+
+    /* 选择器样式 */
+    .setting-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .setting-item label {
+        min-width: 40px;
+        margin-right: 10px;
+        flex-shrink: 0;
+        font-weight: 500;
+    }
+}
+
+@media (max-width: 480px) {
+    .radio-group {
+        width: auto;
+    }
+
+    .radio-label {
+        width: 30px;
+        height: 30px;
+    }
+
+    .radio-label svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .setting-item label {
+        min-width: 36px;
+        font-size: 14px;
+        margin-right: 6px;
+    }
+
+    .setting-item {
+        margin-bottom: 16px;
     }
 }
 
@@ -496,7 +536,7 @@ html[data-theme="dark"] {
         color: var(--text-color);
         background-color: var(--bg-color);
     }
-    
+
     select option {
         color: var(--text-color);
         background-color: var(--bg-color);
@@ -510,6 +550,15 @@ html.dark-theme {
     --border-color: #333333;
     --hover-color: #2a2a2a;
     --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* 主题过渡效果 */
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-transition * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* 表单控件样式 - 确保在深色模式正常显示 */
@@ -575,4 +624,153 @@ select.loading {
 @keyframes slideOut {
     from { transform: translateX(0); opacity: 1; }
     to { transform: translateX(100%); opacity: 0; }
+}
+
+/* 选择器样式 */
+.radio-group {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--hover-color);
+    border: 1px solid var(--border-color);
+    padding: 0;
+    width: max-content;
+    position: relative;
+    margin-left: auto;
+}
+
+/* 添加滑块效果 */
+.theme-selector .radio-group .slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: calc(33.33% - 4px);
+    height: calc(100% - 8px);
+    background-color: var(--bg-color);
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 0;
+    pointer-events: none; /* 确保滑块不会干扰点击 */
+}
+
+/* 滑块位置 - 根据选中的选项移动 */
+.theme-selector .radio-group input[type="radio"]:nth-of-type(1):checked ~ .slider {
+    transform: translateX(0);
+}
+
+.theme-selector .radio-group input[type="radio"]:nth-of-type(2):checked ~ .slider {
+    transform: translateX(100%);
+}
+
+.theme-selector .radio-group input[type="radio"]:nth-of-type(3):checked ~ .slider {
+    transform: translateX(200%);
+}
+
+.radio-option {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    z-index: 1; /* 确保在动画层上方 */
+}
+
+.radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    -webkit-appearance: none; /* iOS 支持 */
+    appearance: none;
+}
+
+/* 标签样式 */
+.radio-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+
+/* 选中状态效果 */
+.radio-option input[type="radio"]:checked + .radio-label {
+    background-color: var(--bg-color);
+}
+
+.radio-option input[type="radio"]:checked + .radio-label svg {
+    stroke: var(--primary-color);
+    transform: scale(1.1); /* 图标轻微放大 */
+}
+
+/* 活跃状态 */
+.radio-label.active-theme svg,
+.radio-label.active-editor svg {
+    stroke: var(--primary-color);
+    stroke-width: 2.5px;
+}
+
+/* 点击动画 */
+.radio-label.radio-clicked {
+    animation: pulse 0.3s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.92); }
+    100% { transform: scale(1.05); }
+}
+
+/* 添加触摸反馈 */
+.radio-option input[type="radio"]:active + .radio-label {
+    transform: scale(0.95); /* 按下时缩小效果 */
+}
+
+/* 图标样式 */
+.radio-label svg {
+    transition: all 0.2s ease;
+    stroke-width: 2px;
+    width: 18px;
+    height: 18px;
+}
+
+/* iOS 特定优化 */
+@supports (-webkit-touch-callout: none) {
+    .radio-group, .radio-label {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    .radio-label {
+        overflow: hidden;
+    }
+
+    .radio-label svg {
+        max-width: 18px;
+        max-height: 18px;
+    }
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+    .radio-label {
+        width: 30px;
+        height: 30px;
+    }
+
+    .radio-label svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* 确保标签更紧凑 */
+    .setting-item.theme-selector label,
+    .setting-item.editor-selector label {
+        min-width: 36px;
+        font-size: 14px;
+        margin-right: 6px;
+    }
 }

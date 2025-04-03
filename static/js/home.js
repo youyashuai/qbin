@@ -16,19 +16,19 @@ class QBinHome {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.getAttribute('href').substring(1);
-                
+
                 // Don't process logout button click here
                 if (targetId === '') return;
-                
+
                 // Load data only when the respective section is clicked
                 if (targetId === 'storage' && !this.dataLoaded.storage) {
                     this.loadStorageData();
                 } else if (targetId === 'shares' && !this.dataLoaded.shares) {
                     this.loadShareData();
                 }
-                
+
                 this.showSection(targetId);
-                
+
                 links.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
             });
@@ -46,16 +46,16 @@ class QBinHome {
         const container = document.getElementById('storage-items');
         // Show loading state
         container.innerHTML = '<div class="loading-indicator">加载中...</div>';
-        
+
         try {
             const response = await fetch('/api/user/storage', {
                 credentials: 'include' // Ensure cookies are sent with the request
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            
+
             const data = await response.json();
             this.renderStorageItems(data);
             this.dataLoaded.storage = true;
@@ -79,16 +79,16 @@ class QBinHome {
         const container = document.getElementById('share-items');
         // Show loading state
         container.innerHTML = '<div class="loading-indicator">加载中...</div>';
-        
+
         try {
             const response = await fetch('/api/user/shares', {
                 credentials: 'include' // Ensure cookies are sent with the request
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            
+
             const data = await response.json();
             this.renderShareItems(data);
             this.dataLoaded.shares = true;
@@ -141,53 +141,151 @@ class QBinHome {
     }
 
     initializeSettings() {
-        const defaultEditor = document.getElementById('default-editor');
-        const darkMode = document.getElementById('dark-mode');
+        const editorRadios = document.querySelectorAll('input[name="default-editor"]');
+        const themeRadios = document.querySelectorAll('input[name="theme-mode"]');
 
-        defaultEditor.value = localStorage.getItem('default-editor') || 'e';
-        darkMode.checked = localStorage.getItem('dark-mode') === 'true';
-        
-        defaultEditor.addEventListener('change', async (e) => {
-            const selectedEditor = e.target.value;
-            
-            try {
-                // 显示加载状态
-                defaultEditor.classList.add('loading');
-                
-                // 调用后端API设置默认编辑器
-                const response = await fetch(`/api/user/default/${selectedEditor}`, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error('设置默认编辑器失败');
+        // 设置默认编辑器选择
+        const savedEditor = localStorage.getItem('default-editor') || 'e';
+        document.querySelector(`input[name="default-editor"][value="${savedEditor}"]`).checked = true;
+        this.updateEditorRadioVisualFeedback(savedEditor);
+
+        // 设置默认主题选择
+        const savedTheme = localStorage.getItem('theme-mode') || 'system';
+        document.querySelector(`input[name="theme-mode"][value="${savedTheme}"]`).checked = true;
+
+        // 确保主题设置已应用
+        this.applyTheme(savedTheme);
+
+        // 编辑器选择器变更监听
+        editorRadios.forEach(radio => {
+            radio.addEventListener('change', async (e) => {
+                if (e.target.checked) {
+                    const selectedEditor = e.target.value;
+
+                    try {
+                        // 添加点击反馈动画
+                        const label = e.target.nextElementSibling;
+                        label.classList.add('radio-clicked');
+                        setTimeout(() => {
+                            label.classList.remove('radio-clicked');
+                        }, 300);
+
+                        // 调用后端API设置默认编辑器
+                        const response = await fetch(`/api/user/default/${selectedEditor}`, {
+                            method: 'GET',
+                            credentials: 'include'
+                        });
+                        if (!response.ok) {
+                            throw new Error('设置默认编辑器失败');
+                        }
+                        // 成功后存储到localStorage以保持UI一致性
+                        localStorage.setItem('default-editor', selectedEditor);
+                        // 更新视觉反馈
+                        this.updateEditorRadioVisualFeedback(selectedEditor);
+                        // 显示成功提示
+                        this.showToast(`${selectedEditor === 'e' ? '通用编辑器' : selectedEditor === 'm' ? 'Markdown编辑器' : '代码编辑器'}已设置`);
+                    } catch (error) {
+                        console.error('设置默认编辑器失败:', error);
+
+                        // 发生错误时恢复原来的选择
+                        const originalEditor = localStorage.getItem('default-editor') || 'e';
+                        document.querySelector(`input[name="default-editor"][value="${originalEditor}"]`).checked = true;
+                        this.updateEditorRadioVisualFeedback(originalEditor);
+
+                        // 显示错误提示
+                        this.showToast('设置默认编辑器失败，请重试', 'error');
+                    } finally {
+                        // 不需要加载状态处理
+                    }
                 }
-                
-                // 成功后存储到localStorage以保持UI一致性
-                localStorage.setItem('default-editor', selectedEditor);
-                
-                // 可选：显示成功提示
-                this.showToast('默认编辑器已设置');
-            } catch (error) {
-                console.error('设置默认编辑器失败:', error);
-                
-                // 发生错误时恢复原来的选择
-                defaultEditor.value = localStorage.getItem('default-editor') || 'e';
-                
-                // 显示错误提示
-                this.showToast('设置默认编辑器失败，请重试', 'error');
-            } finally {
-                // 移除加载状态
-                defaultEditor.classList.remove('loading');
-            }
+            });
         });
 
-        darkMode.addEventListener('change', (e) => {
-            const isDark = e.target.checked;
-            localStorage.setItem('dark-mode', isDark);
-            this.updateTheme(isDark);
+        // 主题变更监听
+        themeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    const themeValue = e.target.value;
+                    localStorage.setItem('theme-mode', themeValue);
+                    this.applyTheme(themeValue);
+                    this.showToast(`已切换到${themeValue === 'light' ? '浅色' : themeValue === 'dark' ? '深色' : '系统'}主题`);
+
+                    // 添加点击反馈动画
+                    const label = e.target.nextElementSibling;
+                    label.classList.add('radio-clicked');
+                    setTimeout(() => {
+                        label.classList.remove('radio-clicked');
+                    }, 300);
+                }
+            });
         });
+
+        // 初始化时设置视觉反馈
+        this.updateThemeRadioVisualFeedback(savedTheme);
+    }
+
+    // 应用主题方法
+    applyTheme(themeValue) {
+        // 添加过渡效果类
+        document.documentElement.classList.add('theme-transition');
+
+        // 移除所有主题类
+        document.documentElement.classList.remove('light-theme', 'dark-theme');
+
+        if (themeValue === 'system') {
+            // 系统主题检测
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.add('light-theme');
+            }
+
+            // 监听系统主题变化
+            this.setupSystemThemeListener();
+        } else {
+            // 直接应用指定主题
+            document.documentElement.classList.add(themeValue === 'dark' ? 'dark-theme' : 'light-theme');
+        }
+
+        // 添加视觉反馈
+        this.updateThemeRadioVisualFeedback(themeValue);
+
+        // 移除过渡类，防止影响其他操作
+        setTimeout(() => {
+            document.documentElement.classList.remove('theme-transition');
+        }, 300);
+    }
+
+    // 设置系统主题变化监听
+    setupSystemThemeListener() {
+        if (!this.systemThemeListenerSet) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            const handleThemeChange = (e) => {
+                if (localStorage.getItem('theme-mode') === 'system') {
+                    // 添加过渡效果
+                    document.documentElement.classList.add('theme-transition');
+                    document.documentElement.classList.remove('light-theme', 'dark-theme');
+                    document.documentElement.classList.add(e.matches ? 'dark-theme' : 'light-theme');
+
+                    // 移除过渡类
+                    setTimeout(() => {
+                        document.documentElement.classList.remove('theme-transition');
+                    }, 300);
+                }
+            };
+
+            // 添加事件监听器
+            if (mediaQuery.addEventListener) {
+                mediaQuery.addEventListener('change', handleThemeChange);
+            } else if (mediaQuery.addListener) {
+                // 兼容旧版本浏览器
+                mediaQuery.addListener(handleThemeChange);
+            }
+
+            this.systemThemeListenerSet = true;
+        }
     }
 
     formatSize(bytes) {
@@ -203,44 +301,61 @@ class QBinHome {
         return new Date(timestamp * 1000).toLocaleString();
     }
 
-    updateTheme(isDark) {
-        if (isDark) {
-            document.documentElement.classList.add('dark-theme');
-        } else {
-            document.documentElement.classList.remove('dark-theme');
+    // 更新选择器的视觉反馈
+    updateRadioVisualFeedback(name, value, activeClass) {
+        // 先移除所有选项的活跃状态
+        document.querySelectorAll(`input[name="${name}"] + .radio-label`).forEach(label => {
+            label.classList.remove(activeClass);
+        });
+
+        // 给当前选中的选项添加活跃状态
+        const selectedRadio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+        if (selectedRadio) {
+            const label = selectedRadio.nextElementSibling;
+            label.classList.add(activeClass);
         }
+    }
+
+    // 更新主题选择器的视觉反馈
+    updateThemeRadioVisualFeedback(themeValue) {
+        this.updateRadioVisualFeedback('theme-mode', themeValue, 'active-theme');
+    }
+
+    // 更新编辑器选择器的视觉反馈
+    updateEditorRadioVisualFeedback(editorValue) {
+        this.updateRadioVisualFeedback('default-editor', editorValue, 'active-editor');
     }
 
     initializeTokenFeature() {
         const generateBtn = document.getElementById('generate-token-btn');
         const copyBtn = document.getElementById('copy-token-btn');
         const tokenInput = document.getElementById('token-input');
-        
+
         // Generate token button
         if (generateBtn) {
             generateBtn.addEventListener('click', async () => {
                 // Reset any previous messages
                 this.setTokenMessage('', 'hidden');
-                
+
                 try {
                     // Update UI to loading state
                     generateBtn.disabled = true;
                     generateBtn.classList.add('loading');
                     generateBtn.textContent = '生成中...';
-                    
+
                     // Make API request
                     const response = await fetch('/api/user/token', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         credentials: 'include'
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error(await this.getErrorMessage(response));
                     }
-                    
+
                     const data = await response.json();
-                    
+
                     if ("token" in data.data) {
                         tokenInput.value = data.data.token;
                         copyBtn.disabled = false;
@@ -259,28 +374,28 @@ class QBinHome {
                 }
             });
         }
-        
+
         // Copy button
         if (copyBtn) {
             copyBtn.addEventListener('click', () => {
                 if (!tokenInput.value) return;
-                
+
                 // Copy to clipboard
                 tokenInput.select();
                 document.execCommand('copy');
                 // Deselect the text
                 window.getSelection().removeAllRanges();
-                
+
                 // Show feedback
                 this.setTokenMessage('Token已复制到剪贴板', 'success');
-                
+
                 // Visual feedback on the button
                 copyBtn.classList.add('active');
                 setTimeout(() => copyBtn.classList.remove('active'), 1000);
             });
         }
     }
-    
+
     async getErrorMessage(response) {
         try {
             const data = await response.json();
@@ -289,14 +404,14 @@ class QBinHome {
             return `请求失败 (${response.status})`;
         }
     }
-    
+
     setTokenMessage(message, type) {
         const messageEl = document.getElementById('token-message');
         if (!messageEl) return;
-        
+
         messageEl.textContent = message;
         messageEl.className = 'message'; // Reset classes
-        
+
         if (type === 'hidden') {
             messageEl.classList.add('hidden');
         } else {
@@ -344,15 +459,15 @@ class QBinHome {
             toastContainer.id = 'toast-container';
             document.body.appendChild(toastContainer);
         }
-        
+
         // 创建新的提示元素
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.textContent = message;
-        
+
         // 添加到容器
         toastContainer.appendChild(toast);
-        
+
         // 设置自动消失
         setTimeout(() => {
             toast.classList.add('hide');
