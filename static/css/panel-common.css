@@ -1,0 +1,500 @@
+/* ======== Panel Common Styles ========
+ * 通用面板样式组件，包含密码设置、社交链接等UI元素
+ * 设计为可被各种编辑器页面复用
+ * ================================== */
+
+/* 密码/设置容器样式 */
+.password-container {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    height: auto;
+    z-index: 101;
+    transition: all 0.3s ease;
+}
+
+/* 书签/设置按钮水墨风格增强 */
+.bookmark {
+    position: fixed;
+    top: 0;
+    right: 24px;
+    width: 40px;
+    height: 28px;
+    padding-top: 6px;
+    /* 微调透明度和背景 */
+    background: var(--bookmark-bg);
+    border-radius: 0 0 8px 8px;
+    border-style: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--bookmark-shadow);
+    backdrop-filter: blur(4px);
+}
+
+.bookmark::before {
+    content: "⚙️";
+    font-size: 14px;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+.bookmark:hover {
+    height: 32px;
+    padding-top: 10px;
+    background: var(--bookmark-hover-bg);
+    box-shadow: var(--bookmark-hover-shadow);
+    transform: translateY(1px);
+}
+
+.bookmark:hover::before {
+    opacity: 0.9;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* 密码面板水墨风格卡片式分组布局 */
+.password-panel {
+    position: fixed;
+    top: 44px;
+    right: 24px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--panel-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.3s ease;
+    width: 300px;
+    max-width: calc(100vw - 48px);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    border: 1px solid var(--section-border);
+    background: var(--panel-bg) var(--panel-gradient);
+}
+
+/* 面板显示状态 */
+.password-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 面板内部分组样式 - 水墨卡片效果 */
+.form-section {
+    margin-bottom: 16px;
+    padding: 14px;
+    background: var(--section-bg);
+    border-radius: 8px;
+    border: 1px solid var(--section-border);
+    box-shadow: var(--section-shadow);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 最后一个分组取消底部间距 */
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+/* 鼠标悬停时的轻微水墨扩散效果 */
+.form-section:hover {
+    background: var(--section-hover-bg);
+    box-shadow: var(--section-hover-shadow);
+}
+
+/* 分组标题 - 水墨风格书法感 */
+.section-title {
+    font-size: 15px;
+    color: var(--section-title-color);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--section-border);
+    text-shadow: var(--label-shadow);
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+/* 分组图标 - 水墨风格 */
+.section-icon {
+    margin-right: 6px;
+    opacity: 0.7;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+    font-size: 16px;
+}
+
+/* 社交链接分组样式优化 */
+.social-links-section {
+    display: flex;
+    justify-content: center;
+}
+
+/* 社交链接容器重新设计 */
+.social-links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    padding: 8px 0;
+    position: relative;
+    border-bottom: 1px solid var(--section-border);
+}
+
+/* 社交链接水墨效果增强 */
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    color: var(--social-link-color);
+    background: var(--social-link-bg);
+    border: 1px solid var(--social-link-border);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-decoration: none;
+    position: relative;
+    box-shadow: var(--social-link-shadow);
+}
+
+.social-link:hover {
+    transform: translateY(-3px);
+    color: var(--social-link-hover-color);
+    background: var(--social-link-hover-bg);
+    box-shadow: var(--social-link-hover-shadow);
+}
+
+/* 修改表单标签样式 - 更有水墨感 */
+.form-label {
+    font-size: 14px;
+    color: var(--label-color);
+    margin-bottom: 6px;
+    display: block;
+    text-shadow: var(--label-shadow);
+    letter-spacing: 0.03em;
+    position: relative;
+    padding-left: 14px;
+}
+
+/* 标签前水墨点缀 */
+.form-label::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--label-dot-bg);
+    box-shadow: var(--label-dot-shadow);
+}
+
+/* 必填项标签样式 */
+.required-label::after {
+    content: "*";
+    color: rgba(213, 77, 77, 0.8);
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+/* 修改输入框容器样式 */
+.input-wrapper {
+    position: relative;
+    margin-bottom: 6px;
+}
+
+.input-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+/* 优化输入框样式 - 水墨风格 */
+#key-input,
+#password-input,
+.expiry-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 14px;
+    -webkit-appearance: none;
+    transition: all 0.25s ease;
+    background: var(--input-bg);
+    color: var(--input-color);
+    box-shadow: var(--input-shadow);
+    box-sizing: border-box;
+}
+
+#key-input:focus,
+#password-input:focus,
+.expiry-select:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    background: var(--input-focus-bg);
+    box-shadow: var(--input-focus-shadow);
+}
+
+/* 添加选项按钮样式 */
+.option-toggle {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-toggle:hover {
+    color: var(--social-link-hover-color);
+}
+
+/* 自定义复选框 - 水墨风格 */
+.custom-checkbox {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--checkbox-border);
+    border-radius: 4px;
+    margin-right: 8px;
+    background: var(--checkbox-bg);
+    display: inline-block;
+    vertical-align: middle;
+    transition: all 0.2s ease;
+    box-shadow: var(--checkbox-shadow);
+}
+
+/* 复选框选中状态 */
+.custom-checkbox.checked {
+    background: var(--checkbox-checked-bg);
+    border-color: var(--checkbox-checked-border);
+}
+
+.custom-checkbox.checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--checkbox-check-color);
+    font-size: 12px;
+    line-height: 1;
+}
+
+/* 选项文本 */
+.option-text {
+    font-size: 14px;
+    color: var(--option-text-color);
+    text-shadow: var(--label-shadow);
+}
+
+/* 删除线的加密选项 */
+.option-text del {
+    opacity: 0.7;
+    text-decoration-color: var(--section-border);
+}
+
+/* 移除编辑器链接的特殊悬停效果，统一使用社交链接效果 */
+.editor-link {
+    position: relative;
+    /* 保留定位属性但移除特殊的悬停动画效果 */
+}
+
+/* 删除之前定义的特殊效果 */
+.editor-link::after {
+    display: none; /* 隐藏之前的悬停效果 */
+}
+
+.editor-link:hover::after {
+    display: none; /* 隐藏之前的悬停效果 */
+}
+
+/* 代码编辑器和Markdown编辑器图标的样式调整 */
+.code-editor-link svg,
+.markdown-editor-link svg {
+    transform: scale(0.9);
+    transition: transform 0.3s ease; /* 添加过渡效果 */
+}
+
+/* 为编辑器按钮添加悬停时的图标放大效果，与其他社交图标保持一致 */
+.code-editor-link:hover svg,
+.markdown-editor-link:hover svg {
+    transform: scale(1); /* 悬停时图标略微放大 */
+}
+
+/* 添加确认对话框样式 */
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: var(--dialog-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    max-width: 320px;
+    width: 85%;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.confirm-dialog.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.confirm-dialog-content {
+    white-space: pre-line;
+    margin-bottom: 20px;
+    color: var(--dialog-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.confirm-dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.confirm-button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirm-button.primary {
+    background: var(--button-primary-bg);
+    color: var(--button-primary-color);
+}
+
+.confirm-button.secondary {
+    background: var(--button-secondary-bg);
+    color: var(--button-secondary-color);
+}
+
+.confirm-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--overlay-bg);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+    backdrop-filter: blur(1px);
+}
+
+.confirm-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enhanced upload status with loading animation */
+.upload-status {
+    position: fixed;
+    top: env(safe-area-inset-top, 16px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 280px;
+    background: var(--status-bg);
+    transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    z-index: 1000;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    border: none;
+}
+
+.upload-status.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Success status */
+.upload-status[data-status="success"] {
+    color: var(--status-success-color);
+    background: var(--status-success-bg);
+}
+
+/* Error status */
+.upload-status[data-status="error"] {
+    color: var(--status-error-color);
+    background: var(--status-error-bg);
+}
+
+/* Info status */
+.upload-status[data-status="info"] {
+    color: var(--status-info-color);
+    background: var(--status-bg);
+}
+
+/* 当上传提示没有内容时直接隐藏，避免产生多余的"方块" */
+#upload-status:empty {
+    display: none;
+}
+
+/* 当上传提示没有内容时直接隐藏，避免产生多余的"方块" */
+#upload-status:empty {
+    display: none;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .password-panel {
+        top: 40px;
+        right: 16px;
+        padding: 16px;
+        width: 280px;
+    }
+
+    .form-section {
+        padding: 12px;
+    }
+
+    .bookmark {
+        right: 16px;
+    }
+
+    /* Enhanced mobile upload status positioning */
+    .upload-status {
+        max-width: 85%;
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .confirm-dialog {
+        background: rgba(36, 36, 36, 0.98);
+    }
+
+    .confirm-dialog-content {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .confirm-button.secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+    }
+}
