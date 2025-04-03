@@ -569,10 +569,6 @@ router
     return new Response(ctx, 200, "Logged out successfully");
   })
   .post("/api/user/token", async (ctx) => {
-    // const policy = ctx.request.headers.get("referrer-policy");
-    // if (policy) {
-    //   return new Response(ctx, 403, "不允许从分享链接页面请求token");
-    // }
     // 获取基本请求信息
     const referer = ctx.request.headers.get("referer");
     const origin = ctx.request.headers.get("origin");
@@ -591,6 +587,12 @@ router
     const token = await ctx.cookies.get("token");
     return new Response(ctx, 200, "success", { token: token });
   })
+  // .get("/api/user/storage", async (ctx) => {
+  //   return new Response(ctx, 200, "success", [{ }]);
+  // })
+  // .post("/api/user/shares", async (ctx) => {
+  //   return new Response(ctx, 200, "success", [{ }]);
+  // })
   // .post("/api/data/clean", async (ctx) => {
   // });   // 清理过期key
 
