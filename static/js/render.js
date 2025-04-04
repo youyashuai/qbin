@@ -373,7 +373,7 @@ class QBinViewer {
     }
 
     async handleNew() {
-        // 加载前先清除缓存
+        sessionStorage.removeItem(this.CACHE_KEY + 'last');
         const originalEditor = getCookie('qbin-editor') || 'e';
         window.location.assign(`/${originalEditor}`);
     }
