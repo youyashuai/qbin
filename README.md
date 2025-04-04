@@ -117,7 +117,7 @@ docker run -it -p 8000:8000 \
 
 如果 QBin 对您有所帮助，欢迎通过 [爱发电](https://afdian.com/a/naihe) 提供赞助支持！
 
-<a title="QBin Sponsor" href="https://afdian.com/a/naihe" target="_blank" rel="noopener noreferrer">
+<a title="QBin Sponsor" href="https://afdian.com/a/naihe" target="_blank" rel="noopener">
   <img src=https://s3.tebi.io/lite/Sponsor.svg width=25% alt="QBin Sponsor" title="QBin Sponsor" />
 </a>
 
