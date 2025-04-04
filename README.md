@@ -1,6 +1,6 @@
 <div align="center"><a name="readme-top"></a>
 <img src="https://s3.tebi.io/lite/favicon.svg" width="20%" alt="QBin LOGO" title="QBin LOGO" />
-<h1>QBin - 快捷存储</h1>
+<h1>QBin - 一键存储</h1>
 
 ✨ 轻盈优雅的数据存储服务，比云盘更便捷，轻松存取文字、图片、视频等任意数据。
 
