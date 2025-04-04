@@ -19,7 +19,11 @@ import {
   getJS,
   getCSS,
   getFONTS,
-  getDocumentHtml, getHomeHtml, getMDEditHtml
+  getDocumentHtml,
+  getHomeHtml,
+  getMDEditHtml,
+  getServiceWorker,
+  getManifest, getIMG
 } from "./utils/render.ts";
 import { handleAdminLogin, handleLogin, handleOAuthCallback } from "./middlewares/auth.ts";
 
@@ -98,7 +102,7 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
     uname,
     hash
   };
-  
+
   // 5) 在 KV 中预占 key (防止重复)
   const kvRes = await kv.atomic()
     .check({ key: [PASTE_STORE, key], versionstamp: null })
@@ -112,14 +116,14 @@ async function handleContentUpload(ctx: Context<AppState>, key: string, pwd: str
       pwd,
     }, { expireIn: null })
     .commit();
-    
+
   if (!kvRes.ok) {
     return new Response(ctx, 409, "Key already exists");
   }
-  
+
   // 6) 先更新内存 / Cache API
   memCache.set(key, metadata);
-  
+
   // 7) 后台异步写 Postgres
   const cleanupKV = async (retries = 3, delay = 500) => {
     for (let i = 0; i < retries; i++) {
@@ -191,9 +195,9 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
     uname,
     hash
   };
-  
+
   const originalKvData = await kv.get([PASTE_STORE, key]);
-  
+
   const kvRes = await kv.atomic()
     .set([PASTE_STORE, key], {
       email,
@@ -205,15 +209,15 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
       pwd,
     }, { expireIn: null })
     .commit();
-    
+
   if (!kvRes.ok) {
     return new Response(ctx, 500, "Failed to update key in KV store");
   }
-  
+
   const oldMetadata = memCache.get(key);
-  
+
   memCache.set(key, metadata);
-  
+
   const restoreKV = async (retries = 3, delay = 500) => {
     for (let i = 0; i < retries; i++) {
       try {
@@ -244,26 +248,26 @@ async function handleContentUpdate(ctx: Context<AppState>, key: string, pwd: str
       cacheBroadcast.postMessage({ type: "update", key, metadata });  // 通知更新状态
     } catch (err) {
       console.error("Background DB update error:", err);
-      
+
       // 恢复内存缓存
       if (oldMetadata) {
         memCache.set(key, oldMetadata);
       } else {
         memCache.delete(key);
       }
-      
+
       // 恢复 KV 缓存（带重试逻辑）
       await restoreKV();
-      
+
       // 通知其他节点
-      cacheBroadcast.postMessage({ 
-        type: oldMetadata ? "update" : "delete", 
-        key, 
-        metadata: oldMetadata 
+      cacheBroadcast.postMessage({
+        type: oldMetadata ? "update" : "delete",
+        key,
+        metadata: oldMetadata
       });
     }
   });
-  
+
   return new Response(ctx, 200, "success", { key, pwd, url: `${request.url.origin}/r/${key}/${pwd}` })
 }
 
@@ -376,6 +380,12 @@ router
   .get("/health", async (ctx) => {
     return new Response(ctx, 200, "healthy");
   })
+  .get("/service-worker.js", async (ctx) => {
+    return await getServiceWorker(ctx, 200);
+  })
+  .get("/manifest.json", async (ctx) => {
+    return await getManifest(ctx, 200);
+  })
   .get("/static/js/:file", async (ctx) => {
     return await getJS(ctx, ctx.params.file, 200);
   })
@@ -383,7 +393,10 @@ router
     return await getCSS(ctx, ctx.params.file, 200);
   })
   .get("/static/css/fonts/:file", async (ctx) => {
-      return await getFONTS(ctx, ctx.params.file, 200);
+    return await getFONTS(ctx, ctx.params.file, 200);
+  })
+  .get("/static/img/:file", async (ctx) => {
+      return await getIMG(ctx, ctx.params.file, 200);
     })
   .get("/home", async (ctx) => {
     return await getHomeHtml(ctx, 200);
@@ -547,19 +560,6 @@ router
   .get("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
   .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
-  .get("/api/user/default/:editor", async (ctx) => {
-    const editor = ctx.params.editor;
-    if (!["e", "c", "m"].includes(editor)) {
-      return new Response(ctx, 400, "无效的编辑器类型");
-    }
-    ctx.cookies.set("qbin-editor", editor, {
-      path: "/",
-      maxAge: 315360000000,
-      httpOnly: false,
-      sameSite: "lax"
-    });
-    return new Response(ctx, 200, "success");
-  })
   .post("/api/user/logout", async (ctx) => {
     await ctx.cookies.delete("token", {
       path: "/",

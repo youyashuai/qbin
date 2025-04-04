@@ -39,6 +39,17 @@ export async function getCSS(ctx, pathname, status=200): Promise<string> {
   } catch (error) {}
 }
 
+export async function getIMG(ctx, pathname, status=200): Promise<string> {
+  try {
+    ctx.response.body = await Deno.readTextFile(join(basePath, `/static/img/${pathname}`));
+    ctx.response.status = status;
+    ctx.response.headers.set("Content-Type", "image/svg+xml");
+    // ctx.response.headers.set("Cache-Control", "public, max-age=86400, immutable");
+    const hash = cyrb53_str(`${pathname}-${ctx.response.body.length}`);
+    ctx.state.metadata = { etag: hash };
+  } catch (error) {}
+}
+
 export async function getFONTS(ctx, pathname, status=200): Promise<string> {
   try {
     ctx.response.body = await Deno.readFile(join(basePath, `/static/css/fonts/${pathname}`));
@@ -120,6 +131,26 @@ export async function getHomeHtml(ctx, status=200): Promise<string> {
   ctx.state.metadata = { etag: hash };
 }
 
+// PWA - Service Worker
+export async function getServiceWorker(ctx, status=200): Promise<string> {
+  ctx.response.status = status;
+  ctx.response.headers.set("Content-Type", "application/javascript");
+  ctx.response.headers.set("Cache-Control", "no-cache, must-revalidate");
+  ctx.response.body = await Deno.readTextFile(join(basePath, './static/js/service-worker.js'));
+  const hash = cyrb53_str('service-worker.js' + ctx.response.body.length);
+  ctx.state.metadata = { etag: hash };
+}
+
+// PWA - Manifest
+export async function getManifest(ctx, status=200): Promise<string> {
+  ctx.response.status = status;
+  ctx.response.headers.set("Content-Type", "application/json");
+  // ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+  ctx.response.body = await Deno.readTextFile(join(basePath, './manifest.json'));
+  const hash = cyrb53_str('manifest.json' + ctx.response.body.length);
+  ctx.state.metadata = { etag: hash };
+}
+
 // // 路径格式错误网页
 // export async function getPathErrorHtml(ctx, status=200): Promise<string> {
 //   ctx.response.status = status;
@@ -138,18 +169,4 @@ export async function getHomeHtml(ctx, status=200): Promise<string> {
 //   ctx.response.body = await Deno.readTextFile(join(basePath, './templates/password.html'));
 //   const hash = cyrb53_str('password.html' + ctx.response.body.length);
 //   ctx.state.metadata = { etag: hash };
-// }
-
-// // pwa
-// export async function getServiceWorker(response, status=200): Promise<string> {
-//   response.status = status;
-//   response.headers.set("Content-Type", "application/javascript");
-//   response.body = await Deno.readTextFile(join(basePath, './static/js/service-worker.js'));
-// }
-
-// // pwa
-// export async function getManiest(response, status=200): Promise<string> {
-//   response.status = status;
-//   response.headers.set("Content-Type", "application/json");
-//   response.body = await Deno.readTextFile(join(basePath, './manifest.json'));
 // }
