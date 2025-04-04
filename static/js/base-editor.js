@@ -93,7 +93,7 @@ class QBinEditorBase {
             this.updateURL(key, pwd, "replaceState");
             if (keyWatermark) keyWatermark.textContent = `${this.status} ${this.currentPath.key}`;
 
-            if (getTimestamp() - last > 5) {
+            if (getTimestamp() - last > 3) {
                 await this.loadOnlineCache(key, pwd, isCache);
                 if (keyWatermark) keyWatermark.textContent = `${this.status} ${this.currentPath.key}`;
             }
