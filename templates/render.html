@@ -6,17 +6,106 @@
     <meta charset=UTF-8>
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name=viewport>
     <link href=/static/css/render.css rel=stylesheet>
+    <script>
+        (function() {
+            function applyTheme() {
+                document.documentElement.classList.remove('dark-theme', 'light-theme');
+                const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark-theme');
+                } else if (savedTheme === 'light') {
+                    document.documentElement.classList.add('light-theme');
+                } else {
+                    // 系统偏好
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark-theme');
+                    } else {
+                        document.documentElement.classList.add('light-theme');
+                    }
+                }
+            }
+            applyTheme();
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (localStorage.getItem('qbin-theme') === 'system' || !localStorage.getItem('qbin-theme')) {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'qbin-theme') {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('themeChange', () => {
+                applyTheme();
+            });
+            if (!window.qbinToggleTheme) {
+                window.qbinToggleTheme = (theme) => {
+                    localStorage.setItem('qbin-theme', theme);
+                    window.dispatchEvent(new CustomEvent('themeChange'));
+                };
+            }
+        })();
+    </script>
     <script src=/static/js/utils.js defer></script>
     <script src=/static/js/render.js defer></script>
     <link href=/favicon.ico rel=icon type=image/svg+xml>
 </head>
 <body>
-<div class="header" id="buttonBar"></div>
-<div class="content" id="contentArea">
+<div class="header" id="buttonBar">
+    <div id="themeToggle" class="theme-toggle" title="Toggle theme"></div>
+</div>
+<div class="content" id="contentArea"></div>
+
+<template id="loadingTemplate">
     <div class="loading-container">
         <div class="loading-spinner"></div>
         <div class="loading-text">正在加载内容...</div>
     </div>
+</template>
+
+<template id="qrModalTemplate">
+    <div class="qr-modal">
+        <div class="qr-container">
+            <div class="qr-close">&times;</div>
+            <div class="qr-title">分享链接</div>
+            <div class="qrcode-wrapper">
+                <div class="qrcode-content"></div>
+            </div>
+            <div class="url-container">
+                <div class="url-text"></div>
+                <span class="copy-hint">点击复制</span>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="toastTemplate">
+    <div class="toast" role="alert" aria-live="polite">
+        <div class="toast-content"></div>
+    </div>
+</template>
+
+<div id="passwordDialog" class="file-info password-dialog" style="display: none;">
+    <form id="passwordForm">
+        <div class="lock-icon">🔒</div>
+        <h3>访问内容有密码保护</h3>
+        <div class="password-input-container">
+            <input 
+                type="password" 
+                id="passwordInput" 
+                class="password-input"
+                placeholder="请输入访问密码" 
+                autocomplete="off"
+            />
+            <button type="submit" id="submitPasswordBtn" class="button primary" style="min-width:70px;position:relative;">
+                <span id="submitBtnText">验证</span>
+                <span id="submitBtnSpinner" style="display: none;">
+                    <div class="spinner"></div>
+                </span>
+            </button>
+        </div>
+    </form>
+    <div id="passwordError" class="password-error"></div>
 </div>
 </body>
 </html>

@@ -10,41 +10,30 @@ class QBinViewer {
         this.debounceTimeouts = new Map();
         this.qrLoaded = false;
         this.isLoading = false;
-        // 检查环境是否支持 Cache API
         this.cacheSupported = 'caches' in window;
         this.init();
     }
 
-    // 显示 fetch 加载动画（含进度条）
     showLoading() {
         this.isLoading = true;
-        const loadingEl = document.createElement('div');
-        loadingEl.className = 'loading-container';
-        loadingEl.innerHTML = `
-            <div class="loading-spinner"></div>
-            <div class="loading-text">正在加载内容...</div>
-        `;
         this.contentArea.innerHTML = '';
+        const template = document.getElementById('loadingTemplate');
+        const loadingEl = document.importNode(template.content, true).firstElementChild;
         this.contentArea.appendChild(loadingEl);
     }
 
-    // 隐藏加载动画
     hideLoading() {
         this.isLoading = false;
-        const loadingEl = this.contentArea.querySelector('.loading-container');
-        if (loadingEl) {
-            loadingEl.remove();
-        }
+        const loadingEls = this.contentArea.querySelectorAll('.loading-container');
+        loadingEls.forEach(el => el.remove());
     }
 
     // 更新加载进度（用于文本流式加载）
     updateLoadingProgress(loaded, total) {
         const percent = Math.round((loaded / total) * 100);
-        const progressBar = document.querySelector('.loading-progress-bar');
-        if (progressBar) {
-            progressBar.style.width = percent + '%';
-        }
-        const loadingText = document.querySelector('.loading-text');
+        
+        // Find loading text in the content area
+        const loadingText = this.contentArea.querySelector('.loading-text');
         if (loadingText) {
             loadingText.textContent = `正在加载内容... (${percent}%)`;
         }
@@ -413,10 +402,10 @@ class QBinViewer {
         try {
             const url = window.location.href.replace("/p/", "/r/");
             await navigator.clipboard.writeText(url);
-            this.showToast('链接已复制到剪贴板');
+            this.showToast('链接已复制到剪贴板', { type: 'info' });
         } catch (err) {
             console.error('复制链接失败:', err);
-            this.showToast('复制失败，请手动复制');
+            this.showToast('复制失败，请手动复制', { type: 'error' });
         }
     }
 
@@ -429,7 +418,7 @@ class QBinViewer {
             if (viewer) {
                 content = viewer.value;
                 await navigator.clipboard.writeText(content);
-                this.showToast('内容已复制到剪贴板');
+                this.showToast('内容已复制到剪贴板', { type: 'info' });
             } else if (imageViewer) {
                 // 图片复制 - 优先使用标准 API，然后是共享 API，最后降级到复制链接
                 if (navigator.clipboard && navigator.clipboard.write) {
@@ -449,7 +438,7 @@ class QBinViewer {
                         await navigator.clipboard.write([
                             new ClipboardItem({ 'image/png': blob })
                         ]);
-                        this.showToast('图片已复制到剪贴板');
+                        this.showToast('图片已复制到剪贴板', { type: 'info' });
                         return;
                     } catch (err) {
                         console.warn('复制图片失败:', err);
@@ -476,7 +465,7 @@ class QBinViewer {
 
                         if (navigator.canShare(shareData)) {
                             await navigator.share(shareData);
-                            this.showToast('已打开分享面板');
+                            this.showToast('已打开分享面板', { type: 'info' });
                             return;
                         }
                     } catch (err) {
@@ -486,36 +475,52 @@ class QBinViewer {
 
                 content = imageViewer.src;
                 await navigator.clipboard.writeText(content);
-                this.showToast('已复制图片链接');
+                this.showToast('已复制图片链接', { type: 'info' });
             } else {
                 // 其他文件 - 复制下载链接
                 content = window.location.href.replace('/p/', '/r/');
                 await navigator.clipboard.writeText(content);
-                this.showToast('内容已复制到剪贴板');
+                this.showToast('内容已复制到剪贴板', { type: 'info' });
             }
         } catch (err) {
             console.error('复制内容失败:', err);
-            this.showToast('复制失败，请手动复制');
+            this.showToast('复制失败，请手动复制', { type: 'error' });
         }
     }
 
-    // 添加提示框样式和方法
-    showToast(message) {
-        // 移除可能存在的旧提示
-        const oldToast = document.querySelector('.toast');
-        if (oldToast) {
-            oldToast.remove();
+    showToast(message, options = {}) {
+        const {
+            type = 'info',
+            duration = 3000
+        } = options;
+        
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
         }
-
+        
         const toast = document.createElement('div');
         toast.className = 'toast';
+        toast.setAttribute('data-status', type);
         toast.textContent = message;
+        
         document.body.appendChild(toast);
-
-        // 3秒后自动消失
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                toast.classList.add('visible');
+            });
+        });
+        toast.timeoutId = setTimeout(() => {
+            toast.classList.remove('visible');
+            
+            // Remove from DOM after animation completes
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, duration);
+        return toast;
     }
 
     async handleDelete() {
@@ -528,10 +533,10 @@ class QBinViewer {
                 window.location.assign(`/${originalEditor}`);
             } else {
                 const result = await response.json();
-                this.showToast(result.message || '上传失败');
+                this.showToast(result.message || '上传失败', { type: 'error' });
             }
         } catch (error) {
-            this.showToast(error.message);
+            this.showToast(error.message, { type: 'error' });
         }
     }
 
@@ -539,7 +544,6 @@ class QBinViewer {
         window.location.assign(window.location.pathname.replace('/p/', '/r/'));
     }
 
-    // 清除本地缓存
     async clearLocalCache() {
         await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
     }
@@ -562,196 +566,195 @@ class QBinViewer {
     async showQRCode() {
         try {
             const currentUrl = window.location.href;
-            const modal = document.createElement('div');
-            modal.className = 'qr-modal';
-            modal.innerHTML = `
-                    <div class="qr-container">
-                        <div class="qr-close">&times;</div>
-                        <div class="qr-title">分享链接</div>
-                        <div id="qrcode"></div>
-                        <div class="url-container">
-                            <div class="url-text">${currentUrl}</div>
-                            <span class="copy-hint">点击复制</span>
-                        </div>
-                    </div>
-                `;
+            
+            // Remove any existing QR modal
+            const existingModal = document.querySelector('.qr-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Clone the template
+            const template = document.getElementById('qrModalTemplate');
+            const modal = document.importNode(template.content, true).firstElementChild;
+            
+            // Set the URL text
+            const urlText = modal.querySelector('.url-text');
+            urlText.textContent = currentUrl;
+            
+            // Add to body
             document.body.appendChild(modal);
-
-            // 绑定关闭事件
-            modal.querySelector('.qr-close').onclick = () => modal.remove();
-            modal.onclick = (e) => {
-                if (e.target === modal) modal.remove();
+            
+            // Bind close event
+            const closeBtn = modal.querySelector('.qr-close');
+            closeBtn.onclick = () => {
+                modal.classList.add('fadeOut');
+                setTimeout(() => modal.remove(), 200);
             };
-
-            // 绑定 URL 复制事件
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('fadeOut');
+                    setTimeout(() => modal.remove(), 200);
+                }
+            };
+            
+            // Bind URL copy event
             const urlContainer = modal.querySelector('.url-container');
             const copyHint = urlContainer.querySelector('.copy-hint');
+            
             urlContainer.onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(currentUrl);
                     urlContainer.classList.add('copied');
                     copyHint.textContent = '已复制';
-
-                    // 2秒后恢复原状
+                    
+                    // Show toast for successful copy
+                    this.showToast('链接已复制', { type: 'info' });
+                    
+                    // Reset after 2 seconds
                     setTimeout(() => {
                         urlContainer.classList.remove('copied');
                         copyHint.textContent = '点击复制';
                     }, 2000);
                 } catch (err) {
-                    // 降级处理：创建临时输入框进行复制
+                    // Fallback copy method
                     const textarea = document.createElement('textarea');
                     textarea.value = currentUrl;
                     textarea.style.position = 'fixed';
                     textarea.style.opacity = '0';
                     document.body.appendChild(textarea);
                     textarea.select();
+                    
                     try {
                         document.execCommand('copy');
                         urlContainer.classList.add('copied');
                         copyHint.textContent = '已复制';
+                        this.showToast('链接已复制', { type: 'info' });
                         setTimeout(() => {
                             urlContainer.classList.remove('copied');
                             copyHint.textContent = '点击复制';
                         }, 2000);
                     } catch (err) {
                         console.error('复制失败:', err);
+                        this.showToast('复制失败', { type: 'error' });
                     }
                     document.body.removeChild(textarea);
                 }
             };
-
-            // 加载 QR 库并生成二维码
+            
+            // Generate QR code
             await this.loadQRLibrary();
             const qr = qrcode(0, 'M');
             qr.addData(currentUrl);
             qr.make();
             const cellSize = 5;
             const margin = 4;
-            document.getElementById('qrcode').innerHTML = qr.createImgTag(cellSize, margin);
-
+            
+            // Create QR code image
+            const qrImg = document.createElement('img');
+            qrImg.src = qr.createDataURL(cellSize, margin);
+            qrImg.alt = 'QR Code';
+            
+            // Add QR code to the container
+            const qrcodeContent = modal.querySelector('.qrcode-content');
+            qrcodeContent.appendChild(qrImg);
+            
         } catch (error) {
             console.error('QR码生成失败:', error);
-            this.showToast('QR码生成失败');
+            this.showToast('QR码生成失败', { type: 'error' });
         }
     }
 
-    // 添加新方法：显示密码输入对话框
     showPasswordDialog(key, currentPwd = '') {
         this.hideLoading();
         this.contentArea.innerHTML = '';
         this.buttonBar.innerHTML = '';
         
-        // 创建密码输入界面
-        const container = document.createElement('div');
-        container.className = 'file-info password-dialog';
+        // Get the password dialog
+        const passwordDialog = document.getElementById('passwordDialog');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordError = document.getElementById('passwordError');
         
-        // 错误信息区域
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'password-error';
+        // Reset and configure
+        passwordInput.value = currentPwd || '';
+        passwordError.textContent = '';
+        passwordError.classList.remove('visible');
         
-        // 创建表单
-        const form = document.createElement('form');
-        form.innerHTML = `
-            <div class="lock-icon">🔒</div>
-            <h3>访问内容有密码保护</h3>
-            <div class="password-input-container">
-                <input 
-                    type="password" 
-                    id="passwordInput" 
-                    class="password-input"
-                    placeholder="请输入访问密码" 
-                    autocomplete="off"
-                    value="${currentPwd || ''}"
-                />
-                <button type="submit" id="submitPasswordBtn" class="button primary" style="min-width:70px;position:relative;">
-                    <span id="submitBtnText">验证</span>
-                    <span id="submitBtnSpinner">
-                        <div class="spinner"></div>
-                    </span>
-                </button>
-            </div>
-        `;
+        // Make it visible in the content area
+        passwordDialog.style.display = 'block';
+        this.contentArea.appendChild(passwordDialog);
         
-        container.appendChild(form);
-        container.appendChild(errorMessage);
-        this.contentArea.appendChild(container);
-        
-        // 显示New按钮
+        // Show New button
         const newButton = this.addButton('New', this.debounce(() => this.handleNew()));
         this.buttonBar.appendChild(newButton);
         
-        // 处理表单提交 - 不刷新页面
+        // Handle form submission
+        const form = document.getElementById('passwordForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
             
-            const passwordInput = document.getElementById('passwordInput');
             const submitBtn = document.getElementById('submitPasswordBtn');
             const submitBtnText = document.getElementById('submitBtnText');
             const submitBtnSpinner = document.getElementById('submitBtnSpinner');
             const password = passwordInput.value.trim();
             
             if (!password) {
-                errorMessage.textContent = '请输入密码';
-                errorMessage.classList.add('visible');
+                passwordError.textContent = '请输入密码';
+                passwordError.classList.add('visible');
                 return;
             }
             
-            // 显示加载状态但不改变按钮文字，避免布局变化
             submitBtn.disabled = true;
             submitBtnText.style.visibility = 'hidden';
             submitBtnSpinner.style.display = 'block';
-            errorMessage.classList.remove('visible');
+            passwordError.classList.remove('visible');
             
             try {
-                // 验证密码
+                // Validate password
                 const validationResult = await this.validatePassword(key, password);
                 if (validationResult.valid) {
-                    // 验证成功，更新当前路径中的密码并添加到URL历史（不刷新页面）
+                    // Success - update path and URL
                     this.currentPath.pwd = password;
                     
-                    // 更新浏览器URL，但不刷新页面
                     if (history.pushState) {
                         const newUrl = `/p/${key}/${password}`;
                         history.pushState({path: newUrl}, '', newUrl);
                     }
                     
-                    // 重新获取内容
+                    // Reset dialog display
+                    passwordDialog.style.display = 'none';
+                    
+                    // Re-fetch content
                     this.showLoading();
                     await this.loadContent(validationResult.headResponse);
                 } else {
-                    // 验证失败，显示错误信息
-                    errorMessage.textContent = '密码错误，请重试';
-                    errorMessage.classList.add('visible');
+                    // Failed validation
+                    passwordError.textContent = '密码错误，请重试';
+                    passwordError.classList.add('visible');
                     passwordInput.focus();
                 }
             } catch (error) {
-                errorMessage.textContent = error.message || '验证过程中出现错误';
-                errorMessage.classList.add('visible');
+                passwordError.textContent = error.message || '验证过程中出现错误';
+                passwordError.classList.add('visible');
             } finally {
-                // 恢复按钮状态
                 submitBtn.disabled = false;
                 submitBtnText.style.visibility = 'visible';
                 submitBtnSpinner.style.display = 'none';
             }
         };
         
-        // 聚焦到密码输入框
+        // Focus on password input
         setTimeout(() => {
-            const input = document.getElementById('passwordInput');
-            input.focus();
+            passwordInput.focus();
             if (currentPwd) {
-                input.select(); // 如果已有密码则全选以便修改
+                passwordInput.select();
             }
         }, 100);
     }
 
-    // 验证密码的方法
     async validatePassword(key, password) {
         const url = `/r/${key}/${password}`;
-        
-        // 使用 HEAD 请求来验证密码是否正确
         const headResponse = await fetch(url, { method: 'HEAD' });
-        
         return {
             valid: headResponse.ok,
             headResponse: headResponse

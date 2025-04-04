@@ -1,3 +1,64 @@
+/* ===== THEME VARIABLES ===== */
+:root {
+    /* Colors */
+    --primary: #1890ff;
+    --primary-rgb: 24, 144, 255;
+    --primary-hover: #40a9ff;
+    --bg: #f5f6f7;
+    --surface: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #666;
+    --border: rgba(0, 0, 0, 0.08);
+    --error: #ff4444;
+    --divider: rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 2px 12px rgba(0, 0, 0, 0.08);
+    
+    color-scheme: light;
+}
+
+/* Dark theme variables */
+html.dark-theme,
+html[data-theme="dark"] {
+    --primary: #1890ff;
+    --primary-rgb: 24, 144, 255;
+    --primary-hover: #40a9ff;
+    --bg: #1a1a1a;
+    --surface: #242424;
+    --text: #e0e0e0;
+    --text-secondary: #bbb;
+    --border: rgba(255, 255, 255, 0.08);
+    --error: #ff7875;
+    --divider: rgba(255, 255, 255, 0.06);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 2px 12px rgba(0, 0, 0, 0.2);
+    
+    color-scheme: dark;
+}
+
+/* System preference detection */
+@media (prefers-color-scheme: dark) {
+    html:not(.light-theme):not([data-theme="light"]) {
+        --primary: #1890ff;
+        --primary-rgb: 24, 144, 255;
+        --primary-hover: #40a9ff;
+        --bg: #1a1a1a;
+        --surface: #242424;
+        --text: #e0e0e0;
+        --text-secondary: #bbb;
+        --border: rgba(255, 255, 255, 0.08);
+        --error: #ff7875;
+        --divider: rgba(255, 255, 255, 0.06);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 2px 12px rgba(0, 0, 0, 0.2);
+        
+        color-scheme: dark;
+    }
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -5,7 +66,11 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     display: flex;
     flex-direction: column;
-    background-color: #f5f6f7; /* 更柔和的背景色 */
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 .header {
@@ -13,20 +78,21 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.9); /* 半透明背景 */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: var(--surface);
+    background-color: rgba(var(--surface), 0.9);
+    border-bottom: 1px solid var(--divider);
     backdrop-filter: blur(10px); /* 毛玻璃效果 */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03); /* 更柔和的阴影 */
+    box-shadow: var(--shadow-sm);
 }
 
 .button {
     padding: 6px 14px; /* 减小按钮内边距 */
     border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    background: rgba(255, 255, 255, 0.7); /* 降低不透明度 */
-    color: #666; /* 更柔和的文字颜色 */
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
     cursor: pointer;
-    font-size: 13px; /* 稍微减小字号 */
+    font-size: 13px;
     transition: all 0.2s ease;
     min-width: 50px;
     text-align: center;
@@ -54,41 +120,41 @@ body {
     height: 16px;
     margin: -8px 0 0 -8px;
     border: 2px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #1890ff;
+    border-top-color: var(--primary);
     border-radius: 50%;
     animation: button-loading-spinner 0.6s linear infinite;
 }
 
 .button:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(24, 144, 255, 0.3);
-    color: #1890ff;
+    background: var(--surface);
+    border-color: rgba(var(--primary), 0.3);
+    color: var(--primary);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04); /* 更柔和的阴影 */
+    box-shadow: var(--shadow-sm);
 }
 
 /* 主操作按钮样式 */
 .button.primary {
-    background: rgba(24, 144, 255, 0.9); /* 降低不透明度 */
+    background: var(--primary);
     color: white;
     border-color: transparent;
 }
 
 .button.primary:hover {
-    background: rgba(64, 169, 255, 0.95);
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2); /* 更柔和的阴影 */
+    background: var(--primary-hover);
+    box-shadow: 0 2px 8px rgba(var(--primary), 0.2);
 }
 
 /* 危险操作按钮样式 */
 .button.danger {
-    color: rgba(255, 77, 79, 0.8); /* 降低不透明度 */
+    color: var(--error);
     border-color: rgba(255, 77, 79, 0.15);
 }
 
 .button.danger:hover {
     background: rgba(255, 77, 79, 0.05);
     border-color: rgba(255, 77, 79, 0.3);
-    color: rgba(255, 77, 79, 0.9);
+    color: var(--error);
 }
 
 /* 更新按钮组样式 */
@@ -99,7 +165,7 @@ body {
 
 .divider {
     width: 1px;
-    background: rgba(0, 0, 0, 0.04); /* 更淡的分隔线 */
+    background: var(--divider);
     margin: 0 8px; /* 减小间距 */
     align-self: stretch;
 }
@@ -128,24 +194,17 @@ body {
     line-height: 1.6;
     padding: 24px;
     box-sizing: border-box;
-    background: white;
+    background: var(--surface);
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    color: #2c3e50;
+    box-shadow: var(--shadow-md);
+    color: var(--text);
     outline: none;
     transition: box-shadow 0.2s ease;
 }
 
 /* 焦点状态使用更柔和的阴影效果 */
 #viewer:focus {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(24, 144, 255, 0.1);
-}
-
-/* 暗色模式下的焦点效果 */
-@media (prefers-color-scheme: dark) {
-    #viewer:focus {
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(24, 144, 255, 0.15);
-    }
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(var(--primary), 0.1);
 }
 
 #imageViewer {
@@ -154,92 +213,67 @@ body {
     margin: 0 auto;
     display: block;
     border-radius: 8px; /* 圆角 */
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); /* 阴影效果 */
+    box-shadow: var(--shadow-md);
 }
 
 .file-info {
     text-align: center;
     padding: 32px;
     font-size: 16px;
-    color: #666;
-    background: white;
+    color: var(--text-secondary);
+    background: var(--surface);
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
 }
 
 .file-info.error {
-    color: #ff4444;
+    color: var(--error);
     padding: 20px;
     text-align: center;
-    background: #fff5f5;
+    background: rgba(255, 68, 68, 0.05);
     border-radius: 4px;
     margin: 20px;
 }
 
+/* Toast notification */
 .toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 32px;
     left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.85); /* 降低不透明度 */
-    color: rgba(0, 0, 0, 0.75); /* 调整文字颜色透明度 */
-    padding: 10px 20px;
-    border-radius: 12px;
+    transform: translateX(-50%) translateY(100%);
+    padding: 10px 16px;
+    border-radius: 8px;
     font-size: 14px;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(0, 0, 0, 0.02);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    max-width: 280px;
-    text-align: center;
     line-height: 1.4;
+    max-width: 280px;
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    border: none;
+    opacity: 0;
 }
 
-/* 深色模式适配 */
-@media (prefers-color-scheme: dark) {
-    .toast {
-        background: rgba(40, 40, 40, 0.75); /* 降低不透明度 */
-        color: rgba(255, 255, 255, 0.85);
-        border-color: rgba(255, 255, 255, 0.06);
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(255, 255, 255, 0.03);
-    }
+.toast.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-    .toast {
-        font-size: 13px;
-        padding: 8px 16px;
-        max-width: min(260px, 85%);
-        bottom: max(env(safe-area-inset-bottom, 16px), 16px);
-    }
+/* Success status */
+.toast[data-status="success"] {
+    color: #52c41a;
+    background: rgba(82, 196, 26, 0.1);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
+/* Error status */
+.toast[data-status="error"] {
+    color: var(--error);
+    background: rgba(255, 77, 79, 0.1);
 }
 
-@keyframes button-loading-spinner {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* 移动设备适配优化 */
+/* Mobile responsiveness */
 @media (max-width: 768px) {
     .header {
         padding: 10px 16px;
@@ -260,6 +294,13 @@ body {
         padding: 6px 12px;
         font-size: 12px;
     }
+
+    .toast {
+        bottom: max(env(safe-area-inset-bottom, 16px), 16px);
+        max-width: 85%;
+        padding: 8px 14px;
+        font-size: 13px;
+    }
 }
 
 /* iOS专用样式 */
@@ -275,6 +316,7 @@ body {
     }
 }
 
+/* QR Modal with theme variables */
 .qr-modal {
     position: fixed;
     top: 0;
@@ -291,14 +333,18 @@ body {
 }
 
 .qr-container {
-    background: white;
+    background: var(--surface);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     text-align: center;
     position: relative;
     transform: scale(0.95);
     opacity: 0;
     animation: containerPopIn 0.2s ease 0.1s forwards;
+    box-shadow: var(--shadow-lg);
+    max-width: 280px;
+    width: 100%;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .qr-close {
@@ -306,19 +352,55 @@ body {
     right: 10px;
     top: 10px;
     cursor: pointer;
-    font-size: 20px;
-    color: #666;
+    font-size: 24px;
+    color: var(--text-secondary);
     line-height: 1;
+    height: 24px;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.qr-close:hover {
+    color: var(--primary);
 }
 
 .qr-title {
     margin-bottom: 15px;
-    color: #333;
+    color: var(--text);
     font-size: 16px;
+    font-weight: 500;
 }
 
-#qrcode {
+.qrcode-wrapper {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 0 auto 15px;
+    border: 1px solid var(--border);
+}
+
+.qrcode-content {
     margin: 0 auto;
+}
+
+.qrcode-content img {
+    display: block;
+}
+
+/* Dark mode QR code inversion */
+html.dark-theme .qrcode-wrapper,
+html[data-theme="dark"] .qrcode-wrapper {
+    background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not(.light-theme):not([data-theme="light"]) .qrcode-wrapper {
+        background: #fff;
+    }
 }
 
 @keyframes modalFadeIn {
@@ -338,65 +420,6 @@ body {
     to {
         transform: scale(1);
         opacity: 1;
-    }
-}
-
-/* 暗色模式调整 */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #1a1a1a;
-    }
-
-    .header {
-        background: rgba(30, 30, 30, 0.7); /* 降低不透明度 */
-        border-bottom-color: rgba(255, 255, 255, 0.06);
-    }
-
-    .button {
-        background: rgba(40, 40, 40, 0.7); /* 降低不透明度 */
-        border-color: rgba(255, 255, 255, 0.08);
-        color: #bbb;
-    }
-
-    .button:hover {
-        background: rgba(50, 50, 50, 0.9);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-
-    #viewer {
-        background: #242424;
-        color: #e0e0e0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .file-info {
-        background: #242424;
-        color: #e0e0e0;
-    }
-
-    .divider {
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .qr-modal {
-        background: rgba(0, 0, 0, 0.7); /* 稍微加深背景 */
-    }
-
-    .qr-container {
-        background: #242424; /* 深色背景 */
-    }
-
-    .qr-title {
-        color: #e0e0e0; /* 浅色文字 */
-    }
-
-    .qr-close {
-        color: #999; /* 更柔和的关闭按钮颜色 */
-    }
-
-    /* 反转 QR 码颜色 */
-    #qrcode img {
-        filter: invert(1);
     }
 }
 
@@ -450,28 +473,6 @@ body {
     color: #52c41a;
 }
 
-/* 深色模式支持 */
-@media (prefers-color-scheme: dark) {
-    .url-container {
-        background: rgba(255, 255, 255, 0.05);
-        color: #bbb;
-    }
-
-    .url-container:hover {
-        background: rgba(255, 255, 255, 0.08);
-    }
-
-    .copy-hint {
-        color: #1890ff;
-        opacity: 0.9;
-    }
-
-    .url-container.copied .copy-hint {
-        color: #52c41a;
-        opacity: 0.9;
-    }
-}
-
 /* 针对 WebKit 内核浏览器 */
 ::-webkit-scrollbar {
     width: 8px;
@@ -494,52 +495,31 @@ body {
     background: rgba(0, 0, 0, 0.3);
 }
 
-/* 针对 Firefox 的滚动条样式（注意：Firefox 对滚动条只能做有限自定义） */
-body {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-/* 深色模式下的调整 */
-@media (prefers-color-scheme: dark) {
-    ::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    body {
-        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-    }
-}
-
-/* 修改加载动画相关样式：去除加载横线 */
 .loading-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 40px;
-    background: white;
+    background: var(--surface);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-md);
     min-height: 200px;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(24, 144, 255, 0.1);
-    border-top-color: rgba(24, 144, 255, 0.7);
+    border: 3px solid rgba(var(--primary-rgb), 0.1);
+    border-top-color: var(--primary);
     border-radius: 50%;
     animation: loading-spin 0.8s linear infinite;
     margin-bottom: 16px;
 }
 
 .loading-text {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 14px;
     animation: loading-fade 1.5s ease infinite;
 }
@@ -589,7 +569,7 @@ body {
     }
 }
 
-/* Password Dialog Styles */
+/* Password Dialog Styles - Clean and Elegant */
 .password-dialog {
     text-align: center;
     max-width: 380px;
@@ -597,14 +577,11 @@ body {
     padding: 32px 24px;
     position: relative;
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     animation: dialogFadeIn 0.3s ease;
-}
-
-@keyframes dialogFadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    border: 1px solid var(--border);
 }
 
 .password-dialog h3 {
@@ -612,19 +589,20 @@ body {
     margin-bottom: 16px;
     font-size: 18px;
     font-weight: 500;
-    color: #333;
+    color: var(--text);
 }
 
 .password-dialog .lock-icon {
-    display: block;
-    width: 48px;
-    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
     margin: 0 auto 20px;
     border-radius: 50%;
-    background: rgba(24, 144, 255, 0.1);
-    color: #1890ff;
-    line-height: 48px;
-    font-size: 20px;
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary);
+    font-size: 22px;
 }
 
 .password-input-container {
@@ -637,22 +615,22 @@ body {
 .password-input {
     flex: 1;
     padding: 10px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 14px;
-    background: white;
-    color: #333;
+    background: var(--surface);
+    color: var(--text);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .password-input:focus {
-    border-color: rgba(24, 144, 255, 0.3);
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    border-color: rgba(var(--primary-rgb), 0.3);
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
     outline: none;
 }
 
 .password-error {
-    color: #ff4d4f;
+    color: var(--error);
     margin-top: 12px;
     text-align: center;
     font-size: 14px;
@@ -688,38 +666,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-    .password-dialog {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .password-dialog h3 {
-        color: #e0e0e0;
-    }
-    
-    .password-dialog .lock-icon {
-        background: rgba(24, 144, 255, 0.15);
-        color: #40a9ff;
-    }
-    
-    .password-input {
-        background: #333;
-        color: #e0e0e0;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-    
-    .password-input:focus {
-        border-color: rgba(24, 144, 255, 0.4);
-        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.15);
-    }
-    
-    .password-error {
-        color: #ff7875;
-    }
-}
-
-/* Mobile styles */
+/* Mobile optimization */
 @media (max-width: 480px) {
     .password-dialog {
         margin: 20px auto;
@@ -728,10 +675,27 @@ body {
     }
     
     .password-dialog .lock-icon {
-        width: 40px;
-        height: 40px;
-        line-height: 40px;
-        font-size: 18px;
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
         margin-bottom: 16px;
     }
 }
+
+/* Default hidden states */
+#qrModal,
+#passwordDialog,
+#loadingContainer {
+    display: none;
+}
+
+/* When active/visible */
+#qrModal.active {
+    display: flex;
+}
+
+#passwordDialog.active,
+#loadingContainer.active {
+    display: block;
+}
+
