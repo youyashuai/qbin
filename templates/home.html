@@ -26,12 +26,39 @@
     <script src=/static/js/utils.js defer></script>
     <script src=/static/js/home.js defer></script>
     <link href=/favicon.ico rel=icon type=image/svg+xml>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4a6cf7">
+    <meta name="application-name" content="QBin">
+
+    <!-- iOS PWA 特定标签 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QBin">
+
+    <!-- iOS 图标 -->
+    <link rel="apple-touch-icon" href="/static/img/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/img/apple-icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/static/img/apple-icon-167.png">
+
+    <!-- iOS 启动画面 -->
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-2048-2732.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-1668-2388.png" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-1536-2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-1125-2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-1242-2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-828-1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-750-1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+    <link rel="apple-touch-startup-image" href="/static/img/apple-splash-640-1136.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+
+    <!-- PWA 处理脚本 -->
+    <script src=/static/js/pwa-handler.js defer></script>
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <div class="logo">
-                <img src="https://s3.tebi.io/lite/favicon.svg" alt="QBin Logo">
+                <img src="/static/img/favicon.svg" alt="QBin Logo">
                 <span>QBin</span>
             </div>
             <nav>
