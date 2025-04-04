@@ -6,109 +6,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="https://ik.imagekit.io/naihe/logo/qbin.svg">
-    <title>QuickBin</title>
     <style>
+        /* ===== THEME VARIABLES ===== */
         :root {
-            --primary-color: #2563eb;
+            /* Colors */
+            --primary: #2563eb;
             --primary-hover: #1d4ed8;
-            --background-color: #f8fafc;
-            --container-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-            --error-color: #ef4444;
-            --subtitle-color: #64748b;
-            --divider-color: #e2e8f0;
-            --oauth-hover: #f8fafc;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --error: #ef4444;
+            --divider: #e2e8f0;
+            --hover-bg: #f8fafc;
+            
+            /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.02);
             --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02);
-            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.04),
-                        0 10px 20px -10px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.04), 0 10px 20px -10px rgba(0, 0, 0, 0.03);
+            
+            color-scheme: light;
         }
-
+        
+        /* Dark theme variables */
+        html.dark-theme,
+        html[data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --error: #f87171;
+            --divider: #334155;
+            --hover-bg: #262f3f;
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -10px rgba(0, 0, 0, 0.15);
+            
+            color-scheme: dark;
+        }
+        
+        /* System preference detection */
         @media (prefers-color-scheme: dark) {
-            :root {
-                --primary-color: #3b82f6;
+            html:not(.light-theme):not([data-theme="light"]) {
+                --primary: #3b82f6;
                 --primary-hover: #2563eb;
-                --background-color: #0f172a;
-                --container-bg: #1e293b;
-                --text-color: #f1f5f9;
-                --border-color: #334155;
-                --error-color: #f87171;
-                --subtitle-color: #94a3b8;
-                --divider-color: #334155;
-                --oauth-hover: #262f3f;
+                --bg: #0f172a;
+                --surface: #1e293b;
+                --text: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --border: #334155;
+                --error: #f87171;
+                --divider: #334155;
+                --hover-bg: #262f3f;
+                
                 --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
                 --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
-                --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2),
-                            0 10px 20px -10px rgba(0, 0, 0, 0.15);
+                --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -10px rgba(0, 0, 0, 0.15);
+                
+                color-scheme: dark;
             }
+        }
 
-            .oauth-button {
-                background-color: var(--container-bg);
-                border-color: var(--border-color);
-                color: var(--text-color);
-            }
-
-            .oauth-button:hover {
-                background-color: var(--oauth-hover);
-            }
-
-            /* 调整深色模式下的图标颜色 */
-            .input-icon {
-                color: #64748b;
-            }
-
-            /* Logo 亮度调整 */
-            .qbin-header img {
-                filter: brightness(0.9);
-            }
+        /* ===== BASE STYLES ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, 
+                        color 0.3s ease,
+                        border-color 0.3s ease,
+                        box-shadow 0.3s ease,
+                        transform 0.3s ease;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--background-color);
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 1rem;
-            color: var(--text-color);
-            transition: background-color 0.3s ease;
-            background-image:
-                linear-gradient(45deg,
-                    var(--background-color) 0%,
-                    var(--background-color) 100%);
         }
 
+        /* ===== CONTAINER STYLES ===== */
         .qbin-container {
-            background-color: var(--container-bg);
+            background-color: var(--surface);
             padding: 2.5rem;
             border-radius: 20px;
             width: 100%;
             max-width: 420px;
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.02);
             position: relative;
-            border: none;
-            box-shadow:
-                var(--shadow-lg),
-                0 0 0 1px rgba(0, 0, 0, 0.02),
-                inset 0 0 20px rgba(0, 0, 0, 0.02);
-        }
-
-        .qbin-container::before {
-            display: none;
+            transform: translateY(0);
         }
 
         .qbin-container:hover {
             transform: translateY(-2px);
-            box-shadow:
-                0 25px 35px -12px rgba(0, 0, 0, 0.05),
-                0 12px 25px -12px rgba(0, 0, 0, 0.04),
-                0 0 0 1px rgba(0, 0, 0, 0.02),
-                inset 0 0 20px rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.04);
         }
 
+        /* ===== HEADER STYLES ===== */
         .qbin-header {
             text-align: center;
             margin-bottom: 2rem;
@@ -118,320 +123,21 @@
             animation: fadeInUp 0.6s ease-out;
         }
 
+        .qbin-header img {
+            width: 25%;
+            margin-bottom: 0.5rem;
+        }
+
         .qbin-subtitle {
-            color: var(--subtitle-color);
-            font-size: 0.875rem;
-            margin: 0;
-        }
-
-        .access-form {
-            margin-top: 1.5rem;
-            animation: fadeInUp 0.6s ease-out 0.2s backwards;
-        }
-
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .access-input {
-            width: 100%;
-            padding: 0.875rem 1rem 0.875rem 2.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-            background-color: var(--container-bg);
-            color: var(--text-color);
-            box-shadow:
-                inset 0 2px 4px rgba(0, 0, 0, 0.02),
-                0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-color);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .input-icon.icon {
-            width: 18px;
-            height: 18px;
-        }
-
-        .access-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow:
-                0 0 0 3px rgba(37,99,235,0.1),
-                inset 0 2px 4px rgba(0, 0, 0, 0.02);
-            transform: translateY(-1px);
-        }
-
-        .access-button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.875rem;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1rem;
-            font-weight: 600;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .access-button:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .access-button:active {
-            transform: translateY(0);
-        }
-
-        .auth-divider span {
-            padding: 0 1rem;
+            color: var(--text-secondary);
             font-size: 0.875rem;
         }
 
-        .oauth-button img {
-            width: 20px;
-            height: 20px;
-        }
-
-        .error-message {
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 8px;
-            background-color: rgba(239, 68, 68, 0.1);
-            margin-bottom: 1rem;
-            color: var(--error-color);
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 480px) {
-            .qbin-container {
-                padding: 2rem;
-                margin: 0.5rem;
-                border-radius: 16px;
-            }
-
-            body {
-                padding: max(1rem, env(safe-area-inset-top))
-                        max(1rem, env(safe-area-inset-right))
-                        max(1rem, env(safe-area-inset-bottom))
-                        max(1rem, env(safe-area-inset-left));
-            }
-
-            .access-input,
-            .oauth-button {
-                font-size: 16px;
-            }
-
-            .qbin-header img {
-                width: 150px;
-                height: auto;
-            }
-
-            .input-wrapper {
-                position: relative;
-                margin-bottom: 1.5rem;
-            }
-
-            .input-icon {
-                position: absolute;
-                left: 1rem;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--text-color);
-                font-size: 16px;
-                pointer-events: none;
-            }
-
-            .access-input {
-                padding-left: 2.75rem;
-            }
-        }
-
-        @media (hover: hover) {
-            .access-button:hover,
-            .oauth-button:hover {
-                transform: translateY(-2px);
-            }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .access-input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 30px var(--container-bg) inset;
-            -webkit-text-fill-color: var(--text-color);
-        }
-
-        .copyright {
-            position: fixed;
-            bottom: max(env(safe-area-inset-bottom, 12px), 12px);
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            opacity: 0.6;
-            pointer-events: none;
-            z-index: 1;
-            padding: 8px;
-            transition: opacity 0.3s ease;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-        }
-
-        .qbin-container:hover + .copyright {
-            opacity: 0.4;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .copyright {
-                color: rgba(255, 255, 255, 0.4);
-            }
-
-            .qbin-container:hover + .copyright {
-                opacity: 0.2;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .copyright {
-                font-size: 11px;
-                bottom: max(env(safe-area-inset-bottom, 15px), 15px);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            ::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-            ::-webkit-scrollbar-thumb:hover {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            body {
-                background-image: linear-gradient(45deg,
-                    var(--background-color) 0%,
-                    rgba(20, 30, 50, 0.99) 100%);
-            }
-        }
-
-        .icon {
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            vertical-align: middle;
-            fill: currentColor;
-        }
-
-        .oauth-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .oauth-login-button {
-            display: flex;
-            align-items: center;
-            padding: 0.875rem 1.25rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background-color: var(--container-bg);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .oauth-login-button:hover {
-            background-color: var(--oauth-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .oauth-login-button img {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            color: var(--subtitle-color);
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 1.25rem;
-            }
-
-            .oauth-login-button {
-                padding: 0.75rem 1rem;
-            }
-        }
-
-        /* 标签式切换样式 */
+        /* ===== TAB NAVIGATION ===== */
         .tab-navigation {
             display: flex;
             margin: 0 auto 2rem;
-            border-bottom: 1px solid var(--divider-color);
+            border-bottom: 1px solid var(--divider);
             padding-bottom: 0;
             max-width: 320px;
             position: relative;
@@ -444,9 +150,8 @@
             padding: 0.75rem 0.5rem;
             font-size: 0.95rem;
             font-weight: 500;
-            color: var(--subtitle-color);
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -454,34 +159,29 @@
             position: relative;
         }
 
+        .tab-button.active {
+            color: var(--primary);
+        }
+
+        .tab-button:hover {
+            color: var(--primary);
+        }
+
         .tab-indicator {
             position: absolute;
             bottom: -1px;
             height: 2px;
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: calc(50% - 10px);
             left: 5px;
-        }
-
-        .tab-button.active {
-            color: var(--primary-color);
         }
 
         .admin-tab.active ~ .tab-indicator {
             transform: translateX(calc(100% - 10px));
         }
 
-        .tab-button:hover {
-            color: var(--primary-color);
-        }
-
-        .tab-icon {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* 美化内容区域 */
+        /* ===== TAB CONTENT ===== */
         .tab-content {
             position: relative;
             min-height: 250px;
@@ -495,90 +195,69 @@
             display: none;
             opacity: 0;
             transform: translateY(10px);
-            animation: fadeSlideIn 0.4s forwards;
         }
 
         .tab-panel.active {
             display: block;
+            animation: fadeSlideIn 0.4s forwards;
         }
 
-        @keyframes fadeSlideIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 优化表单元素 */
-        .oauth-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.9rem;
-            padding: 0.5rem 0;
-        }
-
-        .oauth-login-button {
-            display: flex;
-            align-items: center;
-            padding: 0.9rem 1.25rem;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            background-color: var(--container-bg);
-            cursor: pointer;
-            transition: all 0.25s ease;
-            font-size: 1rem;
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
             font-weight: 500;
-            color: var(--text-color);
-            box-shadow: var(--shadow-sm);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        .oauth-login-button:hover {
-            background-color: var(--oauth-hover);
+        /* ===== FORM ELEMENTS ===== */
+        .access-form {
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text);
+            pointer-events: none;
+            width: 18px;
+            height: 18px;
+        }
+
+        .access-input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.75rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            background-color: var(--surface);
+            color: var(--text);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .access-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
         }
 
-        .oauth-login-button:active {
-            transform: translateY(-1px);
-        }
-
-        /* 优化错误提示 */
-        .error-message {
-            height: 0;
-            overflow: hidden;
-            padding: 0;
-            margin: 0 0 1rem;
-            border-radius: 8px;
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--error-color);
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            opacity: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .error-message.visible {
-            height: auto;
-            padding: 0.75rem;
-            opacity: 1;
-        }
-
-        .error-icon {
-            flex-shrink: 0;
-            color: var(--error-color);
-        }
-
-        /* 改进按钮样式 */
         .access-button {
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: 0.9rem;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.25s ease;
             font-size: 1rem;
             font-weight: 600;
             width: 100%;
@@ -586,18 +265,14 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
         }
 
         .access-button:hover {
             background-color: var(--primary-hover);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .access-button:active {
-            transform: translateY(-1px);
         }
 
         .access-button:after {
@@ -618,74 +293,140 @@
             transform-origin: left;
         }
 
-        /* 确保输入框样式一致 */
-        .access-input {
-            width: 100%;
-            padding: 0.9rem 1rem 0.9rem 2.75rem;
-            border: 1px solid var(--border-color);
+        /* ===== OAUTH BUTTONS ===== */
+        .oauth-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            padding: 0.5rem 0;
+        }
+
+        .oauth-login-button {
+            display: flex;
+            align-items: center;
+            padding: 0.9rem 1.25rem;
             border-radius: 12px;
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            cursor: pointer;
             font-size: 1rem;
-            transition: all 0.25s ease;
-            box-sizing: border-box;
-            background-color: var(--container-bg);
-            color: var(--text-color);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 0 rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
         }
 
-        .access-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        .oauth-login-button:hover {
+            background-color: var(--hover-bg);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
-        /* 移动端适配优化 */
-        @media (max-width: 480px) {
-            .tab-navigation {
-                max-width: 100%;
-            }
-
-            .tab-content {
-                min-height: 280px;
-            }
-
-            .tab-panel {
-                max-width: 100%;
-            }
-
-            .oauth-login-button,
-            .access-button,
-            .access-input {
-                padding-top: 0.875rem;
-                padding-bottom: 0.875rem;
-            }
+        .oauth-login-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
         }
 
-        /* GitHub Corner 样式 */
+        /* ===== ERROR MESSAGE ===== */
+        .error-message {
+            height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0 0 1rem;
+            border-radius: 8px;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-message.visible {
+            height: auto;
+            padding: 0.75rem;
+            opacity: 1;
+        }
+
+        .error-icon {
+            flex-shrink: 0;
+            color: var(--error);
+        }
+
+        /* ===== THEME SWITCHER ===== */
+        .theme-switcher {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+        }
+        
+        .theme-toggle-btn {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            color: var(--text);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            color: var(--primary);
+        }
+        
+        .theme-icon {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            visibility: hidden;
+        }
+        
+        .theme-toggle-btn[data-theme="light"] .sun-icon,
+        .theme-toggle-btn[data-theme="dark"] .moon-icon,
+        .theme-toggle-btn[data-theme="system"] .system-icon {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+        }
+
+        /* ===== GITHUB CORNER ===== */
         .github-corner {
             position: fixed;
             top: 0;
             right: 0;
             padding: 1rem 1.5rem;
-            color: var(--text-color);
+            color: var(--text);
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            transition: all 0.3s ease;
             z-index: 100;
-            background-color: var(--container-bg);
+            background-color: var(--surface);
             border-radius: 0 0 0 8px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--border);
             border-top: none;
             border-right: none;
         }
 
         .github-corner:hover {
-            color: var(--primary-color);
+            color: var(--primary);
             transform: translateY(2px);
             box-shadow: var(--shadow-md);
         }
@@ -700,7 +441,108 @@
             transform: rotate(-5deg);
         }
 
+        /* ===== FOOTER ===== */
+        .copyright {
+            position: fixed;
+            bottom: max(env(safe-area-inset-bottom, 12px), 12px);
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+            padding: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .qbin-container:hover + .copyright {
+            opacity: 0.4;
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+
+        .tab-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== SCROLLBAR STYLING ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scrollbar dark mode */
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+        }
+        
+        /* ===== RESPONSIVE STYLES ===== */
         @media (max-width: 768px) {
+            .theme-switcher {
+                top: 0.75rem;
+                left: 0.75rem;
+            }
+
+            .theme-toggle-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
             .github-corner {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
@@ -710,17 +552,126 @@
                 width: 16px;
                 height: 16px;
             }
+            
+            .copyright {
+                font-size: 11px;
+                bottom: max(env(safe-area-inset-bottom, 15px), 15px);
+            }
         }
 
         @media (max-width: 480px) {
+            .qbin-container {
+                padding: 2rem;
+                margin: 0.5rem;
+                border-radius: 16px;
+            }
+
+            body {
+                padding: max(1rem, env(safe-area-inset-top))
+                        max(1rem, env(safe-area-inset-right))
+                        max(1rem, env(safe-area-inset-bottom))
+                        max(1rem, env(safe-area-inset-left));
+            }
+
+            .qbin-header img {
+                width: 130px;
+            }
+            
+            .tab-navigation {
+                max-width: 100%;
+            }
+
+            .tab-content {
+                min-height: 280px;
+            }
+
+            .tab-panel {
+                max-width: 100%;
+            }
+            
             .github-corner {
                 position: absolute;
             }
         }
+
+        @media (hover: hover) {
+            .access-button:hover,
+            .oauth-button:hover {
+                transform: translateY(-2px);
+            }
+        }
     </style>
+    <script>
+        (function() {
+            const THEMES = ['system', 'light', 'dark'];
+            function getCurrentTheme() {
+                return localStorage.getItem('qbin-theme') || 'light';
+            }
+            function applyTheme() {
+                const html = document.documentElement;
+                html.classList.remove('dark-theme', 'light-theme');
+                const savedTheme = getCurrentTheme();
+                if (savedTheme === 'dark') {
+                    html.classList.add('dark-theme');
+                    html.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'light') {
+                    html.classList.add('light-theme');
+                    html.setAttribute('data-theme', 'light');
+                } else {
+                    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    html.classList.add(prefersDark ? 'dark-theme' : 'light-theme');
+                    html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+                }
+                updateThemeButton();
+            }
+            function updateThemeButton() {
+                const themeToggleBtn = document.getElementById('themeToggleBtn');
+                if (themeToggleBtn) {
+                    const currentTheme = getCurrentTheme();
+                    themeToggleBtn.setAttribute('data-theme', currentTheme);
+                    themeToggleBtn.setAttribute('title', `Current theme: ${currentTheme}. Click to change.`);
+                }
+            }
+            function cycleTheme() {
+                const currentTheme = getCurrentTheme();
+                const currentIndex = THEMES.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % THEMES.length;
+                const nextTheme = THEMES[nextIndex];
+                localStorage.setItem('qbin-theme', nextTheme);
+                applyTheme();
+                window.dispatchEvent(new CustomEvent('themeChange'));
+            }
+            applyTheme();
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (getCurrentTheme() === 'system') {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'qbin-theme') {
+                    applyTheme();
+                }
+            });
+            window.addEventListener('themeChange', applyTheme);
+            document.addEventListener('DOMContentLoaded', () => {
+                const themeToggleBtn = document.getElementById('themeToggleBtn');
+                if (themeToggleBtn) {
+                    updateThemeButton();
+                    themeToggleBtn.addEventListener('click', cycleTheme);
+                }
+            });
+            window.qbinToggleTheme = (theme) => {
+                if (THEMES.includes(theme)) {
+                    localStorage.setItem('qbin-theme', theme);
+                    applyTheme();
+                    window.dispatchEvent(new CustomEvent('themeChange'));
+                }
+            };
+        })();
+    </script>
 </head>
 <body>
-<a href="https://github.com/Quick-Bin/Qbin" class="github-corner" target="_blank" rel="noopener noreferrer">
+<a href="https://github.com/Quick-Bin/Qbin" class="github-corner" target="_blank" rel="noopener">
     <svg viewBox="0 0 16 16" fill="currentColor">
         <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
     </svg>
@@ -731,7 +682,6 @@
         <img src="https://ik.imagekit.io/naihe/logo/qbin.svg" alt="QBin Logo" width="25%">
         <p class="qbin-subtitle">Open-source secure sharing & editing platform</p>
     </div>
-    <!-- 标签切换导航 -->
     <div class="tab-navigation">
         <button id="userTabBtn" class="tab-button user-tab active">
             <svg class="icon tab-icon" viewBox="0 0 24 24">
@@ -749,9 +699,7 @@
         <div class="tab-indicator"></div>
     </div>
 
-    <!-- 内容面板区域 -->
     <div class="tab-content">
-        <!-- OAuth用户登录面板 -->
         <div id="userPanel" class="tab-panel active">
             <p class="login-subtitle">Connect to QBin via</p>
             <div class="oauth-container">
@@ -804,6 +752,13 @@
     </div>
 </div>
 <div class="copyright">© 2025 QBin - Open Source sharing & editing</div>
+<div class="theme-switcher">
+    <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle theme">
+        <svg class="theme-icon sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="theme-icon moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <svg class="theme-icon system-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+    </button>
+</div>
 <script>
     const accessForm = document.getElementById('accessForm');
     const errorMessage = document.getElementById('errorMessage');
@@ -869,11 +824,30 @@
         updateTabIndicator(activeTab) {
             const tabWidth = activeTab.offsetWidth;
             const tabLeft = activeTab.offsetLeft;
-
-            // 设置指示器宽度和位置为活动标签的宽度和位置
             tabIndicator.style.width = `${tabWidth - 20}px`;
             tabIndicator.style.left = `${tabLeft + 10}px`;
             tabIndicator.style.transform = 'none';
+        },
+        
+        initialize() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const errorDesc = urlParams.get('error_description');
+
+            if (error) {
+                this.showError(errorDesc || 'Authentication failed');
+                this.switchTab(error.includes('admin'));
+            } else {
+                this.updateTabIndicator(userTabBtn);
+            }
+
+            userTabBtn.addEventListener('click', () => this.switchTab(false));
+            adminTabBtn.addEventListener('click', () => this.switchTab(true));
+
+            window.addEventListener('resize', () => {
+                const activeTab = document.querySelector('.tab-button.active');
+                this.updateTabIndicator(activeTab);
+            });
         }
     };
 
@@ -942,29 +916,8 @@
             button.disabled = false;
         }
     }
-
-    function initialize() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        const errorDesc = urlParams.get('error_description');
-
-        if (error) {
-            UI.showError(errorDesc || 'Authentication failed');
-            UI.switchTab(error.includes('admin'));
-        } else {
-            UI.updateTabIndicator(userTabBtn);
-        }
-
-        userTabBtn.addEventListener('click', () => UI.switchTab(false));
-        adminTabBtn.addEventListener('click', () => UI.switchTab(true));
-
-        window.addEventListener('resize', () => {
-            const activeTab = document.querySelector('.tab-button.active');
-            UI.updateTabIndicator(activeTab);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', initialize);
+    
+    document.addEventListener('DOMContentLoaded', () => UI.initialize());
 </script>
 </body>
 </html>
