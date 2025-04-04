@@ -445,7 +445,7 @@ router
     return await getMDEditHtml(ctx, 200);
   })    // markdown edit
   .get(/^\/?[a-zA-Z0-9]?\/?$/, async (ctx) => {
-    const defaultEditor = await ctx.cookies.get("default");
+    const defaultEditor = await ctx.cookies.get("qbin-editor");
     switch (defaultEditor) {
       case "e":
         return await getEditHtml(ctx, 200);
@@ -552,10 +552,10 @@ router
     if (!["e", "c", "m"].includes(editor)) {
       return new Response(ctx, 400, "无效的编辑器类型");
     }
-    ctx.cookies.set("default", editor, {
+    ctx.cookies.set("qbin-editor", editor, {
       path: "/",
       maxAge: 315360000000,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: "lax"
     });
     return new Response(ctx, 200, "success");

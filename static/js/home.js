@@ -141,12 +141,12 @@ class QBinHome {
     }
 
     initializeSettings() {
-        const editorRadios = document.querySelectorAll('input[name="default-editor"]');
+        const editorRadios = document.querySelectorAll('input[name="qbin-editor"]');
         const themeRadios = document.querySelectorAll('input[name="qbin-theme"]');
 
         // 设置默认编辑器选择
-        const savedEditor = localStorage.getItem('default-editor') || 'e';
-        document.querySelector(`input[name="default-editor"][value="${savedEditor}"]`).checked = true;
+        const savedEditor = getCookie('qbin-editor') || 'e';
+        document.querySelector(`input[name="qbin-editor"][value="${savedEditor}"]`).checked = true;
         this.updateEditorRadioVisualFeedback(savedEditor);
 
         // 设置默认主题选择
@@ -178,8 +178,6 @@ class QBinHome {
                         if (!response.ok) {
                             throw new Error('设置默认编辑器失败');
                         }
-                        // 成功后存储到localStorage以保持UI一致性
-                        localStorage.setItem('default-editor', selectedEditor);
                         // 更新视觉反馈
                         this.updateEditorRadioVisualFeedback(selectedEditor);
                         // 显示成功提示
@@ -188,8 +186,8 @@ class QBinHome {
                         console.error('设置默认编辑器失败:', error);
 
                         // 发生错误时恢复原来的选择
-                        const originalEditor = localStorage.getItem('default-editor') || 'e';
-                        document.querySelector(`input[name="default-editor"][value="${originalEditor}"]`).checked = true;
+                        const originalEditor = getCookie('qbin-editor') || 'e';
+                        document.querySelector(`input[name="qbin-editor"][value="${originalEditor}"]`).checked = true;
                         this.updateEditorRadioVisualFeedback(originalEditor);
 
                         // 显示错误提示
@@ -323,7 +321,7 @@ class QBinHome {
 
     // 更新编辑器选择器的视觉反馈
     updateEditorRadioVisualFeedback(editorValue) {
-        this.updateRadioVisualFeedback('default-editor', editorValue, 'active-editor');
+        this.updateRadioVisualFeedback('qbin-editor', editorValue, 'active-editor');
     }
 
     initializeTokenFeature() {

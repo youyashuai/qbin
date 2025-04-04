@@ -379,12 +379,14 @@ class QBinViewer {
             storage.setCache(this.CACHE_KEY + this.currentPath.key, cacheData);
             sessionStorage.setItem(this.CACHE_KEY + 'last', JSON.stringify(this.currentPath));
         }catch(e) {}
-        window.location.assign(`/e`);
+        const originalEditor = getCookie('qbin-editor') || 'e';
+        window.location.assign(`/${originalEditor}`);
     }
 
     async handleNew() {
         // 加载前先清除缓存
-        window.location.assign('/e');
+        const originalEditor = getCookie('qbin-editor') || 'e';
+        window.location.assign(`/${originalEditor}`);
     }
 
     handleCopy() {
@@ -522,7 +524,8 @@ class QBinViewer {
             const response = await fetch(path, {method: 'DELETE'});
             if (response.ok) {
                 await this.clearLocalCache();
-                window.location.assign('/e');
+                const originalEditor = getCookie('qbin-editor') || 'e';
+                window.location.assign(`/${originalEditor}`);
             } else {
                 const result = await response.json();
                 this.showToast(result.message || '上传失败');

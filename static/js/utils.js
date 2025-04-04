@@ -29,6 +29,17 @@ function parsePath(pathname) {
     }
     return result;
 }
+function getCookie(name) {
+  const cookieArr = document.cookie.split(';');
+  for (let i = 0; i < cookieArr.length; i++) {
+    const cookiePair = cookieArr[i].split('=');
+    const cookieName = cookiePair[0].trim();
+    if (cookieName === name) {
+      return decodeURIComponent(cookiePair[1]);
+    }
+  }
+  return null;
+}
 /**
  * 移动设备检测函数
  * @returns {boolean} true: 移动设备，false: 桌面设备
