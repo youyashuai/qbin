@@ -631,7 +631,7 @@ class QBinEditorBase {
         // action: replaceState | pushState
         if (key && key.length < 2) return;
         const {render} = parsePath(window.location.pathname);
-        const defaultRender = getCookie('default') || 'e';
+        const defaultRender = getCookie('qbin-editor') || 'e';
         const renderPath = ["e", "p", "c", "m"].includes(render) ? `/${render}` : `/${defaultRender}`;
 
         const pathSegments = [renderPath, key, pwd].filter(Boolean);
