@@ -170,14 +170,7 @@ class QBinHome {
                             label.classList.remove('radio-clicked');
                         }, 300);
 
-                        // 调用后端API设置默认编辑器
-                        const response = await fetch(`/api/user/default/${selectedEditor}`, {
-                            method: 'GET',
-                            credentials: 'include'
-                        });
-                        if (!response.ok) {
-                            throw new Error('设置默认编辑器失败');
-                        }
+                        document.cookie = `qbin-editor=${selectedEditor}; path=/; max-age=31536000; SameSite=Lax`;
                         // 更新视觉反馈
                         this.updateEditorRadioVisualFeedback(selectedEditor);
                         // 显示成功提示
@@ -192,8 +185,6 @@ class QBinHome {
 
                         // 显示错误提示
                         this.showToast('设置默认编辑器失败，请重试', 'error');
-                    } finally {
-                        // 不需要加载状态处理
                     }
                 }
             });
