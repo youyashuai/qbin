@@ -485,7 +485,7 @@ body::-webkit-scrollbar {
     /* 移动端适配：保持字体尺寸和位置 */
     .key-watermark {
         font-size: 14px;
-        top: 6px;
+        top: 0;
         /*transform: translateX(-50%);*/
     }
 
@@ -515,6 +515,86 @@ body::-webkit-scrollbar {
 }
 
 /* ============ 深色模式适配 ============ */
+/* Apply dark theme styles when class is set, regardless of media query */
+.dark-theme body {
+    background-color: var(--background-color);
+}
+
+.dark-theme #editor {
+    background-color: var(--editor-bg) !important;
+    color: var(--text-color) !important;
+    box-shadow: var(--editor-shadow) !important;
+    transition: background-color 0.1s ease, box-shadow 0.3s ease !important;
+}
+
+/* 确保各种交互状态下保持深色模式 */
+.dark-theme #editor:focus,
+.dark-theme #editor:active,
+.dark-theme #editor:hover,
+.dark-theme #editor.drag-over,
+.dark-theme #editor:-webkit-autofill {
+    background-color: var(--editor-bg) !important;
+    color: var(--text-color) !important;
+    -webkit-text-fill-color: var(--text-color) !important;
+}
+
+/* 特别针对移动端的深色模式增强 */
+@media (max-width: 768px) {
+    .dark-theme body {
+        background-color: var(--background-color) !important;
+    }
+
+    .dark-theme .content {
+        background-color: transparent !important;
+    }
+
+    .dark-theme #editor,
+    .dark-theme #editor:focus,
+    .dark-theme #editor:active,
+    .dark-theme #editor:hover,
+    .dark-theme #editor.drag-over {
+        background-color: var(--editor-bg) !important;
+        color: var(--text-color) !important;
+        box-shadow: var(--editor-shadow) !important;
+        -webkit-appearance: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* 编辑器获取焦点时的样式 */
+    .dark-theme #editor:focus {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15),
+        0 6px 16px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(24, 144, 255, 0.15),
+        inset 0 0 20px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    }
+}
+
+/* 针对 .content 的滚动条色彩反转 */
+.dark-theme .content {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.dark-theme .content::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+}
+
+.dark-theme .content::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+.dark-theme .key-watermark {
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.1);
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.dark-theme .editor-focused .key-watermark {
+    opacity: 0.3;
+}
+
+/* Keep the existing media query for system preference support */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: var(--background-color);
@@ -588,7 +668,7 @@ body::-webkit-scrollbar {
         text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
         background: rgba(0, 0, 0, 0.1);
         filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
-}
+    }
 
     .editor-focused .key-watermark {
         opacity: 0.3;
