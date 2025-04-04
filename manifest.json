@@ -1,0 +1,36 @@
+{
+  "name": "QBin - 一键存储",
+  "short_name": "QBin",
+  "description": "轻盈优雅的数据存储服务，比云盘更便捷，轻松存取文字、图片、视频等任意数据",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a6cf7",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
+  "lang": "zh",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/static/img/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/img/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/img/screenshot1.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "QBin登录界面"
+    }
+  ]
+}
