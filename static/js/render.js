@@ -8,9 +8,7 @@ class QBinViewer {
         this.contentArea = document.getElementById('contentArea');
         this.isProcessing = false;
         this.debounceTimeouts = new Map();
-        this.qrLoaded = false;
         this.isLoading = false;
-        this.cacheSupported = 'caches' in window;
         this.init();
     }
 
@@ -31,7 +29,7 @@ class QBinViewer {
     // 更新加载进度（用于文本流式加载）
     updateLoadingProgress(loaded, total) {
         const percent = Math.round((loaded / total) * 100);
-        
+
         // Find loading text in the content area
         const loadingText = this.contentArea.querySelector('.loading-text');
         if (loadingText) {
@@ -63,7 +61,7 @@ class QBinViewer {
                 }
                 throw new Error('内容加载失败');
             }
-            
+
             // 执行正常的内容加载逻辑
             await this.loadContent(headResponse);
         } catch (error) {
@@ -101,7 +99,7 @@ class QBinViewer {
         // 如果文件是文本或图片，继续发起 GET 请求下载文件内容
         this.showLoading();
         const url = `/r/${this.currentPath.key}/${this.currentPath.pwd}`;
-        const response = await API.fetchWithCache(url);
+        const response = await API.fetchNet(url);
         if (contentType?.startsWith('text/')) {
             await this.renderTextContent(response, contentLength);
         } else if (contentType?.startsWith('image/')) {
@@ -493,17 +491,17 @@ class QBinViewer {
             type = 'info',
             duration = 3000
         } = options;
-        
+
         const existingToast = document.querySelector('.toast');
         if (existingToast) {
             existingToast.remove();
         }
-        
+
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.setAttribute('data-status', type);
         toast.textContent = message;
-        
+
         document.body.appendChild(toast);
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -512,7 +510,7 @@ class QBinViewer {
         });
         toast.timeoutId = setTimeout(() => {
             toast.classList.remove('visible');
-            
+
             // Remove from DOM after animation completes
             setTimeout(() => {
                 if (toast.parentNode) {
@@ -548,69 +546,54 @@ class QBinViewer {
         await storage.removeCache(this.CACHE_KEY + this.currentPath.key);
     }
 
-    async loadQRLibrary() {
-        if (this.qrLoaded) return;
-
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
-            script.onload = () => {
-                this.qrLoaded = true;
-                resolve();
-            };
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-
     async showQRCode() {
         try {
             const currentUrl = window.location.href;
-            
+
             // Remove any existing QR modal
             const existingModal = document.querySelector('.qr-modal');
             if (existingModal) {
                 existingModal.remove();
             }
-            
+
             // Clone the template
             const template = document.getElementById('qrModalTemplate');
             const modal = document.importNode(template.content, true).firstElementChild;
-            
+
             // Set the URL text
             const urlText = modal.querySelector('.url-text');
             urlText.textContent = currentUrl;
-            
+
             // Add to body
             document.body.appendChild(modal);
-            
+
             // Bind close event
             const closeBtn = modal.querySelector('.qr-close');
             closeBtn.onclick = () => {
                 modal.classList.add('fadeOut');
                 setTimeout(() => modal.remove(), 200);
             };
-            
+
             modal.onclick = (e) => {
                 if (e.target === modal) {
                     modal.classList.add('fadeOut');
                     setTimeout(() => modal.remove(), 200);
                 }
             };
-            
+
             // Bind URL copy event
             const urlContainer = modal.querySelector('.url-container');
             const copyHint = urlContainer.querySelector('.copy-hint');
-            
+
             urlContainer.onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(currentUrl);
                     urlContainer.classList.add('copied');
                     copyHint.textContent = '已复制';
-                    
+
                     // Show toast for successful copy
                     this.showToast('链接已复制', { type: 'info' });
-                    
+
                     // Reset after 2 seconds
                     setTimeout(() => {
                         urlContainer.classList.remove('copied');
@@ -624,7 +607,7 @@ class QBinViewer {
                     textarea.style.opacity = '0';
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     try {
                         document.execCommand('copy');
                         urlContainer.classList.add('copied');
@@ -641,24 +624,25 @@ class QBinViewer {
                     document.body.removeChild(textarea);
                 }
             };
-            
-            // Generate QR code
-            await this.loadQRLibrary();
+
+            if (typeof qrcode === 'undefined') {
+                throw new Error('QR码库未加载，请稍后再试');
+            }
             const qr = qrcode(0, 'M');
             qr.addData(currentUrl);
             qr.make();
             const cellSize = 5;
             const margin = 4;
-            
+
             // Create QR code image
             const qrImg = document.createElement('img');
             qrImg.src = qr.createDataURL(cellSize, margin);
             qrImg.alt = 'QR Code';
-            
+
             // Add QR code to the container
             const qrcodeContent = modal.querySelector('.qrcode-content');
             qrcodeContent.appendChild(qrImg);
-            
+
         } catch (error) {
             console.error('QR码生成失败:', error);
             this.showToast('QR码生成失败', { type: 'error' });
@@ -669,61 +653,61 @@ class QBinViewer {
         this.hideLoading();
         this.contentArea.innerHTML = '';
         this.buttonBar.innerHTML = '';
-        
+
         // Get the password dialog
         const passwordDialog = document.getElementById('passwordDialog');
         const passwordInput = document.getElementById('passwordInput');
         const passwordError = document.getElementById('passwordError');
-        
+
         // Reset and configure
         passwordInput.value = currentPwd || '';
         passwordError.textContent = '';
         passwordError.classList.remove('visible');
-        
+
         // Make it visible in the content area
         passwordDialog.style.display = 'block';
         this.contentArea.appendChild(passwordDialog);
-        
+
         // Show New button
         const newButton = this.addButton('New', this.debounce(() => this.handleNew()));
         this.buttonBar.appendChild(newButton);
-        
+
         // Handle form submission
         const form = document.getElementById('passwordForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = document.getElementById('submitPasswordBtn');
             const submitBtnText = document.getElementById('submitBtnText');
             const submitBtnSpinner = document.getElementById('submitBtnSpinner');
             const password = passwordInput.value.trim();
-            
+
             if (!password) {
                 passwordError.textContent = '请输入密码';
                 passwordError.classList.add('visible');
                 return;
             }
-            
+
             submitBtn.disabled = true;
             submitBtnText.style.visibility = 'hidden';
             submitBtnSpinner.style.display = 'block';
             passwordError.classList.remove('visible');
-            
+
             try {
                 // Validate password
                 const validationResult = await this.validatePassword(key, password);
                 if (validationResult.valid) {
                     // Success - update path and URL
                     this.currentPath.pwd = password;
-                    
+
                     if (history.pushState) {
                         const newUrl = `/p/${key}/${password}`;
                         history.pushState({path: newUrl}, '', newUrl);
                     }
-                    
+
                     // Reset dialog display
                     passwordDialog.style.display = 'none';
-                    
+
                     // Re-fetch content
                     this.showLoading();
                     await this.loadContent(validationResult.headResponse);
@@ -742,7 +726,7 @@ class QBinViewer {
                 submitBtnSpinner.style.display = 'none';
             }
         };
-        
+
         // Focus on password input
         setTimeout(() => {
             passwordInput.focus();

@@ -3,6 +3,7 @@
  */
 import { join } from "https://deno.land/std/path/mod.ts";
 import {basePath} from "../config/constants.ts";
+import {fontsTypeMap, imgTypeMap} from "../types.ts";
 
 function cyrb53_str(str: string, seed = 8125): number {
   let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
@@ -41,10 +42,13 @@ export async function getCSS(ctx, pathname, status=200): Promise<string> {
 
 export async function getIMG(ctx, pathname, status=200): Promise<string> {
   try {
+    const extension = pathname.split('.').pop()?.toLowerCase() || '';
+    const contentType = imgTypeMap[extension] || 'application/octet-stream';
     ctx.response.body = await Deno.readTextFile(join(basePath, `/static/img/${pathname}`));
     ctx.response.status = status;
-    ctx.response.headers.set("Content-Type", "image/svg+xml");
-    // ctx.response.headers.set("Cache-Control", "public, max-age=86400, immutable");
+
+    ctx.response.headers.set("Content-Type", contentType);
+    // ctx.response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
     const hash = cyrb53_str(`${pathname}-${ctx.response.body.length}`);
     ctx.state.metadata = { etag: hash };
   } catch (error) {}
@@ -52,9 +56,12 @@ export async function getIMG(ctx, pathname, status=200): Promise<string> {
 
 export async function getFONTS(ctx, pathname, status=200): Promise<string> {
   try {
+    const extension = pathname.split('.').pop()?.toLowerCase() || '';
+    const contentType = fontsTypeMap[extension] || 'application/octet-stream';
     ctx.response.body = await Deno.readFile(join(basePath, `/static/css/fonts/${pathname}`));
     ctx.response.status = status;
-    ctx.response.headers.set("Content-Type", 'application/octet-stream');
+
+    ctx.response.headers.set("Content-Type", contentType);
     ctx.response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
     const hash = cyrb53_str(`${pathname}-${ctx.response.body.length}`);
     ctx.state.metadata = { etag: hash };

@@ -27,3 +27,21 @@ export interface AppState {
     provider: string;
   };
 }
+
+export const fontsTypeMap: Record<string, string> = {
+  'eot': 'application/vnd.ms-fontobject',
+  'svg': 'image/svg+xml',
+  'ttf': 'font/ttf',
+  'woff': 'font/woff',
+  'woff2': 'font/woff2'
+};
+
+export const imgTypeMap: Record<string, string> = {
+  'png': 'image/png',
+  'jpg': 'image/jpeg',
+  'jpeg': 'image/jpeg',
+  'gif': 'image/gif',
+  'svg': 'image/svg+xml',
+  'webp': 'image/webp',
+  'ico': 'image/x-icon'
+};
