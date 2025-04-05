@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.7';
+const CACHE_VERSION = 'v1.8';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -380,30 +380,69 @@ self.addEventListener('fetch', event => {
                         // 构建新的URL，保留原始查询参数
                         const targetUrl = new URL(prefix, self.location.origin);
                         targetUrl.search = originalUrl.search;
+                        const targetRequest = new Request(targetUrl.toString());
 
                         // 先尝试从缓存中获取页面模板
                         const cache = await caches.open(STATIC_CACHE_NAME);
-                        const templateResponse = await cache.match(new Request(targetUrl.toString()));
+                        const templateResponse = await cache.match(targetRequest);
 
                         if (templateResponse) {
                             log(`从缓存返回页面: ${targetUrl}`);
+
+                            // 在后台发起条件请求检查更新
+                            try {
+                                const conditionalRequest = await createConditionalRequest(targetRequest, templateResponse);
+                                fetch(conditionalRequest).then(async networkResponse => {
+                                    // 处理服务器响应
+                                    if (networkResponse.status === 304) {
+                                        log(`特殊路径资源未变化 (304): ${targetUrl}`);
+                                    } else if (networkResponse.status === 200) {
+                                        // 如果资源已更新，更新缓存
+                                        log(`特殊路径资源已更新: ${targetUrl}`);
+                                        await cache.put(targetRequest, networkResponse.clone());
+                                    } else if (networkResponse.status >= 500) {
+                                        warn(`特殊路径服务器错误 ${networkResponse.status}: ${targetUrl}`);
+                                    }
+                                }).catch(err => {
+                                    // 忽略后台更新错误
+                                    warn(`特殊路径后台更新检查失败: ${targetUrl}`, err);
+                                });
+                            } catch (bgErr) {
+                                // 忽略后台更新错误
+                                warn('特殊路径创建条件请求失败:', bgErr);
+                            }
+
                             return templateResponse;
                         }
 
                         // 如果缓存中没有，尝试从网络获取
-                        log(`从网络获取页面: ${targetUrl}`);
+                        log(`从网络获取特殊路径页面: ${targetUrl}`);
                         const networkResponse = await fetch(targetUrl);
+
+                        // 处理服务器错误
+                        if (networkResponse.status >= 500) {
+                            warn(`特殊路径服务器错误 ${networkResponse.status}: ${targetUrl}`);
+
+                            // 尝试从缓存中获取基本模板作为备用
+                            const fallbackUrl = new URL(prefix, self.location.origin);
+                            const fallbackResponse = await cache.match(new Request(fallbackUrl.toString()));
+
+                            if (fallbackResponse) {
+                                log(`服务器错误，使用备用模板: ${fallbackUrl}`);
+                                return fallbackResponse;
+                            }
+                        }
 
                         // 如果网络请求成功，将响应缓存起来以便离线使用
                         if (networkResponse && networkResponse.status === 200) {
                             const clonedResponse = networkResponse.clone();
-                            cache.put(new Request(targetUrl.toString()), clonedResponse);
-                            log(`已缓存页面: ${targetUrl}`);
+                            await cache.put(targetRequest, clonedResponse);
+                            log(`已缓存特殊路径页面: ${targetUrl}`);
                         }
 
                         return networkResponse;
                     } catch (err) {
-                        console.error('路径处理错误:', err);
+                        console.error('特殊路径处理错误:', err);
 
                         // 尝试从缓存中获取基本模板作为备用
                         try {
@@ -558,25 +597,123 @@ async function limitedCacheStrategy(request) {
     }
 }
 
-// 缓存优先策略 - 适用于静态资源
-async function cacheFirstStrategy(request) {
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
+/**
+ * 创建带有条件验证头的请求
+ * 支持 ETag 和 Last-Modified 缓存验证
+ */
+async function createConditionalRequest(request, cachedResponse) {
+    // 创建新的请求头
+    const headers = new Headers(request.headers);
+
+    // 如果缓存的响应存在 ETag，添加 If-None-Match 头
+    const etag = cachedResponse.headers.get('ETag');
+    if (etag) {
+        headers.set('If-None-Match', etag);
+        log(`添加 If-None-Match 头: ${etag}`);
+    }
+
+    // 如果缓存的响应存在 Last-Modified，添加 If-Modified-Since 头
+    const lastModified = cachedResponse.headers.get('Last-Modified');
+    if (lastModified) {
+        headers.set('If-Modified-Since', lastModified);
+        log(`添加 If-Modified-Since 头: ${lastModified}`);
+    }
+
+    // 创建新的条件请求
+    return new Request(request.url, {
+        method: request.method,
+        headers: headers,
+        mode: request.mode,
+        credentials: request.credentials,
+        cache: request.cache,
+        redirect: request.redirect,
+        referrer: request.referrer,
+        integrity: request.integrity
+    });
+}
+
+/**
+ * 处理服务器错误响应
+ * 优雅处理 304 Not Modified 和 500 等服务器错误
+ */
+function handleServerErrorResponse(response, cachedResponse) {
+    // 处理 304 Not Modified - 返回缓存的响应
+    if (response.status === 304 && cachedResponse) {
+        log('收到 304 Not Modified，使用缓存的响应');
         return cachedResponse;
     }
 
+    // 处理 500 系列服务器错误 - 如果有缓存则使用缓存
+    if (response.status >= 500 && cachedResponse) {
+        warn(`服务器错误 ${response.status}，回退到缓存的响应`);
+        return cachedResponse;
+    }
+
+    // 其他情况返回原始响应
+    return response;
+}
+
+// 缓存优先策略 - 适用于静态资源
+async function cacheFirstStrategy(request) {
     try {
-        const networkResponse = await fetch(request);
-        if (networkResponse && networkResponse.status === 200) {
-            const cache = await caches.open(STATIC_CACHE_NAME);
-            cache.put(request, networkResponse.clone());
+        // 先尝试从缓存获取
+        const cache = await caches.open(STATIC_CACHE_NAME);
+        const cachedResponse = await cache.match(request);
+
+        if (cachedResponse) {
+            // 如果有缓存，在后台发起条件请求检查更新
+            try {
+                const conditionalRequest = await createConditionalRequest(request, cachedResponse);
+                fetch(conditionalRequest).then(async networkResponse => {
+                    // 处理服务器响应
+                    if (networkResponse.status === 200) {
+                        // 如果资源已更新，更新缓存
+                        log(`资源已更新，更新缓存: ${request.url}`);
+                        await cache.put(request, networkResponse.clone());
+                    } else if (networkResponse.status === 304) {
+                        // 304 表示资源未变化，不需要更新缓存
+                        log(`资源未变化 (304): ${request.url}`);
+                    }
+                }).catch(err => {
+                    // 忽略后台更新错误
+                    warn(`后台更新检查失败: ${request.url}`, err);
+                });
+            } catch (bgErr) {
+                // 忽略后台更新错误
+                warn('创建条件请求失败:', bgErr);
+            }
+
+            // 立即返回缓存的响应
+            return cachedResponse;
         }
+
+        // 如果缓存中没有，尝试从网络获取
+        const networkResponse = await fetch(request);
+
+        // 如果响应成功，缓存它
+        if (networkResponse && networkResponse.status === 200) {
+            await cache.put(request, networkResponse.clone());
+            log(`新资源已缓存: ${request.url}`);
+        } else if (networkResponse.status >= 500) {
+            // 处理服务器错误
+            warn(`服务器错误 ${networkResponse.status}: ${request.url}`);
+        }
+
         return networkResponse;
     } catch (error) {
-        console.warn('Network fetch failed:', error);
-        return new Response('Network error occurred', {
+        warn('网络请求失败:', error);
+
+        // 再次尝试从缓存获取（以防在并发情况下缓存已更新）
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+
+        // 如果完全失败，返回错误响应
+        return new Response('网络请求失败，且缓存中没有该资源', {
             status: 503,
-            statusText: 'Service Unavailable'
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
         });
     }
 }
@@ -584,27 +721,55 @@ async function cacheFirstStrategy(request) {
 // 网络优先策略 - 适用于实时数据
 async function networkFirstStrategy(request) {
     try {
-        // 尝试从网络获取
-        const networkResponse = await fetch(request);
+        // 先检查缓存，以便构建条件请求
+        const cache = await caches.open(DYNAMIC_CACHE_NAME);
+        const cachedResponse = await cache.match(request);
+
+        let networkRequest = request;
+
+        // 如果有缓存的响应，构建条件请求
+        if (cachedResponse) {
+            try {
+                networkRequest = await createConditionalRequest(request, cachedResponse);
+                log(`使用条件请求: ${request.url}`);
+            } catch (condErr) {
+                warn('创建条件请求失败:', condErr);
+            }
+        }
+
+        // 发起网络请求
+        const networkResponse = await fetch(networkRequest);
+
+        // 处理 304 Not Modified 和服务器错误
+        if (cachedResponse) {
+            const handledResponse = handleServerErrorResponse(networkResponse, cachedResponse);
+            if (handledResponse !== networkResponse) {
+                return handledResponse; // 返回处理后的响应（可能是缓存的响应）
+            }
+        }
 
         // 如果成功且状态为 200，则缓存响应
         if (networkResponse && networkResponse.status === 200) {
-            const cache = await caches.open(DYNAMIC_CACHE_NAME);
-            cache.put(request, networkResponse.clone());
+            await cache.put(request, networkResponse.clone());
+            log(`更新缓存: ${request.url}`);
         }
 
         return networkResponse;
     } catch (error) {
+        warn('网络请求失败:', error);
+
         // 网络请求失败，尝试从缓存获取
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
+            log(`使用缓存的响应: ${request.url}`);
             return cachedResponse;
         }
 
         // 如果缓存也没有，返回错误响应
-        return new Response('Network error occurred and no cache available', {
+        return new Response('网络请求失败，且缓存中没有该资源', {
             status: 503,
-            statusText: 'Service Unavailable'
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
         });
     }
 }
@@ -616,14 +781,39 @@ async function staleWhileRevalidateStrategy(request) {
     // 先尝试从缓存获取
     const cachedResponse = await cache.match(request);
 
-    // 无论是否命中缓存，都发起网络请求以更新缓存
-    const networkResponsePromise = fetch(request).then(networkResponse => {
-        if (networkResponse && networkResponse.status === 200) {
-            cache.put(request, networkResponse.clone());
+    // 准备网络请求，如果有缓存则使用条件请求
+    let networkRequest = request;
+    if (cachedResponse) {
+        try {
+            networkRequest = await createConditionalRequest(request, cachedResponse);
+            log(`Stale-While-Revalidate 使用条件请求: ${request.url}`);
+        } catch (condErr) {
+            warn('Stale-While-Revalidate 创建条件请求失败:', condErr);
         }
+    }
+
+    // 无论是否命中缓存，都发起网络请求以更新缓存
+    const networkResponsePromise = fetch(networkRequest).then(async networkResponse => {
+        // 处理 304 Not Modified 和服务器错误
+        if (cachedResponse) {
+            if (networkResponse.status === 304) {
+                log(`资源未变化 (304): ${request.url}`);
+                return cachedResponse;
+            } else if (networkResponse.status >= 500) {
+                warn(`服务器错误 ${networkResponse.status}，使用缓存: ${request.url}`);
+                return cachedResponse;
+            }
+        }
+
+        // 如果响应成功，更新缓存
+        if (networkResponse && networkResponse.status === 200) {
+            await cache.put(request, networkResponse.clone());
+            log(`Stale-While-Revalidate 更新缓存: ${request.url}`);
+        }
+
         return networkResponse;
     }).catch(error => {
-        console.warn('Network fetch failed in stale-while-revalidate:', error);
+        warn('Stale-While-Revalidate 网络请求失败:', error);
         return null;
     });
 
@@ -639,49 +829,105 @@ async function staleWhileRevalidateStrategy(request) {
     }
 
     // 如果网络请求也失败，返回错误响应
-    return new Response('Network error occurred and no cache available', {
+    return new Response('网络请求失败，且缓存中没有该资源', {
         status: 503,
-        statusText: 'Service Unavailable'
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
     });
 }
 
 // CDN资源缓存策略 - 适用于跨域资源
 async function cdnCacheStrategy(request) {
     // 先检查缓存
-    const cachedResponse = await caches.match(request);
+    const cache = await caches.open(CDN_CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+
     if (cachedResponse) {
         // 如果有缓存，在后台开始更新缓存
-        updateCdnCache(request).catch(error =>
-            console.warn('Background CDN cache update failed:', error)
-        );
+        try {
+            // 尝试使用条件请求更新CDN缓存
+            updateCdnCacheWithValidation(request, cachedResponse).catch(error => {
+                warn('Background CDN cache update failed:', error);
+            });
+        } catch (err) {
+            warn('Failed to initiate CDN cache update:', err);
+        }
+
         return cachedResponse;
     }
 
     // 如果没有缓存，尝试从网络获取并缓存
     try {
         const response = await fetch(request, { mode: 'cors', credentials: 'omit' });
-        if (response && response.status === 200) {
-            const cache = await caches.open(CDN_CACHE_NAME);
-            await cache.put(request, response.clone());
+
+        // 处理服务器错误
+        if (response.status >= 500) {
+            warn(`CDN 服务器错误 ${response.status}: ${request.url}`);
+            // 尝试再次检查缓存（以防并发更新）
+            const reCheckCachedResponse = await cache.match(request);
+            if (reCheckCachedResponse) {
+                return reCheckCachedResponse;
+            }
         }
+
+        // 如果响应成功，缓存它
+        if (response && response.status === 200) {
+            await cache.put(request, response.clone());
+            log(`新的CDN资源已缓存: ${request.url}`);
+        }
+
         return response;
     } catch (error) {
-        console.warn('CDN fetch failed:', error);
-        return new Response('Failed to fetch CDN resource', {
+        warn('CDN fetch failed:', error);
+
+        // 再次尝试从缓存获取（以防并发更新）
+        const reCheckCachedResponse = await cache.match(request);
+        if (reCheckCachedResponse) {
+            return reCheckCachedResponse;
+        }
+
+        return new Response('无法获取CDN资源', {
             status: 503,
-            statusText: 'Service Unavailable'
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
         });
     }
 }
 
-// 后台更新CDN缓存
-async function updateCdnCache(request) {
-    const cache = await caches.open(CDN_CACHE_NAME);
-    const response = await fetch(request, { mode: 'cors', credentials: 'omit' });
+// 使用条件验证更新CDN缓存
+async function updateCdnCacheWithValidation(request, cachedResponse) {
+    try {
+        // 创建条件请求
+        const conditionalRequest = await createConditionalRequest(request, cachedResponse);
 
-    if (response && response.status === 200) {
-        return cache.put(request, response);
+        // 使用条件请求获取资源
+        const fetchOptions = {
+            mode: 'cors',
+            credentials: 'omit',
+            headers: conditionalRequest.headers
+        };
+
+        const response = await fetch(request.url, fetchOptions);
+
+        // 处理 304 Not Modified
+        if (response.status === 304) {
+            log(`CDN资源未变化 (304): ${request.url}`);
+            return;
+        }
+
+        // 如果资源已更新，更新缓存
+        if (response.status === 200) {
+            const cache = await caches.open(CDN_CACHE_NAME);
+            await cache.put(request, response);
+            log(`CDN资源已更新: ${request.url}`);
+            return;
+        }
+
+        // 其他状态码
+        warn(`CDN资源更新失败，状态码: ${response.status}`);
+        throw new Error(`Failed to update CDN cache: status ${response.status}`);
+    } catch (error) {
+        warn(`更新CDN缓存失败: ${request.url}`, error);
+        throw error;
     }
-
-    throw new Error(`Failed to update CDN cache for ${request.url}`);
 }
