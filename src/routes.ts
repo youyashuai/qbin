@@ -23,7 +23,7 @@ import {
   getHomeHtml,
   getMDEditHtml,
   getServiceWorker,
-  getManifest, getIMG
+  getManifest, getIMG, getLoginPageHtml
 } from "./utils/render.ts";
 import { handleAdminLogin, handleLogin, handleOAuthCallback } from "./middlewares/auth.ts";
 
@@ -379,6 +379,9 @@ router
   })
   .get("/health", async (ctx) => {
     return new Response(ctx, 200, "healthy");
+  })
+  .get("/login", async (ctx) => {
+    return await getLoginPageHtml(ctx, 200);
   })
   .get("/service-worker.js", async (ctx) => {
     return await getServiceWorker(ctx, 200);

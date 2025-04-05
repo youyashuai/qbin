@@ -166,7 +166,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   }
 
   // 否则未登录 => 返回登录页面
-  await getLoginPageHtml(ctx, 200);
+  return ctx.response.redirect("/login");
 }
 
 export const handleAdminLogin = async (ctx: Context) => {

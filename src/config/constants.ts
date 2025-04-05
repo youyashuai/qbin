@@ -15,7 +15,7 @@ export const PASTE_STORE = "qbin";     // KV 命名空间
 export const CACHE_CHANNEL = "qbin-cache-sync";
 
 export const jwtSecret = get_env("JWT_SECRET") || "input-your-jwtSecret";  // 从环境变量获取jwt密钥
-export const exactPaths = ["/favicon.ico", "/document", "/health", "/service-worker.js", "/manifest.json"]
+export const exactPaths = ["/favicon.ico", "/document", "/health", "/login", "/service-worker.js", "/manifest.json"]
 export const prefixPaths = ['/r/', '/p/', '/static/', '/api/login/']
 export const basePath = Deno.cwd();
 

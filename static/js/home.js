@@ -428,8 +428,8 @@ class QBinHome {
                 credentials: 'include'
             });
 
-            if (response.ok) {
-                window.location.href = '/';
+            if (response.ok || response.status === 302) {
+                window.location.href = '/login';
             } else {
                 console.error('Logout failed:', await response.text());
                 alert('退出登录失败，请稍后再试');
