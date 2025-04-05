@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.3';
+const CACHE_VERSION = 'v1.4';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -72,9 +72,6 @@ const PAGE_TEMPLATES = [
 // 实时数据 - 采用网络优先策略
 const REALTIME_PATHS = [
     '/r/',
-    '/s/',
-    '/d/',
-    '/api/'
 ];
 
 /**
