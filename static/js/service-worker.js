@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.8';
+const CACHE_VERSION = 'v1.9';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -606,7 +606,7 @@ async function createConditionalRequest(request, cachedResponse) {
     const headers = new Headers(request.headers);
 
     // 如果缓存的响应存在 ETag，添加 If-None-Match 头
-    const etag = cachedResponse.headers.get('ETag');
+    const etag = cachedResponse.headers.get('etag');
     if (etag) {
         headers.set('If-None-Match', etag);
         log(`添加 If-None-Match 头: ${etag}`);
