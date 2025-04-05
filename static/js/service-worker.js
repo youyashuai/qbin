@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.1';
+const CACHE_VERSION = 'v1.2';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -41,7 +41,7 @@ const STATIC_RESOURCES = [
     '/static/img/'
 ];
 
-// CDN资源 - 跨域资源，需要特殊处理
+// CDN资源 - 跨域资源，采用特殊处理
 const CDN_RESOURCES = [
     // Monaco编辑器核心文件
     'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
@@ -65,7 +65,7 @@ const PAGE_TEMPLATES = [
     '/p',
 ];
 
-// 实时数据 - 需要网络优先策略
+// 实时数据 - 采用网络优先策略
 const REALTIME_PATHS = [
     '/r/',
     '/s/',
@@ -178,7 +178,7 @@ async function preCacheCriticalCdnResources() {
         return Promise.all(fetchPromises);
     } catch (err) {
         warn('预缓存CDN资源过程失败:', err);
-        return Promise.resolve(); // 不让这个错误影响整体安装过程
+        return Promise.resolve();
     }
 }
 
@@ -265,7 +265,7 @@ async function cleanupExpiredResources() {
         return Promise.resolve();
     } catch (err) {
         warn('清理过期资源失败:', err);
-        return Promise.resolve(); // 不让这个错误影响整体激活过程
+        return Promise.resolve();
     }
 }
 
@@ -336,18 +336,13 @@ self.addEventListener('fetch', event => {
     const request = event.request;
     const url = new URL(request.url);
 
-    // 不处理非 GET 请求
     if (request.method !== 'GET') {
         return;
     }
-
-    // 如果是请求证书或敏感资源，不进行缓存
-    if (url.pathname.includes('.pem') || url.pathname.includes('.key') || url.pathname.includes('.cert')) {
+    if (['.pem', '.key', '.cert'].some(ext => url.pathname.includes(ext))) {
         return;
     }
-
-    // 如果是请求包含认证信息的URL，不进行缓存
-    if (url.search.includes('token=') || url.search.includes('auth=') || url.search.includes('key=')) {
+    if (['token=', 'auth=', 'key='].some(param => url.search.includes(param))) {
         return;
     }
 
@@ -357,30 +352,100 @@ self.addEventListener('fetch', event => {
         if (isStaticResource(request.url) && url.origin === self.location.origin) {
             event.respondWith(limitedCacheStrategy(request));
         }
-        // 其他请求不进行缓存处理
         return;
     }
 
     // 在HTTPS环境下，根据不同资源类型使用不同的缓存策略
     try {
-        if (isCdnResource(request.url)) {
+        if (isCdnResource(request.url) || url.origin !== self.location.origin) {
             // CDN资源: 使用特殊的跨域缓存策略
-            event.respondWith(cdnCacheStrategy(request));
-        } else if (isStaticResource(request.url)) {
-            // 静态资源: 缓存优先，网络回退
-            event.respondWith(cacheFirstStrategy(request));
-        } else if (isPageTemplate(request.url)) {
-            // 页面模板: 缓存优先，但定期从网络更新
-            event.respondWith(staleWhileRevalidateStrategy(request));
-        } else if (isRealtimeResource(request.url)) {
-            // 实时数据: 网络优先，缓存回退
-            event.respondWith(networkFirstStrategy(request));
-        } else if (url.origin !== self.location.origin) {
             // 其他跨域资源: 使用网络优先策略并缓存
             event.respondWith(cdnCacheStrategy(request));
-        } else {
-            // 其他资源: 网络优先，缓存回退
-            event.respondWith(networkFirstStrategy(request));
+        }else {
+            // 采用映射处理特殊路径: /p/、/c/、/m/、/e/ 和根路径 /
+            const path = url.pathname;
+
+            if (path.match(/^\/[pcme]\/.*$/)) {
+                event.respondWith((async () => {
+                    try {
+                        // 提取路径前缀 (/p/、/c/、/m/、/e/)
+                        const prefix = path.substring(0, 3);
+                        // 获取原始URL的查询参数
+                        const originalUrl = new URL(request.url);
+
+                        // 构建新的URL，保留原始查询参数
+                        const targetUrl = new URL(prefix, self.location.origin);
+                        targetUrl.search = originalUrl.search;
+
+                        // 使用网络优先策略获取页面模板
+                        const templateResponse = await caches.match(new Request(targetUrl));
+                        if (templateResponse) {
+                            return templateResponse;
+                        }
+
+                        // 如果缓存中没有，尝试从网络获取
+                        return await fetch(targetUrl);
+                    } catch (err) {
+                        console.error('路径处理错误:', err);
+                        // 返回一个通用错误响应
+                        return new Response('页面加载失败，请稍后再试', {
+                            status: 500,
+                            headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
+                        });
+                    }
+                })());
+                return;
+            }
+
+            // 处理根路径 /，根据 cookie 中的 qbin-editor 值重定向到对应页面
+            if (path === '/') {
+                event.respondWith((async () => {
+                    try {
+                        // 获取 cookie 字符串
+                        const cookieHeader = request.headers.get('cookie') || '';
+
+                        // 解析 cookie 获取 qbin-editor 的值
+                        const match = cookieHeader.match(/qbin-editor=([ecm])/);
+                        let editorType = match ? match[1] : 'e'; // 默认为 'e'
+
+                        // 根据 cookie 值确定重定向目标
+                        let redirectPath;
+                        switch (editorType) {
+                            case 'c':
+                                redirectPath = '/c/';
+                                break;
+                            case 'm':
+                                redirectPath = '/m/';
+                                break;
+                            case 'e':
+                            default:
+                                redirectPath = '/e/';
+                                break;
+                        }
+
+                        // 构建重定向响应
+                        return Response.redirect(new URL(redirectPath, self.location.origin), 302);
+                    } catch (err) {
+                        console.error('根路径处理错误:', err);
+                        // 出错时默认重定向到 /e/
+                        return Response.redirect(new URL('/e/', self.location.origin), 302);
+                    }
+                })());
+                return;
+            }
+            if (isStaticResource(request.url)) {
+                // 静态资源: 缓存优先，网络回退
+                event.respondWith(cacheFirstStrategy(request));
+            } else if (isPageTemplate(request.url)) {
+                // 页面模板: 缓存优先，但定期从网络更新
+                event.respondWith(staleWhileRevalidateStrategy(request));
+            } else if (isRealtimeResource(request.url)) {
+                // 实时数据: 网络优先，缓存回退
+                event.respondWith(networkFirstStrategy(request));
+            }else {
+                // 其他资源: 网络优先，缓存回退
+                event.respondWith(networkFirstStrategy(request));
+            }
         }
     } catch (err) {
         // 如果缓存策略处理过程中出错，记录错误并回退到原始网络请求
