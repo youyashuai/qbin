@@ -43,8 +43,10 @@ export async function getCSS(ctx, pathname, status=200): Promise<string> {
 export async function getIMG(ctx, pathname, status=200): Promise<string> {
   try {
     const extension = pathname.split('.').pop()?.toLowerCase() || '';
+    console.log(extension)
     const contentType = imgTypeMap[extension] || 'application/octet-stream';
-    ctx.response.body = await Deno.readTextFile(join(basePath, `/static/img/${pathname}`));
+    console.log(contentType)
+    ctx.response.body = await Deno.readFile(join(basePath, `/static/img/${pathname}`));
     ctx.response.status = status;
 
     ctx.response.headers.set("Content-Type", contentType);
@@ -126,7 +128,7 @@ export async function getFavicon(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "image/svg+xml");
   ctx.response.headers.set("Cache-Control", "public, max-age=2678400, immutable");
-  ctx.response.body = await Deno.readTextFile(join(basePath, './static/img/favicon.svg'));
+  ctx.response.body = await Deno.readFile(join(basePath, './static/img/favicon.svg'));
 }
 
 export async function getHomeHtml(ctx, status=200): Promise<string> {
