@@ -23,14 +23,5 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/static/img/screenshot1.jpg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "platform": "wide",
-      "label": "QBin登录界面"
-    }
   ]
 }
