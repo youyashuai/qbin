@@ -410,11 +410,6 @@ class StorageManager {
 }
 const storage = new StorageManager();
 const API = {
-    cacheConfig: {
-        cacheName: 'qbin-cache-v1',
-        cacheSupported: 'caches' in window
-    },
-
     generateKey(length = 10) {
         // 默认去掉了容易混淆的字符：oOLl,9gq,Vv,Uu,I1
         const chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
@@ -426,7 +421,7 @@ const API = {
 
     async getContent(key, pwd) {
         try {
-            const response = await this.fetchWithCache(`/r/${key}/${pwd}`);
+            const response = await this.fetchNet(`/r/${key}/${pwd}`);
             if (!response.ok && response.status !== 404) {
                 const errorMessage = await this.handleAPIError(response);
                 throw new Error(errorMessage);
@@ -460,7 +455,7 @@ const API = {
                 "Content-Type": mimetype,
             };
 
-            const response = await this.fetchWithCache(`/s/${key}/${pwd}`, {
+            const response = await this.fetchNet(`/s/${key}/${pwd}`, {
                 method,
                 body: content,
                 headers
@@ -478,52 +473,17 @@ const API = {
         }
     },
 
-    async fetchWithCache(url, options = {}) {
-        if (!this.cacheConfig.cacheSupported) {
-            return fetch(url, options);
-        }
-
+    async fetchNet(url, options = {}) {
         try {
-            const cache = await caches.open(this.cacheConfig.cacheName);
-            const cacheResponse = await cache.match(url);
             const headers = new Headers(options.headers || {});
-
-            if (cacheResponse) {
-                const etag = cacheResponse.headers.get('ETag');
-                const lastModified = cacheResponse.headers.get('Last-Modified');
-                if (etag) headers.set('If-None-Match', etag);
-                if (lastModified) headers.set('If-Modified-Since', lastModified);
-            }
-
-            try {
-                const response = await fetch(url, {
-                    ...options,
-                    headers,
-                    credentials: 'include'
-                });
-
-                if (response.status === 304 && cacheResponse) {
-                    return cacheResponse;
-                }
-
-                if (response.ok && !options.method) {
-                    await cache.put(url, response.clone());
-                }
-
-                if (!response.ok) {
-                    await cache.delete(url);
-                }
-                return response;
-            } catch (fetchError) {
-                console.warn('Fetch failed, falling back to cache:', fetchError);
-                if (cacheResponse) {
-                    return cacheResponse;
-                }
-                throw fetchError;
-            }
-        } catch (error) {
-            console.warn('Cache API failed, falling back to normal fetch:', error);
-            return fetch(url, { ...options, credentials: 'include' });
+            return await fetch(url, {
+                ...options,
+                headers,
+                credentials: 'include'
+            });
+        } catch (fetchError) {
+            console.warn('Fetch failed, falling back to cache:', fetchError);
+            throw fetchError;
         }
     },
 
