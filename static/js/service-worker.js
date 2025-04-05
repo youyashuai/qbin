@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.2';
+const CACHE_VERSION = 'v1.3';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -59,6 +59,10 @@ const CDN_RESOURCES = [
 // 页面模板 - 可能会更新，但可以缓存
 const PAGE_TEMPLATES = [
     '/',
+    '/e/',
+    '/c/',
+    '/m/',
+    '/p/',
     '/e',
     '/c',
     '/m',
@@ -315,7 +319,18 @@ function isStaticResource(url) {
 // 判断请求是否为页面模板
 function isPageTemplate(url) {
     const path = new URL(url).pathname;
-    return PAGE_TEMPLATES.some(templatePath => path === templatePath);
+
+    // 精确匹配页面模板路径
+    if (PAGE_TEMPLATES.some(templatePath => path === templatePath)) {
+        return true;
+    }
+
+    // 判断是否为 /p/xxx、/c/xxx、/m/xxx、/e/xxx 路径
+    if (path.match(/^\/[pcme](\/.*)?$/)) {
+        return true;
+    }
+
+    return false;
 }
 
 // 判断请求是否为实时数据
@@ -336,19 +351,12 @@ self.addEventListener('fetch', event => {
     const request = event.request;
     const url = new URL(request.url);
 
-    if (request.method !== 'GET') {
-        return;
-    }
-    if (['.pem', '.key', '.cert'].some(ext => url.pathname.includes(ext))) {
-        return;
-    }
-    if (['token=', 'auth=', 'key='].some(param => url.search.includes(param))) {
-        return;
-    }
+    if (request.method !== 'GET') return;
+    if (['.pem', '.key', '.cert'].some(ext => url.pathname.includes(ext))) return;
+    if (['token=', 'auth=', 'key='].some(param => url.search.includes(param))) return;
 
     // 如果是非安全上下文，使用有限的缓存策略
     if (!isSecureContext) {
-        // 在HTTP环境下，只对关键静态资源使用缓存优先策略
         if (isStaticResource(request.url) && url.origin === self.location.origin) {
             event.respondWith(limitedCacheStrategy(request));
         }
@@ -365,10 +373,9 @@ self.addEventListener('fetch', event => {
             // 采用映射处理特殊路径: /p/、/c/、/m/、/e/ 和根路径 /
             const path = url.pathname;
 
-            if (path.match(/^\/[pcme]\/.*$/)) {
+            if (path.match(/^\/[pcme](\/.*)?$/)) {
                 event.respondWith((async () => {
                     try {
-                        // 提取路径前缀 (/p/、/c/、/m/、/e/)
                         const prefix = path.substring(0, 3);
                         // 获取原始URL的查询参数
                         const originalUrl = new URL(request.url);
@@ -377,19 +384,48 @@ self.addEventListener('fetch', event => {
                         const targetUrl = new URL(prefix, self.location.origin);
                         targetUrl.search = originalUrl.search;
 
-                        // 使用网络优先策略获取页面模板
-                        const templateResponse = await caches.match(new Request(targetUrl));
+                        // 先尝试从缓存中获取页面模板
+                        const cache = await caches.open(STATIC_CACHE_NAME);
+                        const templateResponse = await cache.match(new Request(targetUrl.toString()));
+
                         if (templateResponse) {
+                            log(`从缓存返回页面: ${targetUrl}`);
                             return templateResponse;
                         }
 
                         // 如果缓存中没有，尝试从网络获取
-                        return await fetch(targetUrl);
+                        log(`从网络获取页面: ${targetUrl}`);
+                        const networkResponse = await fetch(targetUrl);
+
+                        // 如果网络请求成功，将响应缓存起来以便离线使用
+                        if (networkResponse && networkResponse.status === 200) {
+                            const clonedResponse = networkResponse.clone();
+                            cache.put(new Request(targetUrl.toString()), clonedResponse);
+                            log(`已缓存页面: ${targetUrl}`);
+                        }
+
+                        return networkResponse;
                     } catch (err) {
                         console.error('路径处理错误:', err);
+
+                        // 尝试从缓存中获取基本模板作为备用
+                        try {
+                            const prefix = path.substring(0, 3);
+                            const fallbackUrl = new URL(prefix, self.location.origin);
+                            const cache = await caches.open(STATIC_CACHE_NAME);
+                            const fallbackResponse = await cache.match(new Request(fallbackUrl.toString()));
+
+                            if (fallbackResponse) {
+                                log(`使用备用模板: ${fallbackUrl}`);
+                                return fallbackResponse;
+                            }
+                        } catch (fallbackErr) {
+                            console.error('备用模板获取失败:', fallbackErr);
+                        }
+
                         // 返回一个通用错误响应
-                        return new Response('页面加载失败，请稍后再试', {
-                            status: 500,
+                        return new Response('页面加载失败，请检查网络连接后再试', {
+                            status: 503,
                             headers: { 'Content-Type': 'text/plain; charset=UTF-8' }
                         });
                     }
@@ -398,17 +434,14 @@ self.addEventListener('fetch', event => {
             }
 
             // 处理根路径 /，根据 cookie 中的 qbin-editor 值重定向到对应页面
+            // 支持离线访问，在离线时使用缓存的页面
             if (path === '/') {
                 event.respondWith((async () => {
                     try {
-                        // 获取 cookie 字符串
                         const cookieHeader = request.headers.get('cookie') || '';
-
-                        // 解析 cookie 获取 qbin-editor 的值
                         const match = cookieHeader.match(/qbin-editor=([ecm])/);
-                        let editorType = match ? match[1] : 'e'; // 默认为 'e'
+                        let editorType = match ? match[1] : 'e';
 
-                        // 根据 cookie 值确定重定向目标
                         let redirectPath;
                         switch (editorType) {
                             case 'c':
@@ -423,11 +456,49 @@ self.addEventListener('fetch', event => {
                                 break;
                         }
 
+                        // 先检查目标页面是否已缓存
+                        const targetUrl = new URL(redirectPath, self.location.origin);
+                        const cache = await caches.open(STATIC_CACHE_NAME);
+                        const cachedResponse = await cache.match(new Request(targetUrl.toString()));
+
+                        // 如果目标页面已缓存，则使用缓存的响应
+                        if (cachedResponse) {
+                            log(`根路径重定向到缓存页面: ${targetUrl}`);
+                            return Response.redirect(targetUrl, 302);
+                        }
+
+                        // 如果目标页面未缓存，尝试预缓存它
+                        try {
+                            const preloadResponse = await fetch(targetUrl);
+                            if (preloadResponse && preloadResponse.status === 200) {
+                                const clonedResponse = preloadResponse.clone();
+                                cache.put(new Request(targetUrl.toString()), clonedResponse);
+                                log(`预缓存根路径目标页面: ${targetUrl}`);
+                            }
+                        } catch (preloadErr) {
+                            console.warn('预缓存目标页面失败:', preloadErr);
+                        }
+
                         // 构建重定向响应
-                        return Response.redirect(new URL(redirectPath, self.location.origin), 302);
+                        return Response.redirect(targetUrl, 302);
                     } catch (err) {
                         console.error('根路径处理错误:', err);
-                        // 出错时默认重定向到 /e/
+
+                        // 出错时尝试从缓存中获取默认编辑器页面
+                        try {
+                            const fallbackUrl = new URL('/e/', self.location.origin);
+                            const cache = await caches.open(STATIC_CACHE_NAME);
+                            const fallbackResponse = await cache.match(new Request(fallbackUrl.toString()));
+
+                            if (fallbackResponse) {
+                                log(`使用缓存的默认编辑器页面: ${fallbackUrl}`);
+                                return Response.redirect(fallbackUrl, 302);
+                            }
+                        } catch (fallbackErr) {
+                            console.error('获取默认编辑器页面失败:', fallbackErr);
+                        }
+
+                        // 最后的备用方案，直接重定向到 /e/
                         return Response.redirect(new URL('/e/', self.location.origin), 302);
                     }
                 })());
