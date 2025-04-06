@@ -1,5 +1,5 @@
-import { createServer } from "./server.ts";
-import { get_env } from "./config/constants.ts";
+import { createServer } from "../src/server.ts";
+import { get_env } from "../src/config/constants.ts";
 
 const app = createServer();
 const PORT = parseInt(get_env("PORT")) || 8000;
