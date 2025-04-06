@@ -1,177 +1,107 @@
-# QBin REST API Documentation
+# QBin API文档
 
-## Base URL
-```
-https://qbin.me
-```
-
-## Authentication
-- Most endpoints require authentication via cookies except for public content viewing
-- OAuth2 authentication is supported for user login
-
-## Content Management
-
-### Get Raw Content
-```http
-GET /r/{key}/{pwd}
-```
-Retrieves the raw content stored at the specified key.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-**Response:**
-- `200`: Content retrieved successfully
-- `403`: Invalid password or access denied
-- `404`: Content not found
-
-**Headers:**
-- `Content-Type`: Varies based on content type
-- `Content-Length`: Content length in bytes
-
-### Get Content Type
-```http
-HEAD /r/{key}/{pwd}
-```
-Retrieves only the metadata of stored content.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-**Response Headers:**
-- `Content-Type`: Content MIME type
-- `Content-Length`: Content length in bytes
-
-### Preview Content
-```http
-GET /p/{key}/{pwd}
-```
-Returns a HTML page for content preview.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-### Store Text Content
-```http
-POST /s/{key}/{pwd}
-```
-Stores text content at the specified key.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-**Headers:**
-- `Content-Type`: Content MIME type
-- `Content-Length`: Content length in bytes
-- `x-expire`: Expiration time in seconds (optional)
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "key": "string",
-    "pwd": "string",
-    "url": "string"
-  }
-}
-```
-
-### Upload File
-```http
-PUT /s/{key}/{pwd}
-```
-Uploads a file at the specified key.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-**Headers:**
-- `Content-Type`: File MIME type
-- `Content-Length`: File size in bytes
-- `x-expire`: Expiration time in seconds (optional)
-
-**Response:** Same as POST /s/{key}/{pwd}
-
-### Delete Content
-```http
-DELETE /d/{key}/{pwd}
-```
-Deletes content at the specified key.
-
-**Parameters:**
-- `key` (required): Content access key
-- `pwd` (optional): Content password
-
-**Response:**
-- `200`: Content deleted successfully
-- `403`: Invalid password or access denied
-- `404`: Content not found
-
-## User Management
-
-### OAuth2 Login
-```http
-GET /api/login/{provider}
-```
-Initiates OAuth2 login flow.
-
-**Parameters:**
-- `provider`: OAuth provider (google, github, linuxdo)
-
-### OAuth2 Callback
-```http
-GET /api/login/oauth2/callback/{provider}
-```
-OAuth2 callback endpoint.
-
-**Parameters:**
-- `provider`: OAuth provider (google, github, linuxdo)
-
-### Admin Login
-```http
-GET /api/login/admin
-```
-Administrator login endpoint.
-
-## System Management
-
-### Health Check
+## 系统状态
 ```http
 GET /health
 ```
-Checks system health status.
+用途：检查服务是否正常运行
+- 返回：200 表示服务正常
 
-**Response:**
-- `200`: System is healthy
+## 内容管理
 
-### Data Synchronization
+### 1. 上传/更新内容
 ```http
-GET /api/data/sync
+POST /s/{访问路径}/{密码}
 ```
-Synchronizes data between PostgreSQL and KV store (Admin only).
+- 说明：如果内容存在则更新，不存在则创建
+- 权限：更新已有内容需要是创建者
+- 请求头：
+  - `Content-Type`: 内容类型
+  - `x-expire`: 过期时间(秒)
+- 返回：成功返回访问链接
+- python代码示例
+```python
+import requests
 
-**Response:**
+def upload_content(path, content, password="", expire=315360000):
+    url = f'https://qbin.me/s/{path}/{password}'
+    headers = {
+        'Content-Type': 'text/plain',
+        'x-expire': str(expire),
+        'Authorization': 'Bearer your_jwt_token'  # 在设置API Token中生成获取
+    }
+    response = requests.post(url, data=content, headers=headers)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"上传成功，访问链接: {result['data']['url']}")
+    elif response.status_code == 403:
+        print("无权限更新")
+    elif response.status_code == 413:
+        print("内容超过大小限制")
+
+# 使用示例
+upload_content('test123', 'Hello World', 'password123')
+```
+
+### 2. 上传文件内容 (不支持更新)
+```http
+PUT /s/{访问路径}/{密码}
+```
+- 说明：如果访问路径已存在且未过期，返回409错误
+- 请求头：
+  - `Content-Type`: 内容类型
+  - `x-expire`: 过期时间(秒)
+- 返回：成功返回访问链接
+
+### 3. 获取原始内容
+```http
+GET /r/{访问路径}/{密码}
+```
+
+## 认证相关
+
+### 1. 获取API Token
+```http
+POST /api/user/token
+```
+- 用途：获取当前用户的认证token
+- 返回：
+  ```json
+  {
+    "token": "jwt_token_string"
+  }
+  ```
+- 说明：需要已登录状态
+
+### 2. 登出
+```http
+POST /api/user/logout
+```
+- 用途：清除用户登录状态
+
+### 3. 社交登录
+```http
+GET /api/login/{provider}
+```
+- provider支持：github, google, linuxdo
+
+## 响应格式
+所有API返回统一格式：
 ```json
 {
-  "success": true,
-  "stats": {
-    "added": 0,
-    "removed": 0,
-    "unchanged": 0,
-    "total": 0
+  "code": 200,          // 状态码
+  "message": "success", // 状态信息
+  "data": {            // 数据体
+    // 具体内容
   }
 }
 ```
 
-## Notes
-
-1. Maximum upload size: Limited by server configuration
-2. Content expiration: Can be set via `x-expire` header
-3. MIME types: Must match standard MIME type format
-4. Authentication: Required for all operations except public content viewing
+## 常见状态码
+- 200: 成功
+- 403: 无权限
+- 404: 内容不存在
+- 409: 内容已存在
+- 413: 内容过大
+- 500: 服务器错误
