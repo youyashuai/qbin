@@ -202,7 +202,6 @@ export const handleLogin = async (ctx: Context) => {
     }
 
     const oauth2Client = oauthProviders[provider].client;
-    console.log(oauth2Client)
     const { uri, codeVerifier } = await oauth2Client.code.getAuthorizationUri();
     const sessionId = crypto.randomUUID();
 
