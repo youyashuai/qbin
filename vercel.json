@@ -9,5 +9,7 @@
       "src": "/(.*)",
       "dest": "/api/vercel.ts"
     }
-  ]
+  ],
+  "buildCommand": "deno cache vercel.ts",
+  "devCommand": "deno run --allow-net --allow-env --allow-read vercel.ts"
 }
