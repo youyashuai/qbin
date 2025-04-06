@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/**/*.[tj]s": {
-      "runtime": "deno@3.1.0"
+      "runtime": "vercel-deno@3.1.0"
     }
   },
   "routes": [
