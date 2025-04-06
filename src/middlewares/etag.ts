@@ -10,8 +10,10 @@ function getETagValue(etag: string | null): string {
 
 export const etagMiddleware = async (ctx: Context, next: Next) => {
   await next();
-  // return;
 
+  if (ctx.request.method !== 'GET') {
+    return;
+  }
   // 如果没有 metadata 或没有 etag，则跳过中间件
   const metadata = ctx.state.metadata;
   if(ctx.response.status !=200){
