@@ -35,7 +35,7 @@
 ### 登录服务
 
 1. 访问部署好的 QBin 服务
-2. 默认管理员密码是 `qbin.me`（可通过环境变量 `ADMIN_PASSWORD` 修改）
+2. 默认管理员密码是 `qbin`（可通过环境变量 `ADMIN_PASSWORD` 修改）
 3. 登录后即可选择（多功能、Code、Markdown）编辑器进行使用
 
 ### 分享内容
@@ -64,7 +64,7 @@ cd qbin
 docker-compose up -d
 ```
 
-访问 http://localhost:8000 即可使用 QBin服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin.me`）。
+访问 http://localhost:8000 即可使用 QBin服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin`）。
 
 ### Docker 命令行部署
 
@@ -76,8 +76,8 @@ docker pull naiher/qbin:latest
 docker run -it -p 8000:8000 \
   -e DATABASE_URL="postgresql://user:password@localhost:5432:/local:main?sslmode=require" \
   -e JWT_SECRET="your_jwt_secret" \
-  -e ADMIN_PASSWORD="qbin.me" \
-  -e ADMIN_EMAIL="admin@qbin.me" \
+  -e ADMIN_PASSWORD="qbin" \
+  -e ADMIN_EMAIL="admin@qbin.github" \
   naiher/qbin
 ```
 

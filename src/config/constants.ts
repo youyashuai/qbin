@@ -21,7 +21,7 @@ export const basePath = Deno.cwd();
 
 // 分布式缓存唯一标识
 // export const instanceId = `${get_env("DENO_DEPLOYMENT_ID")}-${get_env("DENO_REGION")}-${crypto.randomUUID()}`;
-const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin.me";
+const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin";
 export const EMAIL = parseInt(get_env("ADMIN_EMAIL")) || "ww1998mail@gmail.com";
 export const LEVEL = parseInt(get_env("LINUXDO_USER_LEVEL")) || 0;
 export const ADMIN = {[PASSWORD]: LEVEL,};

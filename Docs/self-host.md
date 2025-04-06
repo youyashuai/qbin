@@ -36,7 +36,7 @@ cd qbin
 docker-compose up -d
 ```
 
-完成后，访问 `http://localhost:8000` 即可使用 QBin 服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin.me`）。
+完成后，访问 `http://localhost:8000` 即可使用 QBin 服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin`）。
 
 ## 🐋 Docker 命令行部署
 
@@ -50,8 +50,8 @@ docker pull naiher/qbin:latest
 docker run -it -p 8000:8000 \
   -e DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require" \
   -e JWT_SECRET="your_jwt_secret" \
-  -e ADMIN_PASSWORD="qbin.me" \
-  -e ADMIN_EMAIL="admin@qbin.me" \
+  -e ADMIN_PASSWORD="qbin" \
+  -e ADMIN_EMAIL="admin@qbin.github" \
   naiher/qbin
 ```
 
@@ -113,8 +113,8 @@ deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast
 在项目根目录 `.env` 文件中设置必要的环境变量（参考环境变量配置说明）：
 
 ```
-ADMIN_PASSWORD=qbin.me
-ADMIN_EMAIL=admin@qbin.me
+ADMIN_PASSWORD=qbin
+ADMIN_EMAIL=admin@qbin.github
 DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=require
 JWT_SECRET=your_jwt_secret
 ```
@@ -125,15 +125,15 @@ JWT_SECRET=your_jwt_secret
 
 ### 基础配置
 
-| 环境变量 | 类型 | 描述 | 示例 |
-|:-------:|:----:|:----:|:----:|
-| `ADMIN_PASSWORD` | 必选 | 管理员访问密码 | `qbin.me` |
-| `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 | `admin@qbin.me` |
+| 环境变量 | 类型 | 描述 |                               示例                                |
+|:-------:|:----:|:----:|:---------------------------------------------------------------:|
+| `ADMIN_PASSWORD` | 必选 | 管理员访问密码 |                             `qbin`                              |
+| `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 |                       `admin@qbin.github`                       |
 | `DATABASE_URL` | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database?sslmode=require` |
-| `JWT_SECRET` | 必选 | JWT 签名密钥（建议使用随机字符串） | `XTV0STZzYFxxxxxxxxxx5ecm50W04v` |
-| `PORT` | 可选 | 服务访问端口，默认 8000 | `8000` |
-| `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 | `31536000` |
-| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认 50MB | `52428800` |
+| `JWT_SECRET` | 必选 | JWT 签名密钥（建议使用随机字符串） |                `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                 |
+| `PORT` | 可选 | 服务访问端口，默认 8000 |                             `8000`                              |
+| `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 |                           `31536000`                            |
+| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认 50MB |                           `52428800`                            |
 
 ### 社交登录配置（可选）
 

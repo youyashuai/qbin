@@ -28,7 +28,7 @@ Distributed architecture + multi-level caching makes storage and retrieval faste
 ## 🚀 Quick Start Guide
 ### Login
 1. Access your deployed QBin service
-2. Default admin password is `qbin.me` (can be modified via the `ADMIN_PASSWORD` environment variable)
+2. Default admin password is `qbin` (can be modified via the `ADMIN_PASSWORD` environment variable)
 3. After logging in, select your preferred editor (Multi-function, Code, or Markdown)
 
 ### Share Content
@@ -52,7 +52,7 @@ git clone https://github.com/Quick-Bin/qbin.git
 cd qbin
 docker-compose up -d
 ```
-Access http://localhost:8000 to use the QBin service. All configurations are preset in docker-compose.yml (default admin password is `qbin.me`).
+Access http://localhost:8000 to use the QBin service. All configurations are preset in docker-compose.yml (default admin password is `qbin`).
 
 ### Docker Command Line Deployment
 ```bash
@@ -62,8 +62,8 @@ docker pull naiher/qbin:latest
 docker run -it -p 8000:8000 \
   -e DATABASE_URL="postgresql://user:password@localhost:5432:/local:main?sslmode=require" \
   -e JWT_SECRET="your_jwt_secret" \
-  -e ADMIN_PASSWORD="qbin.me" \
-  -e ADMIN_EMAIL="admin@qbin.me" \
+  -e ADMIN_PASSWORD="qbin" \
+  -e ADMIN_EMAIL="admin@qbin.github" \
   naiher/qbin
 ```
 After starting, access http://localhost:8000 to use the QBin service.
