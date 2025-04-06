@@ -1,4 +1,4 @@
-import { Context, Next } from "https://deno.land/x/oak/mod.ts";
+import { Context, Next } from "jsr:@oak/oak";
 
 
 function getETagValue(etag: string | null): string {

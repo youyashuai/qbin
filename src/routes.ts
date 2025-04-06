@@ -1,4 +1,4 @@
-import { Router, Context } from "https://deno.land/x/oak/mod.ts";
+import { Router, Context } from "jsr:@oak/oak";
 import { MetadataDB } from "./db/metadata.ts";
 import { getCachedContent, updateCache, kv, generateKey, checkPassword, isCached, getTimestamp, memCache, cacheBroadcast } from "./utils/cache.ts";
 import {

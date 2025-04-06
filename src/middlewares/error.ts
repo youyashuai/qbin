@@ -1,7 +1,7 @@
 /**
  * 错误处理中间件
  */
-import { Context } from "https://deno.land/x/oak/mod.ts";
+import { Context } from "jsr:@oak/oak";
 import { HEADERS } from "../config/constants.ts";
 import { PasteError } from "../utils/response.ts";
 
