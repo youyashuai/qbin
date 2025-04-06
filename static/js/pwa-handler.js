@@ -21,7 +21,7 @@
     function registerServiceWorker() {
         if (window.QBinPWA.isSupported && window.QBinPWA.isHTTPS) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
+                navigator.serviceWorker.register('/service-worker.js', { scope: "/" })
                     .then(registration => {
                         window.QBinPWA.registration = registration;
                         console.log('Service Worker 注册成功:', registration.scope);
