@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/**/*.[tj]s": {
+      "runtime": "deno@latest"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/vercel.ts"
+    }
+  ]
+}

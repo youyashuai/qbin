@@ -606,7 +606,7 @@ async function createConditionalRequest(request, cachedResponse) {
     const headers = new Headers(request.headers);
 
     // 如果缓存的响应存在 ETag，添加 If-None-Match 头
-    const etag = cachedResponse.headers.get('etag');
+    const etag = cachedResponse.headers.get('ETag');
     if (etag) {
         headers.set('If-None-Match', etag);
         log(`添加 If-None-Match 头: ${etag}`);
