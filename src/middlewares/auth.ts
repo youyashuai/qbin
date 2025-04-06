@@ -1,4 +1,4 @@
-import {Context} from "jsr:@oak/oak";
+import {Context} from "https://deno.land/x/oak/mod.ts";
 import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client@^2.0.0";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";

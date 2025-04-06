@@ -1,4 +1,4 @@
-import { Application } from "jsr:@oak/oak";
+import { Application } from "https://deno.land/x/oak/mod.ts";
 import { AppState } from "./types.ts";
 import router from "./routes.ts";
 import { errorMiddleware } from "./middlewares/error.ts";
