@@ -17,16 +17,14 @@ env:
 jobs:
   build:
     strategy:
-      # 添加 fail-fast: false 确保一个平台失败不影响其他平台构建
-      fail-fast: false
       matrix:
         include:
           - platform: linux/amd64
             os: ubuntu-latest
           - platform: linux/arm64
-            os: ubuntu-latest-arm64
+            os: ubuntu-24.04-arm
           - platform: linux/arm/v7
-            os: ubuntu-latest-arm64 # 使用 ARM64 运行器构建 ARMv7
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     name: Build ${{ matrix.platform }} Image
     steps:
@@ -40,12 +38,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up QEMU
+        if: matrix.platform != 'linux/amd64'
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          platforms: ${{ matrix.platform }}
-          driver-opts: |
-            image=moby/buildkit:v0.12.5
 
       - name: Docker meta
         id: meta
@@ -77,15 +75,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SHA=${{ steps.vars.outputs.sha_short }}
-            PLATFORM=${{ matrix.platform }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
-          # 每个平台使用独立的构建缓存
-          cache-from: |
-            type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-${{ matrix.platform }}
-          cache-to: |
-            type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache-${{ matrix.platform }},mode=max
-          provenance: false
-          sbom: false
+          cache-from: type=gha,scope=${{ github.workflow }}-${{ matrix.platform }}
+          cache-to: type=gha,scope=${{ github.workflow }}-${{ matrix.platform }},mode=max
 
       - name: Export digest
         run: |
@@ -140,23 +132,9 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          # 添加重试机制
-          for i in {1..3}; do
-            if docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-              $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *); then
-              break
-            fi
-            echo "Retry $i..."
-            sleep 5
-          done
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)      
 
       - name: Inspect image
         run: |
-          # 添加重试机制
-          for i in {1..3}; do
-            if docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}; then
-              break
-            fi
-            echo "Retry $i..."
-            sleep 5
-          done
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}
