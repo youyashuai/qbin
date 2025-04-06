@@ -4,7 +4,7 @@
 
 ✨ 轻盈优雅的数据存储服务，比云盘更便捷，轻松存取文字、图片、视频等任意数据。
 
-**简体中文** · [English](README_EN.md) · [官网](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md)
+**简体中文** · [English](README_EN.md) · [Demo](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md)
 
 </div>
 
