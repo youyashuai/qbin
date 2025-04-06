@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/**/*.[tj]s": {
+    "src/**/*.[tj]s": {
       "runtime": "deno@3.1.0"
     }
   },
