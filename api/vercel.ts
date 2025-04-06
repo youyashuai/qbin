@@ -1,4 +1,5 @@
-#!/usr/bin/env DENO_DIR=/tmp deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel
+#!/usr/bin/env DENO_DIR=/tmp DENO_NPM_REGISTRY=https://registry.npmmirror.com deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel
+
 import { createServer } from "../src/server.ts";
 import { get_env } from "../src/config/constants.ts";
 
