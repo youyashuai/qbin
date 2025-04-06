@@ -43,14 +43,12 @@ export async function getCSS(ctx, pathname, status=200): Promise<string> {
 export async function getIMG(ctx, pathname, status=200): Promise<string> {
   try {
     const extension = pathname.split('.').pop()?.toLowerCase() || '';
-    console.log(extension)
     const contentType = imgTypeMap[extension] || 'application/octet-stream';
-    console.log(contentType)
     ctx.response.body = await Deno.readFile(join(basePath, `/static/img/${pathname}`));
     ctx.response.status = status;
 
     ctx.response.headers.set("Content-Type", contentType);
-    // ctx.response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    ctx.response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
     const hash = cyrb53_str(`${pathname}-${ctx.response.body.length}`);
     ctx.state.metadata = { etag: hash };
   } catch (error) {}
@@ -127,7 +125,7 @@ export async function getDocumentHtml(ctx, status=200): Promise<string> {
 export async function getFavicon(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "image/svg+xml");
-  ctx.response.headers.set("Cache-Control", "public, max-age=2678400, immutable");
+  ctx.response.headers.set("Cache-Control", "public, max-age=31536000, immutable");
   ctx.response.body = await Deno.readFile(join(basePath, './static/img/favicon.svg'));
 }
 
@@ -145,6 +143,7 @@ export async function getServiceWorker(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "application/javascript");
   ctx.response.headers.set("Cache-Control", "no-cache, must-revalidate");
+  ctx.response.headers.set("Service-Worker-Allowed", "/");
   ctx.response.body = await Deno.readTextFile(join(basePath, './static/js/service-worker.js'));
   const hash = cyrb53_str('service-worker.js' + ctx.response.body.length);
   ctx.state.metadata = { etag: hash };
@@ -154,7 +153,7 @@ export async function getServiceWorker(ctx, status=200): Promise<string> {
 export async function getManifest(ctx, status=200): Promise<string> {
   ctx.response.status = status;
   ctx.response.headers.set("Content-Type", "application/json");
-  // ctx.response.headers.set("Cache-Control", "public, max-age=86400");
+  ctx.response.headers.set("Cache-Control", "public, max-age=86400");
   ctx.response.body = await Deno.readTextFile(join(basePath, './manifest.json'));
   const hash = cyrb53_str('manifest.json' + ctx.response.body.length);
   ctx.state.metadata = { etag: hash };
