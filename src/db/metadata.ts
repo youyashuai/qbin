@@ -11,7 +11,6 @@ export class MetadataDB {
   private constructor() {
     this.pool = getPool();
     if(!ISDEMO){
-      // 初始化表（若已存在不会重复创建）
       this.initTable().catch((err) => {
         console.error("Failed to init qbindb table:", err);
       });
@@ -276,6 +275,45 @@ export class MetadataDB {
         WHERE email = ${email}
       `;
       return result.rows.map(row => row.fkey);
+    });
+  }
+
+  // 根据用户邮箱分页查询数据
+  async findByEmail(email: string, limit: number = 10, offset: number = 0): Promise<{ items: Metadata[], total: number }> {
+    return await this.withClient(async (client) => {
+      const countResult = await client.queryObject<{ count: number }>`
+        SELECT COUNT(*) as count
+        FROM qbindb
+        WHERE email = ${email}
+        AND expire > 0
+      `;
+      const total = parseInt(countResult.rows[0].count, 10);
+      if (offset >= total) {
+        return { items: [], total };
+      }
+
+      const query = `
+        SELECT fkey, time, expire, type, len, pwd
+        FROM qbindb
+        WHERE email = $1
+        AND expire > 0
+        ORDER BY time DESC
+        LIMIT $2 OFFSET $3
+      `;
+
+     const result = await client.queryObject<
+        Pick<Metadata, "fkey" | "time" | "expire" | "type" | "len" | "pwd">
+      >(query, [email, limit, offset]);
+
+      const items = result.rows.map(({ fkey, time, expire, type, len, pwd }) => ({
+        fkey,
+        time: Number(time),
+        expire: Number(expire),
+        type,
+        len,
+        pwd: pwd ?? undefined,
+      }));
+      return { items, total };
     });
   }
 

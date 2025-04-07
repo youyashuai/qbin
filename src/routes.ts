@@ -590,9 +590,46 @@ router
     const token = await ctx.cookies.get("token");
     return new Response(ctx, 200, "success", { token: token });
   })
-  // .get("/api/user/storage", async (ctx) => {
-  //   return new Response(ctx, 200, "success", [{ }]);
-  // })
+  .get("/api/user/storage", async (ctx) => {
+    const user = ctx.state.session?.get("user");
+    if (!user || !user.email) return new Response(ctx, 401, "请先登录");
+
+    const url = new URL(ctx.request.url);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
+
+    if (isNaN(page) || page < 1) return new Response(ctx, 400, "无效的页码");
+    if (isNaN(pageSize) || pageSize < 1 || pageSize > 100) return new Response(ctx, 400, "无效的每页数量");
+
+    const offset = (page - 1) * pageSize;
+    try {
+      const pdb = MetadataDB.getInstance();
+      const { items, total } = await pdb.findByEmail(user.email, pageSize, offset);
+
+      const safeItems = items.map(item => ({
+        fkey: item.fkey,
+        time: item.time,
+        expire: item.expire,
+        type: item.type,
+        len: item.len,
+        pwd: item.pwd,
+      }));
+
+      const totalPages = Math.ceil(total / pageSize);
+      return new Response(ctx, 200, "success", {
+        items: safeItems,
+        pagination: {
+          total,
+          page,
+          pageSize,
+          totalPages
+        }
+      });
+    } catch (error) {
+      console.error("获取用户存储数据时出错:", error);
+      return new Response(ctx, 500, "获取数据失败");
+    }
+  })
   // .post("/api/user/shares", async (ctx) => {
   //   return new Response(ctx, 200, "success", [{ }]);
   // })
