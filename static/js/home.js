@@ -173,6 +173,7 @@ class QBinHome {
                         }, 300);
 
                         document.cookie = `qbin-editor=${selectedEditor}; path=/; max-age=31536000; SameSite=Lax`;
+                        storage.setCache('qbin-editor', selectedEditor, -1).catch(error => {});
                         // 更新视觉反馈
                         this.updateEditorRadioVisualFeedback(selectedEditor);
                         // 显示成功提示

@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.26';
+const CACHE_VERSION = 'v1.27';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -344,7 +344,7 @@ async function networkFirstStrategy(request) {
             if (lastModified) {
                 headers.set('If-Modified-Since', lastModified);
             }
-            
+
             networkRequest = new Request(request.url, {
                 method: request.method,
                 headers: headers,
@@ -377,7 +377,7 @@ async function networkFirstStrategy(request) {
     } catch (err) {
         warn(`网络请求失败: ${request.url}`, err);
         if (cachedResponse) return cachedResponse;
-        
+
         return new Response('无法获取资源', {
             status: 503,
             headers: {'Content-Type': 'text/plain; charset=UTF-8'}
@@ -455,88 +455,65 @@ async function StaleWhileRevalidate(request) {
 }
 
 /**
- * 处理页面模板路由 - 包括根路径和模板路径
+ * 处理页面模板路由 - 处理根路径和模板路径请求
+ * @param {Request} request 原始请求对象
+ * @returns {Promise<Response>} 处理后的响应
  */
 async function handleTemplateRoutes(request) {
     const url = new URL(request.url);
     const path = url.pathname;
-
+    let templatePath, templateUrl;
+    
     try {
-        let templatePath;
+        // 确定要使用的模板路径
         if (path === '/') {
-            let editorType = request.headers.get('cookie');
-            
-            if (!['e', 'c', 'm'].includes(editorType)) {
-                editorType = 'e';  // 默认使用 'e' 编辑器
-            }
-            
-            templatePath = `/${editorType}`;
+            // 根路径 - 从缓存获取首选编辑器类型
+            const editorType = await getCache("qbin-editor") || 'e';
+            templatePath = ['e', 'c', 'm'].includes(editorType) ? `/${editorType}` : '/e';
+            log(`根路径请求使用模板: ${templatePath}`);
         } else {
+            // 非根路径 - 取前两个字符作为模板标识
             templatePath = path.substring(0, 2);
         }
-
-        // 构建模板请求
-        const templateUrl = new URL(templatePath, self.location.origin);
+        
+        // 构建模板URL并保留原始查询参数
+        templateUrl = new URL(templatePath, self.location.origin);
         templateUrl.search = url.search;
-
-        // 创建新的请求，但不直接复制mode属性
+        
+        // 创建并发送模板请求
         const requestInit = {
             method: 'GET',
             headers: request.headers,
             credentials: request.credentials,
-            redirect: 'follow'
+            redirect: 'follow',
+            ...(request.mode !== 'navigate' && { mode: request.mode })
         };
-
-        // 只有当mode不是'navigate'时才设置mode
-        if (request.mode !== 'navigate') {
-            requestInit.mode = request.mode;
-        }
-
+        
         const templateRequest = new Request(templateUrl.toString(), requestInit);
-
         return await cacheFirstStrategy(templateRequest);
     } catch (err) {
         error(`模板路由处理失败: ${path}`, err);
-
-        try {
-            // 备用逻辑
-            let fallbackPrefix;
-            if (path === '/') {
-                let editorType = 'e';  // 默认使用 'e' 编辑器
-                try {
-                    const storedEditor = localStorage.getItem("qbin-editor");
-                    if (storedEditor && ['e', 'c', 'm'].includes(storedEditor.trim())) {
-                        editorType = storedEditor.trim();
-                    }
-                } catch (e) {}
+        
+        // 尝试从缓存中获取备用响应
+        if (templateUrl) {
+            try {
+                const cache = await caches.open(STATIC_CACHE_NAME);
+                const fallbackRequest = new Request(templateUrl.toString(), {
+                    method: 'GET',
+                    headers: request.headers,
+                    credentials: request.credentials,
+                    redirect: 'follow',
+                    ...(request.mode !== 'navigate' && { mode: request.mode })
+                });
                 
-                fallbackPrefix = `/${editorType}`;
-            } else {
-                fallbackPrefix = path.substring(0, 2);
+                const fallback = await cache.match(fallbackRequest);
+                if (fallback) return fallback;
+            } catch (fallbackErr) {
+                error(`备用模板获取失败`, fallbackErr);
             }
-
-            const fallbackUrl = new URL(fallbackPrefix, self.location.origin);
-            const cache = await caches.open(STATIC_CACHE_NAME);
-            
-            const fallbackRequestInit = {
-                method: 'GET',
-                headers: request.headers,
-                credentials: request.credentials,
-                redirect: 'follow'
-            };
-
-            if (request.mode !== 'navigate') {
-                fallbackRequestInit.mode = request.mode;
-            }
-
-            const fallbackRequest = new Request(fallbackUrl.toString(), fallbackRequestInit);
-            const fallback = await cache.match(fallbackRequest);
-            if (fallback) return fallback;
-        } catch (fallbackErr) {
-            error(`备用模板获取失败`, fallbackErr);
         }
 
-        // 返回错误响应
+        // 最终错误响应
         return new Response('页面加载失败', {
             status: 503,
             headers: {'Content-Type': 'text/plain; charset=UTF-8'}
@@ -595,7 +572,7 @@ function isStaticResource(url) {
 
 function isPageTemplate(url) {
     const path = new URL(url).pathname;
-    return PAGE_TEMPLATES.some(templatePath => path === templatePath) || 
+    return PAGE_TEMPLATES.some(templatePath => path === templatePath) ||
            path.match(/^\/[pcme](\/.*)?$/);
 }
 
@@ -649,7 +626,7 @@ async function cleanupOldCaches() {
     try {
         const cacheNames = await caches.keys();
         const deletionPromises = cacheNames
-            .filter(cacheName => 
+            .filter(cacheName =>
                 cacheName !== STATIC_CACHE_NAME &&
                 cacheName !== DYNAMIC_CACHE_NAME &&
                 cacheName !== CDN_CACHE_NAME &&
@@ -719,4 +696,29 @@ async function cleanupExpiredCacheEntries(cacheName, expirationTime) {
         warn(`清理缓存 ${cacheName} 失败:`, err);
         return Promise.resolve();
     }
+}
+
+async function getCache(key) {
+  try {
+    const db = await new Promise(resolve => {
+      const req = indexedDB.open('qbin', 2);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('qbin')) {
+          db.createObjectStore('qbin', {keyPath: 'key'});
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+    if (!db) return null;
+    return await new Promise(resolve => {
+      const tx = db.transaction(['qbin'], 'readonly');
+      const req = tx.objectStore('qbin').get(key);
+      req.onsuccess = () => resolve(req.result ? req.result.value : null);
+      req.onerror = () => resolve(null);
+    });
+  } catch {
+    return null;
+  }
 }
