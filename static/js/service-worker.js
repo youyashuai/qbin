@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.20';
+const CACHE_VERSION = 'v1.22';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -71,7 +71,6 @@ const PAGE_TEMPLATES = [
 
 // 实时数据 - 采用网络优先策略
 const REALTIME_PATHS = [
-    '/r/',
 ];
 
 /**
@@ -197,10 +196,10 @@ self.addEventListener('fetch', event => {
             event.respondWith(cacheFirstStrategy(request));
         } else if (isRealtimeResource(request.url)) {
             // 实时数据: 网络优先
-            event.respondWith(networkFirstStrategy(request));
+            // event.respondWith(networkFirstStrategy(request));
         } else {
             // 其他资源: 网络优先
-            event.respondWith(networkFirstStrategy(request));
+            // event.respondWith(networkFirstStrategy(request));
         }
     } catch (err) {
         error('缓存策略处理错误:', err);
