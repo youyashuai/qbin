@@ -48,7 +48,7 @@ class QBinHome {
         container.innerHTML = '<div class="loading-indicator">加载中...</div>';
 
         try {
-            throw new Error('功能暂未实现，敬请期待');
+            throw new Error('功能界面暂未完善，敬请期待');
             const response = await fetch('/api/user/storage', {
                 credentials: 'include' // Ensure cookies are sent with the request
             });
@@ -82,7 +82,7 @@ class QBinHome {
         container.innerHTML = '<div class="loading-indicator">加载中...</div>';
 
         try {
-            throw new Error('功能暂未实现，敬请期待');
+            throw new Error('功能界面暂未完善，敬请期待');
             const response = await fetch('/api/user/shares', {
                 credentials: 'include' // Ensure cookies are sent with the request
             });
