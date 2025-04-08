@@ -79,7 +79,7 @@ const oauthProviders = {
     }
   },
   // 自定义 OAuth2 配置
-  oauth: {
+  custom: {
     client: new OAuth2Client({
       clientId: get_env("OAUTH_CLIENT_ID") || "",
       clientSecret: get_env("OAUTH_CLIENT_SECRET") || "",
@@ -95,7 +95,7 @@ const oauthProviders = {
       id: userData.id || userData.user_id,
       name: userData.username || userData.name || userData.display_name,
       email: userData.email,
-      provider: "oauth",
+      provider: "custom oauth",
     }),
     validateUser: (userData: any): boolean => userData.active === true,
   },
