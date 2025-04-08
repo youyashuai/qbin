@@ -153,6 +153,14 @@ JWT_SECRET=your_jwt_secret
 | `GOOGLE_CLIENT_SECRET` | 可选 | Google OAuth 应用客户端密钥 | `GOCSPX-xxxxxxxxxxxxxxxxxxxx` |
 | `GOOGLE_CALLBACK_URL` | 可选 | Google OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/google` |
 
+#### Microsoft OAuth 配置
+
+| 环境变量 | 类型 | 描述 | 示例 |
+|:-------:|:----:|:----:|:----:|
+| `MICROSOFT_CLIENT_ID` | 可选 | Microsoft OAuth 应用客户端 ID | `a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6` |
+| `MICROSOFT_CLIENT_SECRET` | 可选 | Microsoft OAuth 应用客户端密钥 | `abC8Q~xxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
+| `MICROSOFT_CALLBACK_URL` | 可选 | Microsoft OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/microsoft` |
+
 #### Custom OAuth 配置
 
 | 环境变量 | 类型 | 描述 | 示例 |

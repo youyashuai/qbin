@@ -22,7 +22,7 @@
 - 📱 **全面适配**：支持桌面端和移动端
 - 🔄 **自动保存**：定时本地备份，保证数据安全
 - 📵 **离线访问**：完整PWA实现
-- 🔑 **第三方登录**：支持 OAuth2（Google、GitHub、自定义）授权
+- 🔑 **第三方登录**：支持 OAuth2（Google、GitHub、Microsoft, 自定义）授权
 
 ## 🖼️ 功能预览
 
@@ -95,7 +95,7 @@ docker run -it -p 8000:8000 \
 - [x] 增加 MarkDown 编辑器
 - [x] 增加 API 第三方调用接口
 - [x] 增加 Docker 部署支持
-- [x] 实现 OAuth2（Google、Github、自定义） 授权登录
+- [x] 实现 OAuth2（Google、Github、Microsoft, 自定义） 授权登录
 - [x] 后端热-冷多级存储
 - [x] 适配移动端、深色模式
 - [x] ETag 协商缓存

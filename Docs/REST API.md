@@ -31,7 +31,7 @@ def upload_content(path, content, password="", expire=315360000):
         'Authorization': 'Bearer your_jwt_token'  # 在设置API Token中生成获取
     }
     response = requests.post(url, data=content, headers=headers)
-    
+
     if response.status_code == 200:
         result = response.json()
         print(f"上传成功，访问链接: {result['data']['url']}")
@@ -84,7 +84,7 @@ POST /api/user/logout
 ```http
 GET /api/login/{provider}
 ```
-- provider支持：github, google, custom
+- provider支持：github, google, microsoft, custom
 
 ## 响应格式
 所有API返回统一格式：
