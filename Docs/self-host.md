@@ -153,14 +153,17 @@ JWT_SECRET=your_jwt_secret
 | `GOOGLE_CLIENT_SECRET` | 可选 | Google OAuth 应用客户端密钥 | `GOCSPX-xxxxxxxxxxxxxxxxxxxx` |
 | `GOOGLE_CALLBACK_URL` | 可选 | Google OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/google` |
 
-#### LinuxDO OAuth 配置
+#### Custom OAuth 配置
 
 | 环境变量 | 类型 | 描述 | 示例 |
 |:-------:|:----:|:----:|:----:|
-| `LINUXDO_CLIENT_ID` | 可选 | LinuxDO OAuth 应用客户端 ID | `V4HmbQixxxxxxxxxxxxCJ2CVypqL` |
-| `LINUXDO_CLIENT_SECRET` | 可选 | LinuxDO OAuth 应用客户端密钥 | `hZtE3cxxxxxxxxxxxxxkZ0al01Hi` |
-| `LINUXDO_CALLBACK_URL` | 可选 | LinuxDO OAuth 回调地址 | `http://localhost:8000/api/login/oauth2/callback/linuxdo` |
-| `LINUXDO_USER_LEVEL` | 可选 | LinuxDO 用户登录所需的最低等级 | `0` |
+| `OAUTH_CLIENT_ID` | 可选 | OAuth 应用的客户端标识符 | `V4HmbQixxxxxxxxxxxxCJ2CVypqL` |
+| `OAUTH_CLIENT_SECRET` | 可选 | OAuth 应用的客户端密钥 | `hZtE3cxxxxxxxxxxxxxkZ0al01Hi` |
+| `OAUTH_AUTH_URL` | 可选 | 授权端点 URL | `https://provider.example.com/oauth2/authorize` |
+| `OAUTH_TOKEN_URL` | 可选 | 令牌端点 URL | `https://provider.example.com/oauth2/token` |
+| `OAUTH_CALLBACK_URL` | 可选 | 认证成功后的回调地址 | `http://localhost:8000/api/login/oauth2/callback/oauth` |
+| `OAUTH_SCOPES` | 可选 | 请求的权限范围，以空格分隔 | `user:profile` |
+| `OAUTH_USER_INFO_URL` | 可选 | 获取用户信息的 API 端点 | `https://provider.example.com/api/user` |
 
 ## 🔧 常见问题与故障排除
 

@@ -84,7 +84,7 @@ POST /api/user/logout
 ```http
 GET /api/login/{provider}
 ```
-- provider支持：github, google, linuxdo
+- provider支持：github, google, custom
 
 ## 响应格式
 所有API返回统一格式：
