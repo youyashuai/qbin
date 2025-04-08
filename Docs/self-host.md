@@ -161,7 +161,7 @@ JWT_SECRET=your_jwt_secret
 | `OAUTH_CLIENT_SECRET` | 可选 | OAuth 应用的客户端密钥 | `hZtE3cxxxxxxxxxxxxxkZ0al01Hi` |
 | `OAUTH_AUTH_URL` | 可选 | 授权端点 URL | `https://provider.example.com/oauth2/authorize` |
 | `OAUTH_TOKEN_URL` | 可选 | 令牌端点 URL | `https://provider.example.com/oauth2/token` |
-| `OAUTH_CALLBACK_URL` | 可选 | 认证成功后的回调地址 | `http://localhost:8000/api/login/oauth2/callback/oauth` |
+| `OAUTH_CALLBACK_URL` | 可选 | 认证成功后的回调地址 | `http://localhost:8000/api/login/oauth2/callback/custom` |
 | `OAUTH_SCOPES` | 可选 | 请求的权限范围，以空格分隔 | `user:profile` |
 | `OAUTH_USER_INFO_URL` | 可选 | 获取用户信息的 API 端点 | `https://provider.example.com/api/user` |
 
