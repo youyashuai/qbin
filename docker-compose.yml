@@ -33,7 +33,7 @@ services:
       # - OAUTH_CLIENT_SECRET=hZtE3cxxxxxxxxxxxxxkZ0al01Hi
       # - OAUTH_AUTH_URL=https://provider.example.com/oauth2/authorize
       # - OAUTH_TOKEN_URL=https://provider.example.com/oauth2/token
-      # - OAUTH_CALLBACK_URL=http://localhost:8000/api/login/oauth2/callback/oauth
+      # - OAUTH_CALLBACK_URL=http://localhost:8000/api/login/oauth2/callback/custom
       # - OAUTH_SCOPES=user:profile
       # - OAUTH_USER_INFO_URL=https://provider.example.com/api/user
     ports:
