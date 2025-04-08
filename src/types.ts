@@ -23,7 +23,6 @@ export interface AppState {
     id: number;
     name: string;
     email?: string;
-    level: number;
     provider: string;
   };
 }

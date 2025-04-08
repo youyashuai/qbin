@@ -3,7 +3,7 @@ import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client@^2.0.0";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
 import {PasteError, Response} from "../utils/response.ts";
-import {ADMIN, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, LEVEL, EMAIL} from "../config/constants.ts";
+import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, EMAIL} from "../config/constants.ts";
 import {getLoginPageHtml} from "../utils/render.ts";
 
 // 定义 OAuth2 提供商配置
@@ -26,7 +26,6 @@ const oauthProviders = {
       id: userData.sub,
       name: userData.name || userData.email?.split('@')[0] || "User",
       email: userData.email,
-      level: LEVEL, // Google 用户的默认等级
       provider: "google",
     }),
     validateUser: (userData: any): boolean => userData.email_verified === true,
@@ -48,7 +47,6 @@ const oauthProviders = {
       id: userData.id.toString(),
       name: userData.login,
       email: userData.email,
-      level: LEVEL, // GitHub 用户的默认等级
       provider: "github",
     }),
     validateUser: (userData: any): boolean => userData.id !== undefined,
@@ -80,25 +78,24 @@ const oauthProviders = {
       }
     }
   },
-  // Linux.do OAuth2 配置
-  linuxdo: {
+  // 自定义 OAuth2 配置
+  oauth: {
     client: new OAuth2Client({
-      clientId: get_env("LINUXDO_CLIENT_ID") || "",
-      clientSecret: get_env("LINUXDO_CLIENT_SECRET") || "",
-      authorizationEndpointUri: "https://connect.linux.do/oauth2/authorize",
-      tokenUri: "https://connect.linux.do/oauth2/token",
-      redirectUri: get_env("LINUXDO_CALLBACK_URL") || "http://localhost:8000/api/login/oauth2/callback/linuxdo",
+      clientId: get_env("OAUTH_CLIENT_ID") || "",
+      clientSecret: get_env("OAUTH_CLIENT_SECRET") || "",
+      authorizationEndpointUri: get_env("OAUTH_AUTH_URL") || "",
+      tokenUri: get_env("OAUTH_TOKEN_URL") || "",
+      redirectUri: get_env("OAUTH_CALLBACK_URL") || "http://localhost:8000/api/login/oauth2/callback/oauth",
       defaults: {
-        scope: ["user:profile"],
+        scope: (get_env("OAUTH_SCOPES") || "").split(",").filter(Boolean),
       },
     }),
-    userInfoUrl: "https://connect.linux.do/api/user",
+    userInfoUrl: get_env("OAUTH_USER_INFO_URL") || "",
     userDataTransformer: (userData: any): UserData => ({
-      id: userData.id,
-      name: userData.username,
+      id: userData.id || userData.user_id,
+      name: userData.username || userData.name || userData.display_name,
       email: userData.email,
-      level: userData.trust_level,
-      provider: "linuxdo",
+      provider: "oauth",
     }),
     validateUser: (userData: any): boolean => userData.active === true,
   },
@@ -122,7 +119,6 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
           id: userFromJwt.id,
           name: userFromJwt.name,
           email: userFromJwt.email,
-          level: userFromJwt.level,
         });
       }
     }
@@ -138,19 +134,10 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   }
 
   if (session?.has("user")) {
-    if(session.get("user")?.level >= LEVEL){
-      Object.entries(HEADERS.HTML).forEach(([k, v]) => {
-        ctx.response.headers.set(k, v);
-      });
-      await next();
-    }else {
-      await ctx.cookies.delete("token", {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax"
-      });
-      return new Response(ctx, 401, "auth error");
-    }
+    Object.entries(HEADERS.HTML).forEach(([k, v]) => {
+      ctx.response.headers.set(k, v);
+    });
+    await next();
     return;
   }
 
@@ -174,14 +161,13 @@ export const handleAdminLogin = async (ctx: Context) => {
   if (!password) {
     return new Response(ctx, 403, "Unauthorized");
   }
-  if (!(password in ADMIN) || ADMIN[password] < LEVEL) {
+  if (password !== PASSWORD) {
     return new Response(ctx, 403, "Unauthorized");
   }
   const jwtToken = await generateJwtToken({
     id: 0,
     email: EMAIL,
     name: EMAIL.includes('@') ? EMAIL.split('@')[0] : EMAIL,
-    level: ADMIN[password]+1,
   });
   await ctx.cookies.set("token", jwtToken, {
     maxAge: TOKEN_EXPIRE * 1000,
@@ -259,7 +245,6 @@ export const handleOAuthCallback = async (ctx: Context) => {
       id: transformedUserData.id,
       name: transformedUserData.name,
       email: transformedUserData.email,
-      level: transformedUserData.level,
       provider: transformedUserData.provider,
     });
     await ctx.cookies.set("token", jwtToken, {
