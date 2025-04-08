@@ -85,7 +85,7 @@ const oauthProviders = {
       clientSecret: get_env("OAUTH_CLIENT_SECRET") || "",
       authorizationEndpointUri: get_env("OAUTH_AUTH_URL") || "",
       tokenUri: get_env("OAUTH_TOKEN_URL") || "",
-      redirectUri: get_env("OAUTH_CALLBACK_URL") || "http://localhost:8000/api/login/oauth2/callback/oauth",
+      redirectUri: get_env("OAUTH_CALLBACK_URL") || "http://localhost:8000/api/login/oauth2/callback/custom",
       defaults: {
         scope: (get_env("OAUTH_SCOPES") || "").split(",").filter(Boolean),
       },
