@@ -18,7 +18,7 @@ Distributed architecture + multi-level caching makes storage and retrieval faste
 - 🌓 **Dark Mode**: Perfect adaptation to both light and dark themes
 - 📱 **Comprehensive Compatibility**: Support for desktop and mobile devices
 - 🔄 **Auto-Save**: Scheduled local backups to prevent data loss
-- 🔑 **Third-party Login**: OAuth2 authorization support (Google, GitHub, LinuxDO)
+- 🔑 **Third-party Login**: OAuth2 authorization support (Google, GitHub, Custom)
 
 ## 🖼️ Preview
 |                                       Desktop Interface                                         |                                     Mobile Interface                                      |
@@ -79,7 +79,7 @@ For Deno Deploy or local development, please refer to the [Self-hosting Guide](D
 - [x] Add Markdown editor
 - [x] Add API for third-party integration
 - [x] Add Docker deployment support
-- [x] Implement OAuth2 (Google, Github, LinuxDO) authorization login
+- [x] Implement OAuth2 (Google, Github, Custom) authorization login
 - [x] Backend hot-cold multi-level storage
 - [x] Adapt to mobile devices and dark mode
 - [x] ETag negotiation cache
