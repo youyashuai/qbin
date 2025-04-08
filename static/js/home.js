@@ -982,7 +982,7 @@ class QBinHome {
     async loadShareData() {
         const container = document.getElementById('share-items');
         try {
-            throw new Error('未来计划预留接口，敬请期待');
+            throw new Error('未来计划预留界面，敬请期待');
             const response = await fetch('/api/user/shares', {
                 credentials: 'include' // Ensure cookies are sent with the request
             });
@@ -995,12 +995,12 @@ class QBinHome {
             this.renderShareItems(data);
             this.dataLoaded.shares = true;
         } catch (error) {
-            console.error('Failed to load share data:', error);
             container.innerHTML = `
                 <div class="error-message">
-                    <p>未来计划预留接口，敬请期待</p>
+                    <p>未来计划预留界面，敬请期待</p>
                 </div>
             `;
+            // console.error('Failed to load share data:', error);
             // container.innerHTML = `
             //     <div class="error-message">
             //         <p>加载数据失败: ${error.message}</p>
@@ -1472,7 +1472,7 @@ class QBinHome {
 
     async deleteStorageItem(fkey, pwd) {
         if (!fkey) return;
-        if (!confirm('确定要删除该数据吗？此操作无法撤销。')) {
+        if (!confirm('确定要永久删除该数据吗？')) {
             return;
         }
         try {
