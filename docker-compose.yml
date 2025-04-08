@@ -28,6 +28,11 @@ services:
       # - GOOGLE_CLIENT_SECRET=your_google_client_secret
       # - GOOGLE_CALLBACK_URL=http://your-domain:8000/api/login/oauth2/callback/google
 
+      # Microsoft OAuth配置（可选，如需使用请取消注释并填写）
+      # - MICROSOFT_CLIENT_ID=74xxxx-xxxx-xxxx-xxxx-xxxxxxxxxx  # Microsoft应用ID
+      # - MICROSOFT_CLIENT_SECRET=25xxxx-xxxx-xxxx-xxxx-xxxxxxxxxx  # Microsoft应用密钥
+      # - MICROSOFT_CALLBACK_URL=http://localhost:8000/api/login/oauth2/callback/microsoft  # Microsoft登录回调地址
+
       # Custom OAuth配置（可选，如需使用请取消注释并填写）
       # - OAUTH_CLIENT_ID=V4HmbQixxxxxxxxxxxxCJ2CVypqL
       # - OAUTH_CLIENT_SECRET=hZtE3cxxxxxxxxxxxxxkZ0al01Hi

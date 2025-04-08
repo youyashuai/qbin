@@ -78,6 +78,27 @@ const oauthProviders = {
       }
     }
   },
+  // Microsoft OAuth2 配置
+  microsoft: {
+    client: new OAuth2Client({
+      clientId: get_env("MICROSOFT_CLIENT_ID") || "",
+      clientSecret: get_env("MICROSOFT_CLIENT_SECRET") || "",
+      authorizationEndpointUri: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      tokenUri: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      redirectUri: get_env("MICROSOFT_CALLBACK_URL") || "http://localhost:8000/api/login/oauth2/callback/microsoft",
+      defaults: {
+        scope: ["user.read", "profile", "email", "openid"],
+      },
+    }),
+    userInfoUrl: "https://graph.microsoft.com/v1.0/me",
+    userDataTransformer: (userData: any): UserData => ({
+      id: userData.id,
+      name: userData.displayName || userData.userPrincipalName?.split('@')[0] || "User",
+      email: userData.mail || userData.userPrincipalName,
+      provider: "microsoft",
+    }),
+    validateUser: (userData: any): boolean => userData.id !== undefined,
+  },
   // 自定义 OAuth2 配置
   custom: {
     client: new OAuth2Client({

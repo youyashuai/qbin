@@ -20,15 +20,15 @@
             --error: #ef4444;
             --divider: #e2e8f0;
             --hover-bg: #f8fafc;
-            
+
             /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.02);
             --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.03), 0 2px 4px rgba(0, 0, 0, 0.02);
             --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.04), 0 10px 20px -10px rgba(0, 0, 0, 0.03);
-            
+
             color-scheme: light;
         }
-        
+
         /* Dark theme variables */
         html.dark-theme,
         html[data-theme="dark"] {
@@ -42,14 +42,14 @@
             --error: #f87171;
             --divider: #334155;
             --hover-bg: #262f3f;
-            
+
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
             --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -10px rgba(0, 0, 0, 0.15);
-            
+
             color-scheme: dark;
         }
-        
+
         /* System preference detection */
         @media (prefers-color-scheme: dark) {
             html:not(.light-theme):not([data-theme="light"]) {
@@ -63,11 +63,11 @@
                 --error: #f87171;
                 --divider: #334155;
                 --hover-bg: #262f3f;
-                
+
                 --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
                 --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
                 --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 10px 20px -10px rgba(0, 0, 0, 0.15);
-                
+
                 color-scheme: dark;
             }
         }
@@ -77,7 +77,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            transition: background-color 0.3s ease, 
+            transition: background-color 0.3s ease,
                         color 0.3s ease,
                         border-color 0.3s ease,
                         box-shadow 0.3s ease,
@@ -362,7 +362,7 @@
             left: 1rem;
             z-index: 100;
         }
-        
+
         .theme-toggle-btn {
             background-color: var(--surface);
             border: 1px solid var(--border);
@@ -378,13 +378,13 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .theme-toggle-btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
             color: var(--primary);
         }
-        
+
         .theme-icon {
             position: absolute;
             width: 20px;
@@ -394,7 +394,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             visibility: hidden;
         }
-        
+
         .theme-toggle-btn[data-theme="light"] .sun-icon,
         .theme-toggle-btn[data-theme="dark"] .moon-icon,
         .theme-toggle-btn[data-theme="system"] .system-icon {
@@ -530,7 +530,7 @@
                 background: rgba(255, 255, 255, 0.3);
             }
         }
-        
+
         /* ===== RESPONSIVE STYLES ===== */
         @media (max-width: 768px) {
             .theme-switcher {
@@ -542,7 +542,7 @@
                 width: 36px;
                 height: 36px;
             }
-            
+
             .github-corner {
                 padding: 0.75rem 1rem;
                 font-size: 0.8rem;
@@ -552,7 +552,7 @@
                 width: 16px;
                 height: 16px;
             }
-            
+
             .copyright {
                 font-size: 11px;
                 bottom: max(env(safe-area-inset-bottom, 15px), 15px);
@@ -576,7 +576,7 @@
             .qbin-header img {
                 width: 130px;
             }
-            
+
             .tab-navigation {
                 max-width: 100%;
             }
@@ -588,7 +588,7 @@
             .tab-panel {
                 max-width: 100%;
             }
-            
+
             .github-corner {
                 position: absolute;
             }
@@ -711,6 +711,10 @@
                     <img src="https://ik.imagekit.io/naihe/logo/github.svg" alt="GitHub">
                     <span>GitHub</span>
                 </button>
+                <button onclick="handleOAuthLogin('microsoft')" class="oauth-login-button" title="Login with Microsoft">
+                    <img src="https://ik.imagekit.io/naihe/logo/microsoft.svg" alt="Microsoft" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMyAyMyI+PHBhdGggZmlsbD0iIzRjYWY1MCIgZD0iTTExIDExaDEwdjEwSDExeiIvPjxwYXRoIGZpbGw9IiMwMDk3YTciIGQ9Ik0xIDExaDEwdjEwSDF6Ii8+PHBhdGggZmlsbD0iI2ZmYzEwNyIgZD0iTTExIDFoMTB2MTBIMTF6Ii8+PHBhdGggZmlsbD0iI2YyNDQzNiIgZD0iTTEgMWgxMHYxMEgxeiIvPjwvc3ZnPg=='">
+                    <span>Microsoft</span>
+                </button>
                 <button onclick="handleOAuthLogin('custom')" class="oauth-login-button" title="Login with Custom OAuth2">
                     <img src="https://ik.imagekit.io/naihe/logo/custom.svg" alt="Custom OAuth2">
                     <span>Custom OAuth2</span>
@@ -828,7 +832,7 @@
             tabIndicator.style.left = `${tabLeft + 10}px`;
             tabIndicator.style.transform = 'none';
         },
-        
+
         initialize() {
             const urlParams = new URLSearchParams(window.location.search);
             const error = urlParams.get('error');
@@ -916,7 +920,7 @@
             button.disabled = false;
         }
     }
-    
+
     document.addEventListener('DOMContentLoaded', () => UI.initialize());
 </script>
 </body>
