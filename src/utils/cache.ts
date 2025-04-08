@@ -7,7 +7,7 @@
 import { Metadata } from "../types.ts";
 import { PASTE_STORE, CACHE_CHANNEL } from "../config/constants.ts";
 import { MetadataDB } from "../db/metadata.ts";
-
+import { checkPassword } from "./common.ts";
 
 export const memCache = new Map<string, Metadata | Record<string, unknown>>();
 export const kv = await Deno.openKv();
@@ -23,24 +23,6 @@ cacheBroadcast.onmessage = async (event: MessageEvent) => {
     await updateCache(key, metadata);
   }
 };
-
-// 获取当前时间
-export const getTimestamp = () => Math.floor(Date.now() / 1000);
-
-/**
- * 校验密码（若记录有 pwd，则需匹配；否则无需密码）
- */
-export function checkPassword(dbpwd:string, pwd?: string) {
-  if (!dbpwd) return true;           // 无密码
-  return dbpwd === pwd;              // 有密码则需匹配
-}
-
-/**
- * 生成随机 key
- */
-export function generateKey(): string {
-  return `${crypto.randomUUID().split("-").pop()}${Date.now()}`;
-}
 
 export async function isCached(key: string, pwd?: string | undefined, pdb: MetadataDB): Promise<Metadata | null> {
   const memData = memCache.get(key);
@@ -118,7 +100,6 @@ export async function updateCache(key: string, metadata: Metadata): Promise<void
     console.error('Cache update error:', error);
   }
 }
-
 
 /**
  * 删除缓存 (内存 + Cache API)

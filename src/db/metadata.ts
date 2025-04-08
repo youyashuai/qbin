@@ -3,6 +3,8 @@ import { Pool } from "https://deno.land/x/postgres/mod.ts";
 import { getPool, withRetry } from "./pool.ts";
 import { Metadata } from "../types.ts";
 import {ISDEMO} from "../config/constants.ts";
+import { getTimestamp } from "../utils/common.ts";
+
 
 export class MetadataDB {
   private pool: Pool;
@@ -281,11 +283,12 @@ export class MetadataDB {
   // 根据用户邮箱分页查询数据
   async findByEmail(email: string, limit: number = 10, offset: number = 0): Promise<{ items: Metadata[], total: number }> {
     return await this.withClient(async (client) => {
+      const currentTime = getTimestamp();
       const countResult = await client.queryObject<{ count: number }>`
         SELECT COUNT(*) as count
         FROM qbindb
         WHERE email = ${email}
-        AND expire > 0
+        AND expire > ${currentTime}
       `;
       const total = parseInt(countResult.rows[0].count, 10);
       if (offset >= total) {
@@ -296,7 +299,7 @@ export class MetadataDB {
         SELECT fkey, time, expire, type, len, pwd
         FROM qbindb
         WHERE email = $1
-        AND expire > 0
+        AND expire > ${currentTime}
         ORDER BY time DESC
         LIMIT $2 OFFSET $3
       `;

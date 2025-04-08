@@ -1,6 +1,7 @@
 import { Router, Context } from "https://deno.land/x/oak/mod.ts";
 import { MetadataDB } from "./db/metadata.ts";
-import { getCachedContent, updateCache, kv, generateKey, checkPassword, isCached, getTimestamp, memCache, cacheBroadcast } from "./utils/cache.ts";
+import { getCachedContent, updateCache, kv, isCached, memCache, cacheBroadcast } from "./utils/cache.ts";
+import { getTimestamp, cyrb53, checkPassword, generateKey } from "./utils/common.ts";
 import {
   VALID_CHARS_REGEX,
   reservedWords,
@@ -41,20 +42,6 @@ function parsePathParams(params: Record<string, string>) {
     pwd: pwd || "",
   };
 }
-
-function cyrb53(buffer: ArrayBuffer, seed = 0): number {
-  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-  const bytes = new Uint8Array(buffer);
-  for(let i = 0; i < bytes.length; i++) {
-    h1 = Math.imul(h1 ^ bytes[i], 0x85ebca77);
-    h2 = Math.imul(h2 ^ bytes[i], 0xc2b2ae3d);
-  }
-  h1 ^= Math.imul(h1 ^ (h2 >>> 15), 0x735a2d97);
-  h2 ^= Math.imul(h2 ^ (h1 >>> 15), 0xcaf649a9);
-  h1 ^= h2 >>> 16; h2 ^= h1 >>> 16;
-  return 2097152 * (h2 >>> 0) + (h1 >>> 11);
-}
-
 /**
  * 上传（POST/PUT）处理函数
  */
@@ -359,9 +346,7 @@ async function syncPostgresToKV(ctx: Context<AppState>, pdb: MetadataDB) {
   }
 }
 
-/**
- * 注册路由
- */
+
 const router = new Router<AppState>();
 
 
@@ -411,12 +396,10 @@ router
       return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
-    // 先检查缓存内容
     const _metadata = await isCached(key, pwd, pdb);
     if (_metadata?.email === undefined || (_metadata.expire || 0) < getTimestamp()) {
       return new Response(ctx, 404, "访问内容不存在");
     }
-    // 密码验证
     if (_metadata.pwd && !checkPassword(_metadata.pwd, pwd)) {
       return new Response(ctx, 403, "访问密码错误");
     }
@@ -517,9 +500,7 @@ router
     }
 
     const pdb = MetadataDB.getInstance();
-    // 先检查缓存内容
     const metadata = await isCached(key, pwd, pdb);
-    // 排除减少查询次数缓存, 但不是真数据
     if (!metadata || (metadata.expire || 0) < getTimestamp()) {
       return new Response(ctx, 404, "内容不存在");
     }
@@ -549,7 +530,7 @@ router
     });
 
     ctx.response.headers.set("Content-Type", "application/json");
-    ctx.response.body = { status: "success", message: "删除成功" };
+    return new Response(ctx, 200, "success")
   })
   .get("/api/data/sync", async (ctx) => {
     // 验证是否管理员
