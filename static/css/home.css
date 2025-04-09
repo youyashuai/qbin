@@ -655,10 +655,6 @@ html, body {
     align-items: center;
 }
 
-/* 列表项默认可见，不需要额外的可见类 */
-
-/* 网格项默认可见，不需要额外的可见类 */
-
 .list-item:hover {
     background: var(--hover-color);
     transform: translateX(4px);
@@ -712,6 +708,7 @@ html, body {
 .grid-item .action-btn {
     width: 24px;
     height: 24px;
+    opacity: 0; /* 默认隐藏 */
     border-radius: 4px;
     background: transparent;
     border: none;
@@ -721,7 +718,6 @@ html, body {
     justify-content: center;
     color: #666;
     transition: all 0.2s ease;
-    opacity: 0.5; /* 默认显示但透明度降低 */
     z-index: 10; /* 确保按钮在最上层 */
 }
 
@@ -743,20 +739,33 @@ html, body {
 }
 
 /* 网格视图中的操作按钮特殊样式 */
-.grid-item .file-actions {
+.grid-item .grid-action-btn {
     position: absolute;
     top: 8px;
     right: 8px;
+    width: 28px;
+    height: 28px;
+    opacity: 0; /* 默认隐藏 */
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    color: #666;
 }
 
-.grid-item .grid-action-btn {
-    background-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    opacity: 0.8; /* 默认就有较高的透明度 */
+.grid-item:hover .grid-action-btn {
+    opacity: 1; /* 鼠标悬停时显示 */
+    transform: translateY(0);
 }
 
 .dark-theme .grid-item .grid-action-btn {
-    background-color: rgba(42, 42, 42, 0.9);
+    color: #e0e0e0;
+}
+.dark-theme .list-item .action-btn {
+    color: #e0e0e0;
 }
 
 /* 点击效果 */
@@ -1515,23 +1524,6 @@ select.loading {
     }
 
     .grid-item .file-icon {
-        font-size: 36px; /* 移动端上减小图标大小 */
-        margin-bottom: 10px; /* 减小底部间距 */
-    }
-
-    .grid-item .file-name {
-        font-size: 12px; /* 移动端上减小字体大小 */
-        -webkit-line-clamp: 1; /* 只显示一行 */
-    }
-
-    .grid-item .file-meta {
-        font-size: 10px; /* 移动端上减小字体大小 */
-        padding: 3px 6px; /* 减小内边距 */
-    }
-
-
-
-    .grid-item .file-icon {
         font-size: 24px; /* 减小图标大小 */
         margin-bottom: 6px;
     }
@@ -1539,16 +1531,22 @@ select.loading {
     .grid-item .file-name {
         font-size: 12px;
         margin-bottom: 4px;
+        -webkit-line-clamp: 1; /* 只显示一行 */
     }
 
     .grid-item .file-meta {
         font-size: 10px;
         margin-bottom: 2px;
+        padding: 3px 6px; /* 减小内边距 */
     }
 
-    .grid-item .file-actions button {
-        padding: 4px;
-        font-size: 10px;
+    /* 移动端上的网格操作按钮 */
+    .grid-item .grid-action-btn {
+        width: 24px;
+        height: 24px;
+        opacity: 1; /* 移动端上始终显示 */
+        top: 6px;
+        right: 6px;
     }
 
     .list-header,

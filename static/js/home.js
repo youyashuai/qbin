@@ -20,6 +20,11 @@ class QBinHome {
         this.batchSize = 50; // 分批渲染的批次大小
         this.batchRenderTimer = null; // 分批渲染计时器
 
+        // 事件监听器标记，防止重复添加
+        this._hasScrollViewChangedListener = false;
+        this._hasItemDelegationViewChangedListener = false;
+        this._hasActionButtonViewChangedListener = false;
+
         this.initializeNavigation();
         this.initializeSettings();
         this.initializeTokenFeature();
@@ -150,10 +155,14 @@ class QBinHome {
         this.addScrollListenerToView('list');
         this.addScrollListenerToView('grid');
 
-        // 在视图切换时重新添加滚动监听器
-        document.addEventListener('viewChanged', (event) => {
-            this.addScrollListenerToView(event.detail.view);
-        });
+        // 使用一个标记来确保只添加一次事件监听器
+        if (!this._hasScrollViewChangedListener) {
+            // 在视图切换时重新添加滚动监听器
+            document.addEventListener('viewChanged', (event) => {
+                this.addScrollListenerToView(event.detail.view);
+            });
+            this._hasScrollViewChangedListener = true;
+        }
     }
 
     scrollHandlers = {
@@ -175,26 +184,29 @@ class QBinHome {
             }
 
             if (scrollContainer) {
-                // 移除旧的监听器，防止重复
-                if (this.scrollHandlers[viewType]) {
-                    scrollContainer.removeEventListener('scroll', this.scrollHandlers[viewType]);
-                    this.scrollHandlers[viewType] = null;
+                // 检查容器是否已经有滚动监听器
+                if (!scrollContainer.hasScrollListener) {
+                    // 创建新的处理函数并保存引用
+                    // 使用passive选项提高滚动性能
+                    const scrollHandler = (event) => {
+                        // 使用requestAnimationFrame来防止滚动时过多的处理
+                        if (!this.scrollRAF) {
+                            this.scrollRAF = requestAnimationFrame(() => {
+                                this.handleScroll(event, scrollContainer);
+                                this.scrollRAF = null;
+                            });
+                        }
+                    };
+
+                    // 添加新的监听器，使用passive选项提高滚动性能
+                    scrollContainer.addEventListener('scroll', scrollHandler, { passive: true });
+
+                    // 保存处理函数引用，以便在需要时可以移除
+                    this.scrollHandlers[viewType] = scrollHandler;
+
+                    // 标记容器已添加滚动监听器
+                    scrollContainer.hasScrollListener = true;
                 }
-
-                // 创建新的处理函数并保存引用
-                // 使用passive选项提高滚动性能
-                this.scrollHandlers[viewType] = (event) => {
-                    // 使用requestAnimationFrame来防止滚动时过多的处理
-                    if (!this.scrollRAF) {
-                        this.scrollRAF = requestAnimationFrame(() => {
-                            this.handleScroll(event, scrollContainer);
-                            this.scrollRAF = null;
-                        });
-                    }
-                };
-
-                // 添加新的监听器，使用passive选项提高滚动性能
-                scrollContainer.addEventListener('scroll', this.scrollHandlers[viewType], { passive: true });
 
                 // 初始检查是否需要加载更多数据
                 if (this.hasMoreData && !this.isLoading) {
@@ -341,10 +353,14 @@ class QBinHome {
             gridContainer.hasEventListeners = true;
         }
 
-        // 当视图切换时重新添加事件委托
-        document.addEventListener('viewChanged', () => {
-            this.setupItemEventDelegation();
-        });
+        // 使用一个标记来确保只添加一次事件监听器
+        if (!this._hasItemDelegationViewChangedListener) {
+            // 当视图切换时重新添加事件委托
+            document.addEventListener('viewChanged', () => {
+                this.setupItemEventDelegation();
+            });
+            this._hasItemDelegationViewChangedListener = true;
+        }
     }
 
     initializeSearch() {
@@ -461,23 +477,29 @@ class QBinHome {
         const gridContainer = document.getElementById('grid-items');
 
         // 为列表视图中的按钮添加事件委托
-        if (listContainer) {
+        if (listContainer && !listContainer.hasActionButtonHandlers) {
             listContainer.addEventListener('click', (e) => {
                 this.handleActionButtonClick(e);
             });
+            listContainer.hasActionButtonHandlers = true;
         }
 
         // 为网格视图中的按钮添加事件委托
-        if (gridContainer) {
+        if (gridContainer && !gridContainer.hasActionButtonHandlers) {
             gridContainer.addEventListener('click', (e) => {
                 this.handleActionButtonClick(e);
             });
+            gridContainer.hasActionButtonHandlers = true;
         }
 
-        // 当视图切换时重新添加事件处理
-        document.addEventListener('viewChanged', () => {
-            this.setupActionButtonHandlers();
-        });
+        // 使用一个标记来确保只添加一次事件监听器
+        if (!this._hasActionButtonViewChangedListener) {
+            // 当视图切换时重新添加事件处理
+            document.addEventListener('viewChanged', () => {
+                this.setupActionButtonHandlers();
+            });
+            this._hasActionButtonViewChangedListener = true;
+        }
     }
 
     handleActionButtonClick(e) {
@@ -679,10 +701,8 @@ class QBinHome {
 
     // 标记是否正在切换视图
     isSwitchingView = false;
-
     // 视图切换锁定时间（毫秒）
     viewSwitchLockTime = 200;
-
     // 视图切换计时器
     viewSwitchTimer = null;
 
@@ -724,9 +744,6 @@ class QBinHome {
                 this.showToast(`已切换到${viewNames[viewType]}视图`);
             }
 
-            // 清理旧视图的事件监听器
-            this.cleanupViewEventListeners(oldViewType);
-
             // 如果数据已加载，则重新渲染当前数据
             if (this.dataLoaded.storage && this.storageItems.length > 0) {
                 // 获取当前视图的容器
@@ -740,22 +757,16 @@ class QBinHome {
                     // 清空容器
                     container.innerHTML = '';
 
-                    // 简单直接地渲染视图，不使用复杂的分批渲染
+                    // 使用分批渲染视图，提高性能
                     if (viewType === 'list') {
-                        this.renderSimpleListView(this.storageItems, container);
+                        this.renderListView(this.storageItems, container, true);
                     } else {
-                        this.renderSimpleGridView(this.storageItems, container);
+                        this.renderGridView(this.storageItems, container, true);
                     }
 
                     // 触发视图切换事件
                     this.triggerViewChangedEvent(viewType);
                 }
-            } else if (!this.dataLoaded.storage) {
-                // 如果数据还没有加载，则加载数据
-                this.resetAndLoadData();
-
-                // 触发视图切换事件
-                this.triggerViewChangedEvent(viewType);
             } else {
                 // 触发视图切换事件
                 this.triggerViewChangedEvent(viewType);
@@ -795,130 +806,12 @@ class QBinHome {
         }
     }
 
-    // 清理视图的事件监听器
-    cleanupViewEventListeners(viewType) {
-        if (viewType && this.scrollHandlers[viewType]) {
-            const container = viewType === 'list'
-                ? document.querySelector(`#${viewType}-view .storage-list`)
-                : document.querySelector(`#${viewType}-view .grid-container`);
-
-            if (container) {
-                container.removeEventListener('scroll', this.scrollHandlers[viewType]);
-                this.scrollHandlers[viewType] = null;
-            }
-        }
-    }
-
     // 触发视图切换事件
     triggerViewChangedEvent(viewType) {
         const viewChangedEvent = new CustomEvent('viewChanged', {
             detail: { view: viewType }
         });
         document.dispatchEvent(viewChangedEvent);
-    }
-
-    // 简单的列表视图渲染，不使用分批处理
-    renderSimpleListView(items, container) {
-        if (!items || items.length === 0) {
-            container.innerHTML = '<div class="empty-message">暂无数据</div>';
-            return;
-        }
-
-        // 创建文档片段来提高性能
-        const fragment = document.createDocumentFragment();
-        const btnIcon = isMobile() ? '<span style="font-size: 20px; font-weight: bold;">…</span>': '<span style="font-size: 8px; letter-spacing: 1px;">●●●</span>';
-
-        // 一次性渲染所有项目
-        items.forEach(item => {
-            const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type);
-
-            const listItem = document.createElement('div');
-            listItem.className = 'list-item visible'; // 直接添加visible类
-            listItem.innerHTML = `
-                <span class="file-name">
-                    <span class="file-icon">${fileIcon}</span>
-                    ${fileName}
-                </span>
-                <span class="file-size">${this.formatSize(item.len)}</span>
-                <span class="file-time">${this.formatDate(item.time)}</span>
-                <span class="file-actions">
-                    <button class="action-btn" title="更多操作" data-fkey="${item.fkey}" data-pwd="${item.pwd}">
-                    ${btnIcon}
-                    </button>
-                </span>
-            `;
-
-            fragment.appendChild(listItem);
-        });
-
-        // 一次性添加到DOM
-        container.appendChild(fragment);
-    }
-
-    // 简单的网格视图渲染，不使用分批处理
-    renderSimpleGridView(items, container) {
-        if (!items || items.length === 0) {
-            container.innerHTML = '<div class="empty-message">暂无数据</div>';
-            return;
-        }
-
-        // 创建文档片段来提高性能
-        const fragment = document.createDocumentFragment();
-
-        // 一次性渲染所有项目
-        items.forEach(item => {
-            const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type);
-
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-item visible'; // 直接添加visible类
-            gridItem.innerHTML = `
-                <div class="file-icon">${fileIcon}</div>
-                <div class="file-name">${fileName}</div>
-                <div class="file-meta">${this.formatSize(item.len)}</div>
-            `;
-
-            gridItem.dataset.fkey = fileName;
-            gridItem.dataset.pwd = item.pwd || '';
-
-            fragment.appendChild(gridItem);
-        });
-
-        // 一次性添加到DOM
-        container.appendChild(fragment);
-    }
-
-    // 标记是否正在重置数据
-    isResetting = false;
-
-    async resetAndLoadData() {
-        // 防止重复重置
-        if (this.isResetting) return;
-        this.isResetting = true;
-
-        try {
-            // 重置数据状态并加载第一页
-            this.currentPage = 1;
-            this.storageItems = [];
-            this.hasMoreData = true;
-            this.dataLoaded.storage = false; // 重置数据加载状态
-
-            // 清空容器
-            const listContainer = document.getElementById('list-items');
-            const gridContainer = document.getElementById('grid-items');
-
-            if (listContainer) listContainer.innerHTML = '';
-            if (gridContainer) gridContainer.innerHTML = '';
-
-            // 加载数据
-            await this.loadStorageData(true);
-        } catch (error) {
-            console.error('Error resetting data:', error);
-        } finally {
-            // 重置状态
-            this.isResetting = false;
-        }
     }
 
     // 标记是否正在加载数据
@@ -1048,7 +941,7 @@ class QBinHome {
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
             const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type);
+            const fileIcon = this.getFileTypeIcon(item.type, 20);
 
             // 使用模板字符串创建元素，减少innerHTML操作
             template.innerHTML = `
@@ -1109,6 +1002,12 @@ class QBinHome {
             container.innerHTML = '';
         }
 
+        // 清除之前的分批渲染计时器
+        if (this.batchRenderTimer) {
+            clearTimeout(this.batchRenderTimer);
+            this.batchRenderTimer = null;
+        }
+
         // 使用requestAnimationFrame确保在下一帧渲染
         requestAnimationFrame(() => {
             // 如果项目数量少，直接渲染
@@ -1132,16 +1031,20 @@ class QBinHome {
 
         // 预先创建模板元素，减少DOM操作
         const template = document.createElement('template');
+        const btnIcon = isMobile() ? '<span style="font-size: 20px; font-weight: bold;">…</span>': '<span style="font-size: 8px; letter-spacing: 1px;">●●●</span>';
 
         // 渲染当前批次的项目
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
             const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type);
+            const fileIcon = this.getFileTypeIcon(item.type, 32);
 
             // 使用模板字符串创建元素
             template.innerHTML = `
                 <div class="grid-item">
+                    <button class="action-btn grid-action-btn" title="更多操作" data-fkey="${item.fkey}" data-pwd="${item.pwd || ''}">
+                        ${btnIcon}
+                    </button>
                     <div class="file-icon">${fileIcon}</div>
                     <div class="file-name">${fileName}</div>
                     <div class="file-meta">${this.formatSize(item.len)}</div>
@@ -1179,41 +1082,41 @@ class QBinHome {
         }
     }
 
-    getFileTypeIcon(mimeType) {
+    getFileTypeIcon(mimeType, size=16) {
         if (!mimeType) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`;
         }
 
         // 文本类型
         if (mimeType.startsWith('text/')) {
             if (['/html', '/javascript', '/css',  'text/x-'].some(prefix => mimeType.includes(prefix))) {
-                return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`;
             }
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>`;
         }
 
         // 图片类型
         if (mimeType.startsWith('image/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
         }
 
         // 视频类型
         if (mimeType.startsWith('video/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`;
         }
 
         // 音频类型
         if (mimeType.startsWith('audio/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>`;
         }
 
         // 压缩文件
         if (mimeType.includes('zip') || mimeType.includes('tar') || mimeType.includes('gzip') || mimeType.includes('compressed')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`;
         }
 
         // 默认图标
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>';
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>`;
     }
 
     async deleteStorageItem(fkey, pwd) {
@@ -1263,7 +1166,7 @@ class QBinHome {
                             } else {
                                 // 如果找不到元素（极少情况），则重新渲染整个视图
                                 container.innerHTML = ''; // 完全清空容器
-                                this.renderSimpleListView(this.storageItems, container);
+                                this.renderListView(this.storageItems, container, true);
                             }
                         } else { // grid view
                             const itemToRemove = container.querySelector(`.grid-item[data-fkey="${fkey}"]`);
@@ -1281,7 +1184,7 @@ class QBinHome {
                             } else {
                                 // 如果找不到元素（极少情况），则重新渲染整个视图
                                 container.innerHTML = ''; // 完全清空容器
-                                this.renderSimpleGridView(this.storageItems, container);
+                                this.renderGridView(this.storageItems, container, true);
                             }
                         }
                     }
