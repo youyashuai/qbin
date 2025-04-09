@@ -25,6 +25,8 @@ class QBinHome {
         this._hasItemDelegationViewChangedListener = false;
         this._hasActionButtonViewChangedListener = false;
 
+        // 从本地存储中恢复视图偏好
+        this.loadViewPreference();
         this.initializeNavigation();
         this.initializeSettings();
         this.initializeTokenFeature();
@@ -33,9 +35,6 @@ class QBinHome {
         this.initializeInfiniteScroll();
         this.initializeContextMenu();
         this.initializeSearch();
-
-        // 从本地存储中恢复视图偏好
-        this.loadViewPreference();
     }
 
     initializeNavigation() {
@@ -577,7 +576,6 @@ class QBinHome {
 
     // 实际处理滚动的内部方法
     _handleScrollImpl(scrollContainer) {
-        // 如果没有传入滚动容器，则根据当前视图获取
         if (!scrollContainer) {
             if (this.currentView === 'list') {
                 scrollContainer = document.querySelector(`#${this.currentView}-view .storage-list`);
@@ -585,13 +583,13 @@ class QBinHome {
                 scrollContainer = document.querySelector(`#${this.currentView}-view .grid-container`);
             }
         }
-
         if (!scrollContainer) return;
-
-        // 检查是否滚动到底部
+        const { scrollTop, clientHeight, scrollHeight } = scrollContainer;
+        if (scrollHeight < 100) {
+            return;
+        }
         // 滚动位置 + 可见高度 >= 总高度 - 50px（留出一点空间提前加载）
-        const isNearBottom = scrollContainer.scrollTop + scrollContainer.clientHeight >= scrollContainer.scrollHeight - 50;
-
+        const isNearBottom = scrollTop + clientHeight > scrollHeight - 50;
         if (isNearBottom) {
             this.loadMoreData();
         }
@@ -841,29 +839,23 @@ class QBinHome {
             const response = await fetch(`/api/user/storage?page=${this.currentPage}&pageSize=${this.pageSize}`, {
                 credentials: 'include' // 确保发送cookie
             });
-
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
             const result = await response.json();
             if (result.status !== 200 || !result.data) {
                 throw new Error(result.message || '加载数据失败');
             }
-
             const { items, pagination } = result.data;
-
             // 将数据添加到存储数组
             if (isReset) {
                 this.storageItems = [...items];
             } else {
                 this.storageItems = [...this.storageItems, ...items];
             }
-
             // 更新分页信息
             this.totalPages = pagination.totalPages;
             this.hasMoreData = this.currentPage < this.totalPages;
-
             // 根据当前视图类型渲染数据
             switch (this.currentView) {
                 case 'list':
