@@ -324,7 +324,7 @@ html, body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 增加每个网格项的最小宽度 */
     gap: 20px; /* 增加网格间距 */
-    padding: 0; /* 移除内边距，因为已经由content-container提供 */
+    padding: 2px; /* 添加内边距，使内容不贴边 */
     flex: 1;
     overflow-y: auto; /* 只允许垂直滚动 */
     overflow-x: hidden; /* 禁止水平滚动 */
@@ -375,6 +375,7 @@ html, body {
     margin-bottom: 16px; /* 增加底部间距 */
     color: var(--primary-color);
     text-align: center;
+    margin-top: auto; /* 自动上边距，帮助垂直居中 */
 }
 
 .grid-item .file-name {
@@ -389,6 +390,7 @@ html, body {
     font-size: 14px; /* 调整字体大小 */
     text-align: center; /* 居中对齐 */
     width: 100%; /* 占满宽度 */
+    padding: 0 4px; /* 添加水平内边距 */
 }
 
 .grid-item .file-meta {
@@ -407,7 +409,6 @@ html, body {
     margin-top: auto;
     display: flex;
     gap: 6px; /* 减小按钮间距 */
-    margin-top: 6px; /* 减小与上方内容的间距 */
 }
 
 /* 网格视图中的操作按钮容器定位 */
@@ -764,6 +765,7 @@ html, body {
 .dark-theme .grid-item .grid-action-btn {
     color: #e0e0e0;
 }
+
 .dark-theme .list-item .action-btn {
     color: #e0e0e0;
 }
@@ -1515,29 +1517,40 @@ select.loading {
     .grid-container {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* 移动端上调整网格项宽度 */
         gap: 12px; /* 调整间距 */
-        padding: 0; /* 移除内边距，因为已经由content-container提供 */
+        padding: 12px; /* 移动端上减小内边距 */
     }
 
     .grid-item {
         height: 140px; /* 移动端上减小高度 */
         padding: 12px; /* 移动端上减小内边距 */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; /* 内容从顶部开始排列 */
+        border-radius: 12px; /* 增大圆角，更现代 */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* 增强阴影效果 */
     }
 
     .grid-item .file-icon {
         font-size: 24px; /* 减小图标大小 */
-        margin-bottom: 6px;
+        margin-bottom: auto; /* 自动计算底部边距，将图标推到顶部 */
+        margin-top: 24px; /* 增加上边距，使图标下移，避免与操作按钮平行 */
     }
 
     .grid-item .file-name {
         font-size: 12px;
         margin-bottom: 4px;
         -webkit-line-clamp: 1; /* 只显示一行 */
+        margin-top: auto; /* 自动计算上边距，将文件名推到底部 */
+        text-align: center; /* 居中对齐 */
     }
 
     .grid-item .file-meta {
         font-size: 10px;
         margin-bottom: 2px;
         padding: 3px 6px; /* 减小内边距 */
+        background-color: rgba(0, 0, 0, 0.04); /* 增强背景色 */
+        border-radius: 4px; /* 添加圆角 */
+        text-align: center; /* 居中对齐 */
     }
 
     /* 移动端上的网格操作按钮 */
