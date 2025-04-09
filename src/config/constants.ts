@@ -21,7 +21,7 @@ export const basePath = Deno.cwd();
 
 // 分布式缓存唯一标识
 // export const instanceId = `${get_env("DENO_DEPLOYMENT_ID")}-${get_env("DENO_REGION")}-${crypto.randomUUID()}`;
-export const EMAIL = parseInt(get_env("ADMIN_EMAIL")) || "ww1998mail@gmail.com";
+export const EMAIL = get_env("ADMIN_EMAIL") || "admin@qbin.github";
 export const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin";
 export const ISDEMO = get_env("ISDEMO") || false;
 // 匹配可用字符

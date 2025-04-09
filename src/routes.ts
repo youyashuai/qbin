@@ -8,7 +8,7 @@ import {
   mimeTypeRegex,
   MAX_UPLOAD_FILE_SIZE,
   PASTE_STORE,
-  EMAIL
+  EMAIL, ISDEMO
 } from "./config/constants.ts";
 import { AppState, Metadata } from "./types.ts";
 import { PasteError, Response } from "./utils/response.ts";
@@ -532,15 +532,6 @@ router
     ctx.response.headers.set("Content-Type", "application/json");
     return new Response(ctx, 200, "success")
   })
-  .get("/api/data/sync", async (ctx) => {
-    // 验证是否管理员
-    const email = await ctx.state.session?.get("user")?.email;
-    if (!(email !== undefined && EMAIL === email)) {
-      return new Response(ctx, 403, "您没有执行权限");
-    }
-    const pdb = MetadataDB.getInstance();
-    return await syncPostgresToKV(ctx, pdb);
-  })    // kv与pg同步
   .get("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
   .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
@@ -611,6 +602,53 @@ router
       return new Response(ctx, 500, "获取数据失败");
     }
   })
+  .get("/api/admin/storage", async (ctx) => {
+    const user = ctx.state.session?.get("user");
+    if(ISDEMO){
+      return new Response(ctx, 403, "演示站点功能不可用");
+    }
+    if (user.email !== EMAIL) {
+      return new Response(ctx, 403, "您没有管理员权限");
+    }
+
+    const url = new URL(ctx.request.url);
+    const page = parseInt(url.searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(url.searchParams.get("pageSize") || "10", 10);
+
+    if (isNaN(page) || page < 1) return new Response(ctx, 400, "无效的页码");
+    if (isNaN(pageSize) || pageSize < 1 || pageSize > 100) return new Response(ctx, 400, "无效的每页数量");
+
+    const offset = (page - 1) * pageSize;
+    try {
+      const pdb = MetadataDB.getInstance();
+      const { items, total } = await pdb.listAll(pageSize, offset);
+
+      const totalPages = Math.ceil(total / pageSize);
+      return new Response(ctx, 200, "success", {
+        items,
+        pagination: {
+          total,
+          page,
+          pageSize,
+          totalPages
+        }
+      });
+    } catch (error) {
+      console.error("获取管理员存储数据时出错:", error);
+      return new Response(ctx, 500, "获取数据失败");
+    }
+  })
+  .get("/api/admin/sync", async (ctx) => {
+    const email = await ctx.state.session?.get("user")?.email;
+    if(ISDEMO){
+      return new Response(ctx, 403, "演示站点功能不可用");
+    }
+    if (!(email !== undefined && EMAIL === email)) {
+      return new Response(ctx, 403, "您没有管理员权限");
+    }
+    const pdb = MetadataDB.getInstance();
+    return await syncPostgresToKV(ctx, pdb);
+  })    // kv与pg同步
   // .post("/api/user/shares", async (ctx) => {
   //   return new Response(ctx, 200, "success", [{ }]);
   // })

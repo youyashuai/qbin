@@ -303,8 +303,7 @@ export class MetadataDB {
         ORDER BY time DESC
         LIMIT $2 OFFSET $3
       `;
-
-     const result = await client.queryObject<
+      const result = await client.queryObject<
         Pick<Metadata, "fkey" | "time" | "expire" | "type" | "len" | "pwd">
       >(query, [email, limit, offset]);
 
@@ -315,6 +314,46 @@ export class MetadataDB {
         type,
         len,
         pwd: pwd ?? undefined,
+      }));
+      return { items, total };
+    });
+  }
+
+  // 管理员分页查询数据
+  async listAll(limit: number = 10, offset: number = 0): Promise<{ items: Metadata[], total: number }> {
+    return await this.withClient(async (client) => {
+      const currentTime = getTimestamp();
+      const countResult = await client.queryObject<{ count: number }>`
+        SELECT COUNT(*) as count
+        FROM qbindb
+        WHERE expire > ${currentTime}
+      `;
+      const total = parseInt(countResult.rows[0].count, 10);
+      if (offset >= total) {
+        return { items: [], total };
+      }
+
+      const query = `
+        SELECT fkey, time, expire, type, len, pwd, email, uname, ip
+        FROM qbindb
+        WHERE expire > ${currentTime}
+        ORDER BY time DESC
+        LIMIT $1 OFFSET $2
+      `;
+      const result = await client.queryObject<
+        Pick<Metadata, "fkey" | "time" | "expire" | "type" | "len" | "pwd" | "email" | "uname" | "ip">
+      >(query, [limit, offset]);
+
+      const items = result.rows.map(({ fkey, time, expire, type, len, pwd, email, uname, ip }) => ({
+        fkey,
+        time: Number(time),
+        expire: Number(expire),
+        type,
+        len,
+        pwd: pwd ?? undefined,
+        email,
+        uname,
+        ip
       }));
       return { items, total };
     });
