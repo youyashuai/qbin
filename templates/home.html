@@ -141,13 +141,11 @@
                                 </div>
                                 <div id="list-items" class="storage-items"></div>
                             </div>
-                            <!-- 使用Toast显示加载状态，移除内嵌加载器 -->
                         </div>
 
                         <!-- 网格视图 -->
                         <div id="grid-view" class="storage-view">
                             <div class="grid-container" id="grid-items"></div>
-                            <!-- 使用Toast显示加载状态，移除内嵌加载器 -->
                         </div>
                     </div>
                 </div>
@@ -169,7 +167,11 @@
                                 <span>修改时间</span>
                                 <span></span>
                             </div>
-                            <div id="share-items"></div>
+                            <div id="share-items">
+                            </div>
+                            <div class="error-message">
+                                <p>未来计划预留界面，敬请期待</p>
+                            </div>
                         </div>
                         </div>
                     </div>
@@ -244,7 +246,6 @@
                             <button id="generate-token-btn" class="action-btn">生成Token</button>
                         </div>
                         <p class="hint-text">Token仅在生成后显示一次，请妥善保存。用于API访问与第三方应用授权。</p>
-                        <div id="token-message" class="message hidden"></div>
                         </div>
                     </div>
                 </div>

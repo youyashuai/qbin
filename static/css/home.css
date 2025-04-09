@@ -1064,28 +1064,6 @@ input[type="checkbox"] {
     line-height: 1.4;
 }
 
-.message {
-    margin-top: 12px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    animation: fadeIn 0.3s ease;
-}
-
-.message.hidden {
-    display: none;
-}
-
-.message.error {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: #f44336;
-}
-
-.message.success {
-    background-color: rgba(76, 175, 80, 0.1);
-    color: #4caf50;
-}
-
 /* Token specific styles */
 .token-field {
     display: flex;

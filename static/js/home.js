@@ -34,27 +34,78 @@ class QBinHome {
     }
 
     initializeNavigation() {
+        const validSections = ['settings', 'shares', 'storage', 'editors'];
+        const hash = window.location.hash.substring(1);
+        let defaultSection = 'editors';
+        if (hash && validSections.includes(hash)) {
+            defaultSection = hash;
+            if (hash === 'storage' && !this.dataLoaded.storage) {
+                this.loadStorageData();
+            } else if (hash === 'shares' && !this.dataLoaded.shares) {
+                // this.loadShareData();
+            }
+        }
+        this.showSection(defaultSection);
+
+        // 更新导航链接的活动状态
         const links = document.querySelectorAll('.sidebar nav a');
         links.forEach(link => {
+            const linkTargetId = link.getAttribute('href').substring(1);
+            if (linkTargetId === defaultSection) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+
+            // 添加点击事件监听器
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.getAttribute('href').substring(1);
-
-                // Don't process logout button click here
                 if (targetId === '') return;
 
-                // Load data only when the respective section is clicked
+                // 更新URL hash，不触发页面刷新
+                window.history.pushState(null, '', `#${targetId}`);
+
+                // 加载数据（如果需要）
                 if (targetId === 'storage' && !this.dataLoaded.storage) {
                     this.loadStorageData();
                 } else if (targetId === 'shares' && !this.dataLoaded.shares) {
-                    this.loadShareData();
+                    // this.loadShareData();
                 }
 
+                // 显示选定的部分
                 this.showSection(targetId);
 
+                // 更新导航链接的活动状态
                 links.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
             });
+        });
+
+        // 监听hash变化事件，处理浏览器前进/后退按钮
+        window.addEventListener('hashchange', () => {
+            const newHash = window.location.hash.substring(1);
+            if (newHash && validSections.includes(newHash)) {
+                // 显示对应部分
+                this.showSection(newHash);
+
+                // 更新导航链接的活动状态
+                links.forEach(link => {
+                    const linkTargetId = link.getAttribute('href').substring(1);
+                    if (linkTargetId === newHash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+
+                // 加载数据（如果需要）
+                if (newHash === 'storage' && !this.dataLoaded.storage) {
+                    this.loadStorageData();
+                } else if (newHash === 'shares' && !this.dataLoaded.shares) {
+                    // this.loadShareData();
+                }
+            }
         });
     }
 
@@ -95,7 +146,6 @@ class QBinHome {
     }
 
     initializeInfiniteScroll() {
-        // 移除全局滚动事件委托，改为直接在容器上添加监听器
         // 为列表视图和网格视图分别添加滚动监听器
         this.addScrollListenerToView('list');
         this.addScrollListenerToView('grid');
@@ -106,7 +156,6 @@ class QBinHome {
         });
     }
 
-    // 存储滚动事件处理函数的引用，以便正确移除
     scrollHandlers = {
         list: null,
         grid: null
@@ -337,7 +386,7 @@ class QBinHome {
 
         // 过滤匹配的文件
         const filteredItems = this.storageItems.filter(item => {
-            const fileName = this.getFileName(item).toLowerCase();
+            const fileName = item.fkey.toLowerCase();
             return fileName.includes(searchTerm);
         });
 
@@ -353,12 +402,6 @@ class QBinHome {
         // 显示右键菜单
         const contextMenu = document.getElementById('context-menu');
         if (!contextMenu) return;
-
-        // 首先隐藏任何已经显示的菜单
-        this.hideContextMenu();
-
-        // 防止光标出现
-        document.activeElement.blur();
 
         // 存储选中项
         this.selectedItem = item;
@@ -402,22 +445,6 @@ class QBinHome {
             // 显示菜单
             contextMenu.style.visibility = 'visible';
         }, 0);
-
-        // 防止鼠标移动导致选中状态丢失
-        const menuItems = contextMenu.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('mouseover', function(e) {
-                // 移除所有项的高亮
-                menuItems.forEach(i => i.classList.remove('hover'));
-                // 高亮当前项
-                this.classList.add('hover');
-            });
-        });
-
-        // 阻止事件冒泡，防止点击菜单外关闭菜单
-        contextMenu.addEventListener('click', (e) => {
-            e.stopPropagation();
-        }, { once: true });
     }
 
     hideContextMenu() {
@@ -599,7 +626,7 @@ class QBinHome {
             // 更新分页信息
             this.totalPages = pagination.totalPages;
             this.currentPage = nextPage;
-            
+
             // 根据总页数判断是否还有更多数据
             this.hasMoreData = this.currentPage < this.totalPages;
 
@@ -803,7 +830,7 @@ class QBinHome {
 
         // 一次性渲染所有项目
         items.forEach(item => {
-            const fileName = this.getFileName(item);
+            const fileName = item.fkey;
             const fileIcon = this.getFileTypeIcon(item.type);
 
             const listItem = document.createElement('div');
@@ -841,8 +868,8 @@ class QBinHome {
 
         // 一次性渲染所有项目
         items.forEach(item => {
-            const fileName = this.getFileName(item);
-            const fileIcon = this.getFileIcon(item.type);
+            const fileName = item.fkey;
+            const fileIcon = this.getFileTypeIcon(item.type);
 
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item visible'; // 直接添加visible类
@@ -852,7 +879,7 @@ class QBinHome {
                 <div class="file-meta">${this.formatSize(item.len)}</div>
             `;
 
-            gridItem.dataset.fkey = item.fkey;
+            gridItem.dataset.fkey = fileName;
             gridItem.dataset.pwd = item.pwd || '';
 
             fragment.appendChild(gridItem);
@@ -906,7 +933,6 @@ class QBinHome {
         const containerMap = {
             list: 'list-items',
             grid: 'grid-items',
-            table: 'table-items'
         };
 
         const container = document.getElementById(containerMap[this.currentView]);
@@ -953,9 +979,6 @@ class QBinHome {
                 case 'grid':
                     this.renderGridView(items, container, isReset);
                     break;
-                case 'table':
-                    this.renderTableView(items, container, isReset);
-                    break;
             }
 
             this.dataLoaded.storage = true;
@@ -976,37 +999,6 @@ class QBinHome {
         } finally {
             // 重置加载状态
             this.isLoadingData = false;
-        }
-    }
-
-    async loadShareData() {
-        const container = document.getElementById('share-items');
-        try {
-            throw new Error('未来计划预留界面，敬请期待');
-            const response = await fetch('/api/user/shares', {
-                credentials: 'include' // Ensure cookies are sent with the request
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            this.renderShareItems(data);
-            this.dataLoaded.shares = true;
-        } catch (error) {
-            container.innerHTML = `
-                <div class="error-message">
-                    <p>未来计划预留界面，敬请期待</p>
-                </div>
-            `;
-            // console.error('Failed to load share data:', error);
-            // container.innerHTML = `
-            //     <div class="error-message">
-            //         <p>加载数据失败: ${error.message}</p>
-            //         <button onclick="document.querySelector('a[href=\'#shares\']').click()">重试</button>
-            //     </div>
-            // `;
         }
     }
 
@@ -1055,7 +1047,7 @@ class QBinHome {
         // 渲染当前批次的项目
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
-            const fileName = this.getFileName(item);
+            const fileName = item.fkey;
             const fileIcon = this.getFileTypeIcon(item.type);
 
             // 使用模板字符串创建元素，减少innerHTML操作
@@ -1080,7 +1072,7 @@ class QBinHome {
 
             // 使用事件委托减少事件监听器数量
             // 添加数据属性以便于委托处理
-            listItem.dataset.fkey = item.fkey;
+            listItem.dataset.fkey = fileName;
             listItem.dataset.pwd = item.pwd || '';
 
             // 添加到文档片段
@@ -1089,72 +1081,6 @@ class QBinHome {
 
         // 添加到容器
         container.appendChild(fragment);
-
-        // 使用事件委托添加交互事件
-        if (!container.hasListEventListeners) {
-            // 双击查看数据
-            container.addEventListener('dblclick', (e) => {
-                const listItem = e.target.closest('.list-item');
-                if (listItem) {
-                    const fkey = listItem.dataset.fkey;
-                    const pwd = listItem.dataset.pwd;
-                    if (fkey) {
-                        window.open(`/p/${fkey}/${pwd}`, '_blank', 'noopener');
-                    }
-                }
-            });
-
-            // 右键菜单
-            container.addEventListener('contextmenu', (e) => {
-                const listItem = e.target.closest('.list-item');
-                if (listItem) {
-                    e.preventDefault();
-                    const fkey = listItem.dataset.fkey;
-                    if (fkey) {
-                        const item = this.storageItems.find(item => String(item.fkey) === fkey);
-                        if (item) {
-                            this.showContextMenu(e.clientX, e.clientY, item);
-                        }
-                    }
-                }
-            });
-
-            // 长按事件（移动端）
-            let longPressTimer;
-            let touchedItem = null;
-
-            container.addEventListener('touchstart', (e) => {
-                const listItem = e.target.closest('.list-item');
-                if (listItem) {
-                    touchedItem = listItem;
-                    longPressTimer = setTimeout(() => {
-                        const fkey = listItem.dataset.fkey;
-                        if (fkey) {
-                            const item = this.storageItems.find(item => String(item.fkey) === fkey);
-                            if (item) {
-                                const touch = e.touches[0];
-                                this.showContextMenu(touch.clientX, touch.clientY, item);
-                            }
-                        }
-                    }, 500);
-                }
-            });
-
-            container.addEventListener('touchend', () => {
-                clearTimeout(longPressTimer);
-                touchedItem = null;
-            });
-
-            container.addEventListener('touchmove', () => {
-                if (longPressTimer) {
-                    clearTimeout(longPressTimer);
-                    touchedItem = null;
-                }
-            });
-
-            // 标记容器已添加事件监听器
-            container.hasListEventListeners = true;
-        }
 
         // 立即显示所有项目
         const newItems = container.querySelectorAll('.list-item:not(.visible)');
@@ -1210,8 +1136,8 @@ class QBinHome {
         // 渲染当前批次的项目
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
-            const fileName = this.getFileName(item);
-            const fileIcon = this.getFileIcon(item.type);
+            const fileName = item.fkey;
+            const fileIcon = this.getFileTypeIcon(item.type);
 
             // 使用模板字符串创建元素
             template.innerHTML = `
@@ -1227,7 +1153,7 @@ class QBinHome {
 
             // 使用事件委托减少事件监听器数量
             // 添加数据属性以便于委托处理
-            gridItem.dataset.fkey = item.fkey;
+            gridItem.dataset.fkey = fileName;
             gridItem.dataset.pwd = item.pwd || '';
 
             // 添加到文档片段
@@ -1236,72 +1162,6 @@ class QBinHome {
 
         // 添加到容器
         container.appendChild(fragment);
-
-        // 使用事件委托添加交互事件
-        if (!container.hasGridEventListeners) {
-            // 双击打开文件
-            container.addEventListener('dblclick', (e) => {
-                const gridItem = e.target.closest('.grid-item');
-                if (gridItem) {
-                    const fkey = gridItem.dataset.fkey;
-                    const pwd = gridItem.dataset.pwd;
-                    if (fkey) {
-                        window.open(`/p/${fkey}/${pwd}`, '_blank', 'noopener');
-                    }
-                }
-            });
-
-            // 右键菜单
-            container.addEventListener('contextmenu', (e) => {
-                const gridItem = e.target.closest('.grid-item');
-                if (gridItem) {
-                    e.preventDefault();
-                    const fkey = gridItem.dataset.fkey;
-                    if (fkey) {
-                        const item = this.storageItems.find(item => String(item.fkey) === fkey);
-                        if (item) {
-                            this.showContextMenu(e.clientX, e.clientY, item);
-                        }
-                    }
-                }
-            });
-
-            // 长按事件（移动端）
-            let longPressTimer;
-            let touchedItem = null;
-
-            container.addEventListener('touchstart', (e) => {
-                const gridItem = e.target.closest('.grid-item');
-                if (gridItem) {
-                    touchedItem = gridItem;
-                    longPressTimer = setTimeout(() => {
-                        const fkey = gridItem.dataset.fkey;
-                        if (fkey) {
-                            const item = this.storageItems.find(item => String(item.fkey) === fkey);
-                            if (item) {
-                                const touch = e.touches[0];
-                                this.showContextMenu(touch.clientX, touch.clientY, item);
-                            }
-                        }
-                    }, 500);
-                }
-            });
-
-            container.addEventListener('touchend', () => {
-                clearTimeout(longPressTimer);
-                touchedItem = null;
-            });
-
-            container.addEventListener('touchmove', () => {
-                if (longPressTimer) {
-                    clearTimeout(longPressTimer);
-                    touchedItem = null;
-                }
-            });
-
-            // 标记容器已添加事件监听器
-            container.hasGridEventListeners = true;
-        }
 
         // 立即显示所有项目
         const newItems = container.querySelectorAll('.grid-item:not(.visible)');
@@ -1319,128 +1179,14 @@ class QBinHome {
         }
     }
 
-    renderTableView(items, container) {
-        if (!items || items.length === 0) {
-            container.innerHTML = '<tr><td colspan="6" class="empty-message">暂无数据</td></tr>';
-            return;
-        }
-
-        container.innerHTML = items.map(item => {
-            const fileName = this.getFileName(item);
-            const fileType = this.getFileType(item.type);
-            return `
-                <tr>
-                    <td>${fileName}</td>
-                    <td>${fileType}</td>
-                    <td>${this.formatSize(item.len)}</td>
-                    <td>${this.formatDate(item.time)}</td>
-                    <td>${this.formatDate(item.expire)}</td>
-                    <td class="file-actions">
-                        <button onclick="window.open('/p/1', '_blank', 'noopener')">查看</button>
-                        <button onclick="qbinHome.deleteStorageItem(item.fkey, item.pwd)">删除</button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    getFileName(item) {
-        // 从文件类型和路径生成文件名
-        const defaultName = item.fkey || 'Untitled';
-
-        // 如果是文本类型，可以尝试从内容中提取标题
-        if (item.type && item.type.startsWith('text/')) {
-            return defaultName;
-        }
-
-        return defaultName;
-    }
-
-    getFileType(mimeType) {
-        // 根据MIME类型返回可读的文件类型
-        if (!mimeType) return '未知类型';
-
-        const mimeMap = {
-            'text/plain': '文本文件',
-            'text/html': 'HTML文件',
-            'text/css': 'CSS文件',
-            'text/javascript': 'JavaScript文件',
-            'application/json': 'JSON文件',
-            'application/xml': 'XML文件',
-            'application/pdf': 'PDF文件',
-            'image/jpeg': '图片',
-            'image/png': '图片',
-            'image/gif': '图片',
-            'image/svg+xml': 'SVG图片',
-            'video/mp4': '视频',
-            'audio/mpeg': '音频',
-            'application/zip': '压缩文件',
-            'application/x-tar': '压缩文件',
-            'application/x-gzip': '压缩文件'
-        };
-
-        // 先尝试精确匹配
-        if (mimeMap[mimeType]) {
-            return mimeMap[mimeType];
-        }
-
-        // 再尝试模糊匹配
-        for (const [key, value] of Object.entries(mimeMap)) {
-            if (mimeType.startsWith(key.split('/')[0] + '/')) {
-                return value;
-            }
-        }
-
-        return mimeType;
-    }
-
-    getFileIcon(mimeType) {
-        // 根据MIME类型返回适当的图标
-        if (!mimeType) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>';
-        }
-
-        // 文本类型
-        if (mimeType.startsWith('text/')) {
-            if (mimeType === 'text/html') {
-                return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
-            }
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>';
-        }
-
-        // 图片类型
-        if (mimeType.startsWith('image/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>';
-        }
-
-        // 视频类型
-        if (mimeType.startsWith('video/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>';
-        }
-
-        // 音频类型
-        if (mimeType.startsWith('audio/')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>';
-        }
-
-        // 压缩文件
-        if (mimeType.includes('zip') || mimeType.includes('tar') || mimeType.includes('gzip') || mimeType.includes('compressed')) {
-            return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>';
-        }
-
-        // 默认图标
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>';
-    }
-
     getFileTypeIcon(mimeType) {
-        // 返回小图标用于列表视图
         if (!mimeType) {
             return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>';
         }
 
         // 文本类型
         if (mimeType.startsWith('text/')) {
-            if (mimeType === 'text/html') {
+            if (['/html', '/javascript', '/css',  'text/x-'].some(prefix => mimeType.includes(prefix))) {
                 return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>';
             }
             return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>';
@@ -1480,26 +1226,24 @@ class QBinHome {
                 method: 'DELETE',
                 credentials: 'include'
             });
-
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-
             const result = await response.json();
-
             if (result.status === 200) {
+                storage.removeCache("qbin/" + fkey);
                 // 从本地数据中移除被删除的项
                 const itemIndex = this.storageItems.findIndex(item => String(item.fkey) === String(fkey));
                 if (itemIndex !== -1) {
                     // 从数组中移除该项
                     this.storageItems.splice(itemIndex, 1);
-                    
+
                     // 获取当前视图的容器
                     const containerMap = {
                         list: 'list-items',
                         grid: 'grid-items'
                     };
-                    
+
                     const container = document.getElementById(containerMap[this.currentView]);
                     if (container) {
                         // 优化方案1: 快速直接地删除对应的DOM元素，避免整个视图重渲染
@@ -1542,7 +1286,7 @@ class QBinHome {
                         }
                     }
                 }
-                
+
                 this.showToast('删除成功');
             } else {
                 throw new Error(result.message || '删除失败');
@@ -1551,22 +1295,6 @@ class QBinHome {
             console.error('Failed to delete item:', error);
             this.showToast(`删除失败: ${error.message}`, 'error');
         }
-    }
-
-    renderShareItems(items) {
-        const container = document.getElementById('share-items');
-        container.innerHTML = items.map(item => `
-            <div class="list-item">
-                <span>${item.fkey}</span>
-                <span>${item.ftype}</span>
-                <span>${this.formatDate(item.time)}</span>
-                <span>${item.views || 0}</span>
-                <span>
-                    <button onclick="copyToClipboard('${item.fkey}')">复制链接</button>
-                    <button onclick="deleteShare('${item.fkey}')">删除</button>
-                </span>
-            </div>
-        `).join('');
     }
 
     initializeSettings() {
@@ -1590,32 +1318,19 @@ class QBinHome {
             radio.addEventListener('change', async (e) => {
                 if (e.target.checked) {
                     const selectedEditor = e.target.value;
+                    // 添加点击反馈动画
+                    const label = e.target.nextElementSibling;
+                    label.classList.add('radio-clicked');
+                    setTimeout(() => {
+                        label.classList.remove('radio-clicked');
+                    }, 300);
 
-                    try {
-                        // 添加点击反馈动画
-                        const label = e.target.nextElementSibling;
-                        label.classList.add('radio-clicked');
-                        setTimeout(() => {
-                            label.classList.remove('radio-clicked');
-                        }, 300);
-
-                        document.cookie = `qbin-editor=${selectedEditor}; path=/; max-age=31536000; SameSite=Lax`;
-                        storage.setCache('qbin-editor', selectedEditor, -1).catch(error => {});
-                        // 更新视觉反馈
-                        this.updateEditorRadioVisualFeedback(selectedEditor);
-                        // 显示成功提示
-                        this.showToast(`${selectedEditor === 'e' ? '通用编辑器' : selectedEditor === 'm' ? 'Markdown编辑器' : '代码编辑器'}已设置`);
-                    } catch (error) {
-                        console.error('设置默认编辑器失败:', error);
-
-                        // 发生错误时恢复原来的选择
-                        const originalEditor = getCookie('qbin-editor') || 'e';
-                        document.querySelector(`input[name="qbin-editor"][value="${originalEditor}"]`).checked = true;
-                        this.updateEditorRadioVisualFeedback(originalEditor);
-
-                        // 显示错误提示
-                        this.showToast('设置默认编辑器失败，请重试', 'error');
-                    }
+                    document.cookie = `qbin-editor=${selectedEditor}; path=/; max-age=31536000; SameSite=Lax`;
+                    storage.setCache('qbin-editor', selectedEditor, -1).catch(error => {});
+                    // 更新视觉反馈
+                    this.updateEditorRadioVisualFeedback(selectedEditor);
+                    // 显示成功提示
+                    this.showToast(`${selectedEditor === 'e' ? '通用编辑器' : selectedEditor === 'm' ? 'Markdown编辑器' : '代码编辑器'}已设置`);
                 }
             });
         });
@@ -1645,25 +1360,17 @@ class QBinHome {
 
     // 应用主题方法
     applyTheme(themeValue) {
-        // 添加过渡效果类
         document.documentElement.classList.add('theme-transition');
-
-        // 移除所有主题类
         document.documentElement.classList.remove('light-theme', 'dark-theme');
-
         if (themeValue === 'system') {
-            // 系统主题检测
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (prefersDark) {
                 document.documentElement.classList.add('dark-theme');
             } else {
                 document.documentElement.classList.add('light-theme');
             }
-
-            // 监听系统主题变化
             this.setupSystemThemeListener();
         } else {
-            // 直接应用指定主题
             document.documentElement.classList.add(themeValue === 'dark' ? 'dark-theme' : 'light-theme');
         }
 
@@ -1753,38 +1460,31 @@ class QBinHome {
         // Generate token button
         if (generateBtn) {
             generateBtn.addEventListener('click', async () => {
-                // Reset any previous messages
-                this.setTokenMessage('', 'hidden');
-
                 try {
-                    // Update UI to loading state
                     generateBtn.disabled = true;
                     generateBtn.classList.add('loading');
                     generateBtn.textContent = '生成中...';
 
-                    // Make API request
                     const response = await fetch('/api/user/token', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         credentials: 'include'
                     });
-
                     if (!response.ok) {
                         throw new Error(await this.getErrorMessage(response));
                     }
 
                     const data = await response.json();
-
                     if ("token" in data.data) {
                         tokenInput.value = data.data.token;
                         copyBtn.disabled = false;
-                        this.setTokenMessage('Token已生成，请妥善保存', 'success');
+                        this.showToast('Token已生成，请妥善保存', 'success');
                     } else {
                         throw new Error('服务器返回的数据中没有Token');
                     }
                 } catch (error) {
                     console.error('Token generation failed:', error);
-                    this.setTokenMessage(error.message, 'error');
+                    this.showToast(error.message, 'error');
                 } finally {
                     // Restore button state
                     generateBtn.disabled = false;
@@ -1806,7 +1506,7 @@ class QBinHome {
                 window.getSelection().removeAllRanges();
 
                 // Show feedback
-                this.setTokenMessage('Token已复制到剪贴板', 'success');
+                this.showToast('Token已复制到剪贴板', 'success');
 
                 // Visual feedback on the button
                 copyBtn.classList.add('active');
@@ -1821,20 +1521,6 @@ class QBinHome {
             return data.message || `请求失败 (${response.status})`;
         } catch (e) {
             return `请求失败 (${response.status})`;
-        }
-    }
-
-    setTokenMessage(message, type) {
-        const messageEl = document.getElementById('token-message');
-        if (!messageEl) return;
-
-        messageEl.textContent = message;
-        messageEl.className = 'message'; // Reset classes
-
-        if (type === 'hidden') {
-            messageEl.classList.add('hidden');
-        } else {
-            messageEl.classList.add(type);
         }
     }
 
@@ -1953,7 +1639,6 @@ class QBinHome {
         return toast;
     }
 
-    // 通用的复制到剪贴板方法，兼容移动端和桌面端
     copyToClipboard(text) {
         // 尝试使用现代Clipboard API
         if (navigator.clipboard && window.isSecureContext) {
@@ -1975,7 +1660,7 @@ class QBinHome {
         try {
             // 创建一个临时的文本区域元素
             const textArea = document.createElement('textarea');
-            
+
             // 设置文本区域的样式，使其不可见
             textArea.style.position = 'fixed';
             textArea.style.top = '0';
@@ -1988,23 +1673,23 @@ class QBinHome {
             textArea.style.boxShadow = 'none';
             textArea.style.background = 'transparent';
             textArea.style.opacity = '0';
-            
+
             // 设置文本内容
             textArea.value = text;
-            
+
             // 将文本区域添加到DOM
             document.body.appendChild(textArea);
-            
+
             // 选择文本
             textArea.select();
             textArea.setSelectionRange(0, 99999); // 适用于移动设备
-            
+
             // 尝试执行复制命令
             const successful = document.execCommand('copy');
-            
+
             // 移除临时文本区域
             document.body.removeChild(textArea);
-            
+
             // 根据复制操作的结果显示提示
             if (successful) {
                 this.showToast('链接已复制到剪贴板');
@@ -2035,14 +1720,14 @@ class QBinHome {
                 <button class="close-btn">关闭</button>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // 链接输入框获得焦点并全选
         const linkInput = document.getElementById('manual-copy-link');
         linkInput.focus();
         linkInput.select();
-        
+
         // 添加复制按钮事件
         const copyBtn = document.getElementById('manual-copy-btn');
         copyBtn.addEventListener('click', () => {
@@ -2050,13 +1735,13 @@ class QBinHome {
             document.execCommand('copy');
             this.showToast('链接已复制');
         });
-        
+
         // 添加关闭按钮事件
         const closeBtn = modal.querySelector('.close-btn');
         closeBtn.addEventListener('click', () => {
             document.body.removeChild(modal);
         });
-        
+
         // 点击模态框外部关闭
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {

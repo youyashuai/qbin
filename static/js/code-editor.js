@@ -162,8 +162,19 @@ class QBinCodeEditor extends QBinEditorBase {
         const extension = lang.toLowerCase();
         const mimeTypes = {
             'html': 'text/html; charset=UTF-8',
-            'css': 'text/css; charset=UTF-8',
-            'javascript': 'text/javascript; charset=UTF-8',
+            'css': 'text/css',
+            'javascript': 'text/javascript',
+            'typescript': 'text/x-typescript',
+            'python': 'text/x-python',
+            'java': 'text/x-java-source',
+            'csharp': 'text/x-csharp',
+            'cpp': 'text/x-c++src',
+            'php': 'text/x-php',
+            'ruby': 'text/x-ruby',
+            'go': 'text/x-go',
+            'rust': 'text/x-rust',
+            'markdown': 'text/markdown',
+            'yaml': 'text/yaml',
         };
         return mimeTypes[extension] || 'text/plain; charset=UTF-8';
     };
