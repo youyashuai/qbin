@@ -165,19 +165,19 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   }
 
   if (ISDEMO !== false) {
-    const demoToken = await generateJwtToken({
-      id: 1,
-      email: "demo@qbin.demo",
-      name: "Demo User",
-      provider: "demo"
-    });
-    await ctx.cookies.set("token", demoToken, {
-      maxAge: 43200,
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-    });
-    if (!session.has("user") && currentPath !== "/login" && !currentPath.includes("/r/")) {
+    if (!session.has("user") && !["/login", "/api/login/admin", "/favicon.ico", "/r/"].some(prefix => currentPath.startsWith(prefix))) {
+      const demoToken = await generateJwtToken({
+        id: 1,
+        email: "demo@qbin.me",
+        name: "Demo User",
+        provider: "demo",
+      }, 43200);
+      await ctx.cookies.set("token", demoToken, {
+        maxAge: 43200000,
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+      });
       return ctx.response.redirect("/home");
     }
   }
@@ -206,7 +206,7 @@ export const handleAdminLogin = async (ctx: Context) => {
     id: 0,
     email: EMAIL,
     name: EMAIL.includes('@') ? EMAIL.split('@')[0] : EMAIL,
-  });
+  }, TOKEN_EXPIRE);
   await ctx.cookies.set("token", jwtToken, {
     maxAge: TOKEN_EXPIRE * 1000,
     httpOnly: true,
@@ -283,7 +283,7 @@ export const handleOAuthCallback = async (ctx: Context) => {
       name: transformedUserData.name,
       email: transformedUserData.email,
       provider: transformedUserData.provider,
-    });
+    }, TOKEN_EXPIRE);
     await ctx.cookies.set("token", jwtToken, {
       maxAge: TOKEN_EXPIRE * 1000,
       httpOnly: true,

@@ -1,5 +1,5 @@
 import { create, verify, getNumericDate } from "https://deno.land/x/djwt/mod.ts";
-import { TOKEN_EXPIRE, jwtSecret } from "../config/constants.ts";
+import { jwtSecret } from "../config/constants.ts";
 
 
 /**
@@ -16,11 +16,11 @@ export const JWT_KEY = await crypto.subtle.importKey(
 /**
  * 生成 JWT，并设置过期时间
  */
-export async function generateJwtToken(payload: Record<string, unknown>): Promise<string> {
+export async function generateJwtToken(payload: Record<string, unknown>, exp): Promise<string> {
   const header = { alg: "HS256", typ: "JWT" };
   const claims = {
     ...payload,
-    exp: getNumericDate(TOKEN_EXPIRE),
+    exp: getNumericDate(exp),
   };
   return await create(header, claims, JWT_KEY);
 }
