@@ -456,11 +456,11 @@ router
   })
   .post("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
-    if(reservedPaths.has(key)){
-      return new Response(ctx, 403, "不能修改保留访问路径");
-    }
     if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
+    }
+    if(reservedPaths.has(key.toLowerCase())){
+      return new Response(ctx, 403, "不能修改保留路径");
     }
     const pdb = MetadataDB.getInstance();
     const metadata = await isCached(key, pwd, pdb);
@@ -479,11 +479,11 @@ router
   })
   .put("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
-    if(reservedPaths.has(key)){
-      return new Response(ctx, 403, "不能修改保留访问路径");
-    }
     if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
+    }
+    if(reservedPaths.has(key.toLowerCase())){
+      return new Response(ctx, 403, "不能修改保留路径");
     }
     const pdb = MetadataDB.getInstance();
     const metadata = await isCached(key, pwd, pdb);
@@ -499,11 +499,11 @@ router
   .delete("/d/:key/:pwd?", async (ctx) => {
     if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
-    if(reservedPaths.has(key)){
-      return new Response(ctx, 403, "不能删除保留访问路径");
-    }
     if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
+    }
+    if(reservedPaths.has(key.toLowerCase())){
+      return new Response(ctx, 403, "不能删除保留路径");
     }
 
     const pdb = MetadataDB.getInstance();

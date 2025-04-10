@@ -30,7 +30,7 @@ export const VALID_CHARS_REGEX = /^[a-zA-Z0-9-\.\_]+$/;
 export const mimeTypeRegex = /^[-\w.+]+\/[-\w.+]+(?:;\s*[-\w]+=[-\w]+)*$/i;
 // 保留访问路径
 export const reservedPaths = new Set<string>(
-  get_env("RESERVED_PATHS") || "" .split(",").map(s => s.trim())
+    (get_env("RESERVED_PATHS") || "").split(",").map(s => s.trim().toLowerCase())
 );
 
 export const HEADERS = {
