@@ -4,7 +4,7 @@
 
 ✨ 轻盈优雅的数据存储服务，比云盘更便捷，轻松存取文字、图片、视频等任意数据。
 
-**简体中文** · [English](README_EN.md) · [Demo](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md)
+**简体中文** · [English](README_EN.md) · [Demo](https://qbin.me) · [使用文档](Docs/document.md) · [自托管教程](Docs/self-host.md) · [RESTAPI](Docs/REST%20API.md)
 
 </div>
 
@@ -26,9 +26,15 @@
 
 ## 🖼️ 界面预览
 
-|                                         桌面端界面                                         |                                        移动端界面                                         |
-|:-------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
-| <img src="https://s3.tebi.io/lite/windows.png" alt="桌面端预览" title="桌面端预览" width="70%"> | <img src="https://s3.tebi.io/lite/mobile.png" alt="移动端界面" title="移动端界面" width="30%"> |
+|                                            桌面端界面                                            |                                               移动端界面                                                |
+|:-------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|
+|    <img src="https://s3.tebi.io/lite/windows.png" alt="桌面端预览" title="桌面端预览" width="70%">    |        <img src="https://s3.tebi.io/lite/mobile.png" alt="移动端界面" title="移动端界面" width="30%">        |
+
+|                                                登录/Markdown Editor界面                                                |                                                List/Grid存储管理界面                                                |
+|:------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------:|
+|             <img src="https://s3.tebi.io/lite/preview-login.png" alt="登录预览" title="登录预览" width="100%">             |   <img src="https://s3.tebi.io/lite/preview-storage.png" alt="List存储管理预览" title="List存储管理预览" width="100%">    |
+| <img src="https://s3.tebi.io/lite/preview-editor-markdown.png" alt="Markdown编辑器" title="Markdown编辑器" width="100%"> | <img src="https://s3.tebi.io/lite/preview-storage-grid.png" alt="Grid存储管理预览" title="Grid存储管理预览" width="100%"> |
+
 
 ## 🚀 快速使用指南
 
