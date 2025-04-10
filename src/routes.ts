@@ -346,9 +346,7 @@ async function syncPostgresToKV(ctx: Context<AppState>, pdb: MetadataDB) {
   }
 }
 
-
 const router = new Router<AppState>();
-
 
 /**
  * /e/key/pwd 文本编辑器，上传...

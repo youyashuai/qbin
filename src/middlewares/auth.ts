@@ -3,7 +3,7 @@ import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client@^2.0.0";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
 import {PasteError, Response} from "../utils/response.ts";
-import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, EMAIL} from "../config/constants.ts";
+import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, EMAIL, ISDEMO} from "../config/constants.ts";
 import {getLoginPageHtml} from "../utils/render.ts";
 
 // 定义 OAuth2 提供商配置
@@ -131,6 +131,8 @@ const oauthProviders = {
 export async function authMiddleware(ctx: Context, next: () => Promise<unknown>) {
   const session = ctx.state.session;
   const token = await ctx.cookies.get("token");  // 从 cookie 中取出 Token
+  const currentPath = ctx.request.url.pathname;
+
   if (token) {
     try {
       // 若 Session 中没有用户信息，但 JWT 有，则写回 Session
@@ -162,18 +164,33 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
     return;
   }
 
-  const currentPath = ctx.request.url.pathname;
+  if (ISDEMO !== false) {
+    const demoToken = await generateJwtToken({
+      id: 1,
+      email: "demo@qbin.demo",
+      name: "Demo User",
+      provider: "demo"
+    });
+    await ctx.cookies.set("token", demoToken, {
+      maxAge: 43200,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    if (!session.has("user") && currentPath !== "/login") {
+      return ctx.response.redirect("/home");
+    }
+  }
+
   const method = ctx.request.method;
   const isExactPathAuth = method === "GET" && exactPaths.includes(currentPath);
   const isPrefixPathAuth = (method === "GET" || method === "HEAD") && prefixPaths.some(prefix => currentPath.startsWith(prefix));
-  // 允许匿名访问的接口
   if (isPrefixPathAuth || isExactPathAuth){
     // 公开路径，无需认证
     await next();
     return;
   }
 
-  // 否则未登录 => 返回登录页面
   return ctx.response.redirect("/login");
 }
 
@@ -197,7 +214,6 @@ export const handleAdminLogin = async (ctx: Context) => {
     path: "/",
   });
   return new Response(ctx, 200, "ok");
-  // ctx.response.body = { token: jwtToken, expire: TOKEN_EXPIRE * 1000};
 }
 
 // 处理 OAuth2 登录重定向
