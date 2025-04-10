@@ -366,13 +366,13 @@ class QBinViewer {
             storage.setCache(this.CACHE_KEY + this.currentPath.key, cacheData);
             sessionStorage.setItem(this.CACHE_KEY + 'last', JSON.stringify(this.currentPath));
         }catch(e) {}
-        const originalEditor = getCookie('qbin-editor') || 'e';
+        const originalEditor = getCookie('qbin-editor') || 'm';
         window.location.assign(`/${originalEditor}`);
     }
 
     async handleNew() {
         sessionStorage.removeItem(this.CACHE_KEY + 'last');
-        const originalEditor = getCookie('qbin-editor') || 'e';
+        const originalEditor = getCookie('qbin-editor') || 'm';
         window.location.assign(`/${originalEditor}`);
     }
 
@@ -527,7 +527,7 @@ class QBinViewer {
             const response = await fetch(path, {method: 'DELETE'});
             if (response.ok) {
                 await this.clearLocalCache();
-                const originalEditor = getCookie('qbin-editor') || 'e';
+                const originalEditor = getCookie('qbin-editor') || 'm';
                 window.location.assign(`/${originalEditor}`);
             } else {
                 const result = await response.json();

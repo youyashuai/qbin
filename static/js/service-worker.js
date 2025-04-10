@@ -4,7 +4,7 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.32';
+const CACHE_VERSION = 'v1.33';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
@@ -468,8 +468,8 @@ async function handleTemplateRoutes(request) {
         // 确定要使用的模板路径
         if (path === '/') {
             // 根路径 - 从缓存获取首选编辑器类型
-            const editorType = await getCache("qbin-editor") || 'e';
-            templatePath = ['e', 'c', 'm'].includes(editorType) ? `/${editorType}` : '/e';
+            const editorType = await getCache("qbin-editor") || 'm';
+            templatePath = ['e', 'c', 'm'].includes(editorType) ? `/${editorType}` : '/m';
             log(`根路径请求使用模板: ${templatePath}`);
         } else {
             // 非根路径 - 取前两个字符作为模板标识

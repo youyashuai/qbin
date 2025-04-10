@@ -1197,7 +1197,7 @@ class QBinHome {
         const themeRadios = document.querySelectorAll('input[name="qbin-theme"]');
 
         // 设置默认编辑器选择
-        const savedEditor = getCookie('qbin-editor') || 'e';
+        const savedEditor = getCookie('qbin-editor') || 'm';
         document.querySelector(`input[name="qbin-editor"][value="${savedEditor}"]`).checked = true;
         this.updateEditorRadioVisualFeedback(savedEditor);
 

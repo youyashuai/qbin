@@ -451,7 +451,7 @@ router
       case "m":
         return await getMDEditHtml(ctx, 200);
       default:
-        return await getEditHtml(ctx, 200);
+        return await getMDEditHtml(ctx, 200);
     }
   })
   .post("/s/:key/:pwd?", async (ctx) => {
