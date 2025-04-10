@@ -4,7 +4,7 @@ import { getCachedContent, updateCache, kv, isCached, memCache, cacheBroadcast }
 import { getTimestamp, cyrb53, checkPassword, generateKey } from "./utils/common.ts";
 import {
   VALID_CHARS_REGEX,
-  reservedWords,
+  reservedPaths,
   mimeTypeRegex,
   MAX_UPLOAD_FILE_SIZE,
   PASTE_STORE,
@@ -390,7 +390,7 @@ router
   .get("/r/:key?/:pwd?", async (ctx) => {
     if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
-    if (key === null || reservedWords.has(key)) {
+    if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
@@ -415,7 +415,7 @@ router
   .head("/r/:key?/:pwd?", async (ctx) => {
     if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
-    if (key === null || reservedWords.has(key)) {
+    if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
@@ -456,7 +456,10 @@ router
   })
   .post("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
-    if (key === null || reservedWords.has(key)) {
+    if(reservedPaths.has(key)){
+      return new Response(ctx, 403, "不能修改保留访问路径");
+    }
+    if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
@@ -476,7 +479,10 @@ router
   })
   .put("/s/:key/:pwd?", async (ctx) => {
     const { key, pwd } = parsePathParams(ctx.params);
-    if (key === null || reservedWords.has(key)) {
+    if(reservedPaths.has(key)){
+      return new Response(ctx, 403, "不能修改保留访问路径");
+    }
+    if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
     }
     const pdb = MetadataDB.getInstance();
@@ -493,7 +499,10 @@ router
   .delete("/d/:key/:pwd?", async (ctx) => {
     if (ctx.params.key === undefined) return new Response(ctx, 404, "访问路径不能为空");
     const { key, pwd } = parsePathParams(ctx.params);
-    if (key === null || reservedWords.has(key)) {
+    if(reservedPaths.has(key)){
+      return new Response(ctx, 403, "不能删除保留访问路径");
+    }
+    if (key === null) {
       return new Response(ctx, 403, "该访问路径不可用");
     }
 

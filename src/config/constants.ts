@@ -28,8 +28,10 @@ export const ISDEMO = get_env("ISDEMO") || false;
 export const VALID_CHARS_REGEX = /^[a-zA-Z0-9-\.\_]+$/;
 // MIME 类型校验正则
 export const mimeTypeRegex = /^[-\w.+]+\/[-\w.+]+(?:;\s*[-\w]+=[-\w]+)*$/i;
-// 保留关键字
-export const reservedWords = new Set<number>([]);
+// 保留访问路径
+export const reservedPaths = new Set<string>(
+  get_env("RESERVED_PATHS") || "" .split(",").map(s => s.trim())
+);
 
 export const HEADERS = {
   HTML: {
