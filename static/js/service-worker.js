@@ -52,6 +52,11 @@ const CDN_RESOURCES = [
     // Monaco编辑器主题和语言支持
     'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/basic-languages/',
     'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/language/',
+    'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/echarts@4.6.0/dist/echarts.min.js',
+    'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js',
     // 其他可能的CDN资源
     'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
 ];
@@ -529,7 +534,9 @@ async function preCacheCriticalCdnResources() {
         const cdnCache = await caches.open(CDN_CACHE_NAME);
         const criticalCdnResources = [
             'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
-            'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js'
+            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.js',
+            'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
+            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css'
         ];
 
         const fetchPromises = criticalCdnResources.map(async url => {
