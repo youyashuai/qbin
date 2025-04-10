@@ -177,7 +177,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
       sameSite: "lax",
       path: "/",
     });
-    if (!session.has("user") && currentPath !== "/login") {
+    if (!session.has("user") && currentPath !== "/login" && !currentPath.includes("/r/")) {
       return ctx.response.redirect("/home");
     }
   }
