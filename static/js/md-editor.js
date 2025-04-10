@@ -102,6 +102,12 @@ class QBinMDEditor extends QBinEditorBase {
                     strikethrough: {
                         needWhitespace: false,
                     },
+                    mathBlock: {
+                      engine: 'katex',
+                    },
+                    inlineMath: {
+                      engine: 'katex',
+                    },
                 },
             },
             multipleFileSelection: {
