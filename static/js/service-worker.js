@@ -31,8 +31,8 @@ const STATIC_RESOURCES = [
     '/favicon.ico',
     '/manifest.json',
     '/document',
-    '/home',
     '/static/',
+    '/home',
 ];
 
 // CDN资源
@@ -516,8 +516,8 @@ async function preCacheCriticalCdnResources() {
             'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css',
             'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
             'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/editor/editor.main.css',
         ];
-
         const fetchPromises = criticalCdnResources.map(async url => {
             try {
                 const request = new Request(url, { mode: 'cors', credentials: 'omit' });
@@ -541,7 +541,6 @@ async function preCacheCriticalCdnResources() {
                 return false;
             }
         });
-
         await Promise.all(fetchPromises);
         return Promise.resolve();
     } catch (err) {
