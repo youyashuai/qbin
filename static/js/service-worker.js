@@ -4,12 +4,10 @@
  */
 
 // 缓存配置
-const CACHE_VERSION = 'v1.34';
+const CACHE_VERSION = 'v1.37';
 const STATIC_CACHE_NAME = `qbin-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `qbin-dynamic-${CACHE_VERSION}`;
 const CDN_CACHE_NAME = `qbin-cdn-${CACHE_VERSION}`;
-
-// 调试模式
 const DEBUG = false;
 
 // 日志函数
@@ -24,50 +22,31 @@ const CACHE_EXPIRATION = {
     cdn: 14 * 24 * 60 * 60 * 1000     // 14天
 };
 
-// 检测是否为HTTPS环境
 const isSecureContext = self.location.protocol === 'https:' ||
                         self.location.hostname === 'localhost' ||
                         self.location.hostname === '127.0.0.1';
 
-// 静态资源 - 长期缓存，很少变化
+// 静态资源
 const STATIC_RESOURCES = [
     '/favicon.ico',
     '/manifest.json',
     '/document',
     '/home',
-    '/static/css/',
-    '/static/js/',
-    '/static/css/fonts/',
-    '/static/img/'
+    '/static/',
 ];
 
-// CDN资源 - 跨域资源，采用特殊处理
+// CDN资源
 const CDN_RESOURCES = [
-    // Monaco编辑器核心文件
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/editor/editor.main.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/editor/editor.main.nls.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/base/worker/workerMain.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/base/common/worker/simpleWorker.nls.js',
-    // Monaco编辑器主题和语言支持
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/basic-languages/',
-    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/language/',
-    'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css',
-    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css',
-    'https://cdn.jsdelivr.net/npm/echarts@4.6.0/dist/echarts.min.js',
-    'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.js',
-    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js',
-    // 其他可能的CDN资源
+    'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/',
+    'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/',
+    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/',
+    'https://cdn.jsdelivr.net/npm/echarts@4.6.0/dist/',
+    'https://cdn.jsdelivr.net/npm/mermaid@8.11.1/dist/',
     'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
 ];
 
-// 页面模板 - 可能会更新，但可以缓存
+// 页面模板
 const PAGE_TEMPLATES = [
-    '/',
-    '/e/',
-    '/c/',
-    '/m/',
-    '/p/',
     '/e',
     '/c',
     '/m',
@@ -533,10 +512,10 @@ async function preCacheCriticalCdnResources() {
     try {
         const cdnCache = await caches.open(CDN_CACHE_NAME);
         const criticalCdnResources = [
-            'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
-            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.js',
+            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.core.js',
+            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css',
             'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js',
-            'https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css'
+            'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js',
         ];
 
         const fetchPromises = criticalCdnResources.map(async url => {
