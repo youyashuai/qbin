@@ -539,7 +539,7 @@ router
     ctx.response.headers.set("Content-Type", "application/json");
     return new Response(ctx, 200, "success")
   })
-  .get("/api/login/admin", handleAdminLogin)
+  .post("/api/login/admin", handleAdminLogin)
   .get("/api/login/:provider", handleLogin)
   .get("/api/login/oauth2/callback/:provider", handleOAuthCallback)
   .post("/api/user/logout", async (ctx) => {

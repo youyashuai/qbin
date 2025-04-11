@@ -4,7 +4,7 @@ import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
 import {PasteError, Response} from "../utils/response.ts";
 import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, get_env, EMAIL, ISDEMO} from "../config/constants.ts";
-import {getLoginPageHtml} from "../utils/render.ts";
+
 
 // 定义 OAuth2 提供商配置
 // https://github.com/cmd-johnson/deno-oauth2-client
@@ -165,6 +165,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   }
 
   if (ISDEMO !== false) {
+    console.log(currentPath)
     if (!session.has("user") && !["/login", "/api/login/admin", "/favicon.ico", "/r/"].some(prefix => currentPath.startsWith(prefix))) {
       const demoToken = await generateJwtToken({
         id: 1,
@@ -184,7 +185,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
 
   const method = ctx.request.method;
   const isExactPathAuth = method === "GET" && exactPaths.includes(currentPath);
-  const isPrefixPathAuth = (method === "GET" || method === "HEAD") && prefixPaths.some(prefix => currentPath.startsWith(prefix));
+  const isPrefixPathAuth = prefixPaths.some(prefix => currentPath.startsWith(prefix));
   if (isPrefixPathAuth || isExactPathAuth){
     // 公开路径，无需认证
     await next();
@@ -195,25 +196,33 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
 }
 
 export const handleAdminLogin = async (ctx: Context) => {
-  const password = ctx.request.headers.get("x-password");
-  if (!password) {
-    return new Response(ctx, 403, "Unauthorized");
+  try {
+    const body = await ctx.request.body.json();
+    const { email, password } = body;
+    console.log(email, password)
+    if (!email || !password) return new Response(ctx, 400, "Email and password are required");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return new Response(ctx, 400, "Invalid email format");
+    if (email !== EMAIL || password !== PASSWORD) {
+      return new Response(ctx, 403, "Invalid email or password");
+    }
+
+    const jwtToken = await generateJwtToken({
+      id: 0,
+      email: EMAIL,
+      name: EMAIL.includes('@') ? EMAIL.split('@')[0] : EMAIL,
+    }, TOKEN_EXPIRE);
+    await ctx.cookies.set("token", jwtToken, {
+      maxAge: TOKEN_EXPIRE * 1000,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+    return new Response(ctx, 200, "ok");
+  } catch (error) {
+    console.error("Admin login error:", error);
+    return new Response(ctx, 400, "Invalid request format");
   }
-  if (password !== PASSWORD) {
-    return new Response(ctx, 403, "Unauthorized");
-  }
-  const jwtToken = await generateJwtToken({
-    id: 0,
-    email: EMAIL,
-    name: EMAIL.includes('@') ? EMAIL.split('@')[0] : EMAIL,
-  }, TOKEN_EXPIRE);
-  await ctx.cookies.set("token", jwtToken, {
-    maxAge: TOKEN_EXPIRE * 1000,
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-  });
-  return new Response(ctx, 200, "ok");
 }
 
 // 处理 OAuth2 登录重定向
