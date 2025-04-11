@@ -153,6 +153,23 @@ class QBinMDEditor extends QBinEditorBase {
             locale: locale,
         };
         const config = Object.assign({}, basicConfig, { value: "" });
+        Cherry.usePlugin(CherryCodeBlockMermaidPlugin, {
+          mermaid: window.mermaid,
+          theme: 'default',
+          sequence: {
+            useMaxWidth: false,
+            showSequenceNumbers: true,
+            mirrorActors: true,
+            messageAlign: 'center'
+          },
+          flowchart: {
+            htmlLabels: true,
+            curve: 'linear'
+          }
+        });
+        Cherry.usePlugin(CherryTableEchartsPlugin, {
+          mermaid: window.echarts,
+        });
         window.cherry = new Cherry(config);
         this.setupEditorChangeListener();
         this.initializePasswordPanel(); // 添加这行
