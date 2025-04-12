@@ -172,12 +172,11 @@ body {
 
 .content {
     flex: 1;
-    padding: 16px;
+    padding: 0; /* 移除外部容器的内边距 */
     box-sizing: border-box;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     width: 100%;
-    /* 添加弹性布局 */
     display: flex;
     flex-direction: column;
 }
@@ -688,5 +687,134 @@ html[data-theme="dark"] .qrcode-wrapper {
 #passwordDialog.active,
 #loadingContainer.active {
     display: block;
+}
+
+/* 全设备媒体元素自适应显示 - 更全面的选择器 */
+.cherry-markdown img,
+.cherry-markdown video,
+.cherry-markdown iframe,
+.cherry-previewer img,
+.cherry-previewer video,
+.cherry-previewer iframe,
+.cherry-markdown__editor--preview img,
+.cherry-markdown__editor--preview video,
+.cherry-markdown__editor--preview iframe,
+.cherry-editor img,
+.cherry-editor video,
+.cherry-editor iframe,
+#qbin-viewer img,
+#qbin-viewer video,
+#qbin-viewer iframe,
+/* 额外覆盖特定场景 */
+.cherry-markdown .cherry-preview img,
+.cherry-markdown .cherry-preview video,
+.cherry-markdown .cherry-preview iframe {
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+/* 特别处理视频和iframe容器 */
+.cherry-video-container,
+.cherry-markdown .cherry-video-container,
+.cherry-markdown iframe[src*="youtube"],
+.cherry-markdown iframe[src*="vimeo"],
+.cherry-previewer .cherry-video-container,
+.cherry-previewer iframe[src*="youtube"],
+.cherry-previewer iframe[src*="vimeo"],
+.cherry-markdown__editor--preview .cherry-video-container,
+.cherry-markdown__editor--preview iframe[src*="youtube"],
+.cherry-markdown__editor--preview iframe[src*="vimeo"] {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: auto !important;
+    aspect-ratio: 16/9;
+    overflow: hidden !important;
+}
+
+/* 确保居中对齐的内容容器也受限 */
+.cherry-markdown [data-type="center"] img,
+.cherry-markdown [data-type="center"] video,
+.cherry-markdown [data-type="center"] iframe,
+.cherry-previewer [data-type="center"] img,
+.cherry-previewer [data-type="center"] video,
+.cherry-previewer [data-type="center"] iframe {
+    margin: 0 auto !important;
+    max-width: 100% !important;
+}
+
+/* 修复在某些浏览器中可能出现的表格内媒体元素问题 */
+.cherry-markdown table img,
+.cherry-markdown table video,
+.cherry-previewer table img,
+.cherry-previewer table video {
+    max-width: 100% !important;
+}
+
+/* 优化qbin-viewer区域 */
+#qbin-viewer {
+    flex: 1;
+    padding: 0; /* 移除外层容器的内边距 */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+/* 确保Cherry Markdown内容区域占满空间 */
+.cherry-markdown, 
+.cherry-editor, 
+.cherry-previewer {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* 为内部渲染内容添加适当边距 */
+.cherry-markdown__editor--preview,
+.cherry-previewer,
+.cherry-markdown .cherry-preview,
+#qbin-viewer > .cherry-previewer {
+    padding: 24px !important; /* 内容区域保留舒适的边距 */
+    max-width: 960px !important; /* 限制内容最大宽度，提高可读性 */
+    margin: 0 auto !important; /* 在父容器中居中 */
+}
+
+/* 移动端适配 - 较小的边距 */
+@media (max-width: 768px) {
+    .cherry-markdown__editor--preview,
+    .cherry-previewer,
+    .cherry-markdown .cherry-preview,
+    #qbin-viewer > .cherry-previewer {
+        padding: 16px !important;
+    }
+}
+
+/* 媒体元素自适应 */
+.cherry-markdown img,
+.cherry-previewer img,
+.cherry-markdown__editor--preview img,
+.cherry-markdown video,
+.cherry-previewer video,
+.cherry-markdown__editor--preview video,
+.cherry-markdown iframe,
+.cherry-previewer iframe,
+.cherry-markdown__editor--preview iframe,
+#qbin-viewer img,
+#qbin-viewer video,
+#qbin-viewer iframe {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 auto !important;
 }
 
