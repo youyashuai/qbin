@@ -196,7 +196,13 @@ class QBinViewer {
     async renderAudioContent(response, contentType, sourceUrl, contentLength) {
         this.cherryContainer.innerHTML = '';
         const audioMarkdown = `::: center  
-!audio[audio](${sourceUrl})
+<div class="modern-audio-player">
+  <div class="audio-player-icon">🎵</div>
+  <div class="audio-player-content">
+    <div class="audio-title">Audio File</div>
+    <audio controls src="${sourceUrl}" class="modern-audio-control"></audio>
+  </div>
+</div>
 :::
 `;
         this.initViewer(audioMarkdown, contentType);
