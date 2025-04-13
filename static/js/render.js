@@ -7,13 +7,12 @@ class QBinViewer {
         this.cherryContainer = document.getElementById('qbin-viewer');
         this.isProcessing = false;
         this.debounceTimeouts = new Map();
-        this.cherry = null;
         this.init();
     }
 
     initViewer(content, contentType) {
-        if (this.cherry) {
-            this.cherry = null;
+        if (window.cherry) {
+            window.cherry = null;
         }
         if (contentType.startsWith("text/") && !contentType.includes("markdown")) {
             const cherryConfig = {
@@ -66,7 +65,7 @@ class QBinViewer {
                     toolbarTheme: 'default'
                 },
             };
-            this.cherry = new Cherry(cherryConfig);
+            window.cherry = new Cherry(cherryConfig);
             this.contentType = contentType;
         } else {
             const cherryConfig = {
@@ -110,6 +109,7 @@ class QBinViewer {
                             engine: 'katex',
                         },
                         codeBlock: {
+                            theme: 'dark',
                             lineNumber: false,
                             copyCode: false,
                         },
@@ -120,7 +120,7 @@ class QBinViewer {
                     codeBlockTheme: 'default',
                 },
             };
-            this.cherry = new Cherry(cherryConfig);
+            window.cherry = new Cherry(cherryConfig);
             this.contentType = contentType;
         }
     }
@@ -411,8 +411,8 @@ class QBinViewer {
         try {
             // 如果使用cherry-markdown，从实例中获取内容
             let content = '';
-            if (this.cherry) {
-                content = this.cherry.getValue();
+            if (window.cherry) {
+                content = window.cherry.getMarkdown();
             } else {
                 // 兼容以前的方式，尝试从textarea获取内容
                 const viewer = document.getElementById('viewer');
@@ -479,7 +479,7 @@ class QBinViewer {
     }
 
     async copyContent() {
-        let content = this.cherry.getMarkdown();
+        let content = window.cherry.getMarkdown();
         let tips = "";
         if (this.contentType.startsWith("image/")) {
             const firstImage = document.querySelector('.cherry-markdown img');

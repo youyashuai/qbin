@@ -327,20 +327,22 @@
     <script>
         (function() {
             function applyTheme() {
-                // 先移除现有主题类
                 document.documentElement.classList.remove('dark-theme', 'light-theme');
-
                 const savedTheme = localStorage.getItem('qbin-theme') || 'system';
                 if (savedTheme === 'dark') {
                     document.documentElement.classList.add('dark-theme');
+                    window?.cherry?.setTheme('dark');
                 } else if (savedTheme === 'light') {
                     document.documentElement.classList.add('light-theme');
+                    window?.cherry?.setTheme('light');
                 } else {
                     // 系统偏好
                     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                         document.documentElement.classList.add('dark-theme');
+                        window?.cherry?.setTheme('dark');
                     } else {
                         document.documentElement.classList.add('light-theme');
+                        window?.cherry?.setTheme('light');
                     }
                 }
             }

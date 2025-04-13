@@ -8,38 +8,62 @@
     <link href=/static/css/render.css rel=stylesheet>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cherry-markdown@0.8.58/dist/cherry-markdown.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <script>
         (function() {
             function applyTheme() {
                 document.documentElement.classList.remove('dark-theme', 'light-theme');
                 const savedTheme = localStorage.getItem('qbin-theme') || 'system';
+                
+                // Set data-theme attribute for better CSS targeting
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                
                 if (savedTheme === 'dark') {
                     document.documentElement.classList.add('dark-theme');
+                    window?.cherry?.setTheme('dark');
                 } else if (savedTheme === 'light') {
                     document.documentElement.classList.add('light-theme');
+                    window?.cherry?.setTheme('light');
                 } else {
-                    // 系统偏好
+                    // System preference
                     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                         document.documentElement.classList.add('dark-theme');
+                        window?.cherry?.setTheme('dark');
                     } else {
                         document.documentElement.classList.add('light-theme');
+                        window?.cherry?.setTheme('light');
                     }
+                }
+                
+                // Set theme color meta tag dynamically
+                const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                if (metaThemeColor) {
+                    const isDark = document.documentElement.classList.contains('dark-theme');
+                    metaThemeColor.setAttribute('content', isDark ? '#121212' : '#ffffff');
                 }
             }
             applyTheme();
+            
+            // Listen for system theme changes
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
                 if (localStorage.getItem('qbin-theme') === 'system' || !localStorage.getItem('qbin-theme')) {
                     applyTheme();
                 }
             });
+            
+            // Listen for storage events (theme changes in other tabs)
             window.addEventListener('storage', (event) => {
                 if (event.key === 'qbin-theme') {
                     applyTheme();
                 }
             });
+            
+            // Listen for custom theme change events
             window.addEventListener('themeChange', () => {
                 applyTheme();
             });
+            
+            // Theme toggle function
             if (!window.qbinToggleTheme) {
                 window.qbinToggleTheme = (theme) => {
                     localStorage.setItem('qbin-theme', theme);
@@ -67,9 +91,9 @@
     <script src=/static/js/pwa-handler.js defer></script>
 </head>
 <body>
-<div class="header" id="buttonBar">
+<div class="header" id="buttonBar" role="toolbar" aria-label="Actions toolbar">
 </div>
-<div id="qbin-viewer" class="content"></div>
+<div id="qbin-viewer" class="content" role="main"></div>
 <template id="loadingTemplate">
     <div class="loading-container">
         <div class="loading-spinner"></div>
