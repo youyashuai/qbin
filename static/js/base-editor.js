@@ -284,7 +284,7 @@ class QBinEditorBase {
             } else if (error.message.includes("network") || error.message.includes("connect")) {
                 errorMsg = "网络连接失败，请检查网络";
             } else {
-                errorMsg = `保存失败: ${error.message}`;
+                errorMsg = error.message;
             }
 
             this.updateUploadStatus(errorMsg, "error");
