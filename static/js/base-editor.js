@@ -24,7 +24,6 @@ class QBinEditorBase {
         }
     }
 
-    // 基础初始化方法
     async initialize() {
         this.setupWindowsCloseSave();
         this.initializePasswordPanel();
