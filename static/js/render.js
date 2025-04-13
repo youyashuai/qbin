@@ -70,6 +70,7 @@ class QBinViewer {
         } else {
             const cherryConfig = {
                 id: 'qbin-viewer',
+                nameSpace: 'qbin',
                 value: content,
                 editor: {
                     defaultModel: 'previewOnly',
