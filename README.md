@@ -37,7 +37,7 @@ QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适
 - 🌓 **明暗切换**：支持深色 / 浅色 / 跟随系统模式，夜间使用更护眼
 - 📱 **PWA 离线**：断网也能编辑、读取本地缓存，随时随地记录与查看 
 - 🔄 **实时保存**：自动定时保存到本地及远程，减少数据丢失风险
-- 🔑 **多种登录**：支持 OAuth2（Google、GitHub、Microsoft、自定义）和 账号密码登录
+- 🔑 **多种登录**：支持账号密码登录 和 OAuth2（Google、GitHub、Microsoft、自定义）
 - ♻️ **多级缓存**：Deno KV、PostgreSQL、Edge Cache 与 ETag 结合，提升访问速度
 - ⚡ **一键部署**：支持 Docker Compose、Deno Deploy 等多种场景，轻松自托管
 
@@ -110,7 +110,7 @@ docker run -it -p 8000:8000 \
 - [x] Docker 部署支持  
 - [x] 第三方 OAuth2 登录 (Google / GitHub / Microsoft / Custom)    
 - [x] 多级热 - 冷存储  
-- [x] 移动端 + 深色模式适配  
+- [x] 移动端 + 浅色 / 深色 / 跟随系统模式适配  
 - [x] ETag 协商缓存 + IndexedDB 本地存储  
 - [x] 自定义存储路径、密码和有效期  
 - [x] 数据自动本地备份  
