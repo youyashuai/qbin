@@ -4,7 +4,7 @@
 
 ✨ Lightweight, elegant data storage service - more convenient than cloud drives, easily store and access text, images, videos, and any other data.
 
-**English** · [简体中文](README.md) · [Demo Website](https://qbin.me) · [Documentation](Docs/document.md) · [Self-hosting Guide](Docs/self-host.md)
+[English] · [**简体中文**](README.md) · [Demo Website](https://qbin.me) · [Documentation](Docs/document.md) · [Self-hosting Guide](Docs/self-host.md) · [REST API](Docs/REST%20API.md) 
 </div>
 
 ## 📝 Project Overview
