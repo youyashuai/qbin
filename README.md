@@ -96,8 +96,6 @@ docker run -it -p 8000:8000 \
   naiher/qbin
 ```
 
-访问 http://localhost:8000 即可使用 QBin。 
-
 然后访问 http://localhost:8000 即可。  
 > 小提示：可使用 [Neon](https://neon.tech/)、[Aiven](https://aiven.io/) 或 [Render](https://render.com/docs/deploy-mysql) 提供的免费 PostgreSQL。
 
