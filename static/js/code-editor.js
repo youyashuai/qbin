@@ -10,7 +10,6 @@ class QBinCodeEditor extends QBinEditorBase {
         this.initialize();
     }
 
-    // Add this helper method
     getThemePreference() {
         const savedTheme = localStorage.getItem('qbin-theme') || 'system';
         if (savedTheme === 'dark') return 'dark-theme';
