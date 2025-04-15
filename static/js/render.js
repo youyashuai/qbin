@@ -68,6 +68,23 @@ class QBinViewer {
             window.cherry = new Cherry(cherryConfig);
             this.contentType = contentType;
         } else {
+            Cherry.usePlugin(CherryCodeBlockMermaidPlugin, {
+          mermaid: window.mermaid,
+          theme: 'default',
+          sequence: {
+            useMaxWidth: false,
+            showSequenceNumbers: true,
+            mirrorActors: true,
+            messageAlign: 'center'
+          },
+          flowchart: {
+            htmlLabels: true,
+            curve: 'linear'
+          }
+        });
+            Cherry.usePlugin(CherryTableEchartsPlugin, {
+              mermaid: window.echarts,
+            });
             const cherryConfig = {
                 id: 'qbin-viewer',
                 nameSpace: 'qbin',
