@@ -109,6 +109,7 @@ docker run -it -p 8000:8000 \
 - [ ] 增加SQLite存储  
 - [ ] 实现端到端加密 
 - [x] Code高亮、Markdown、音视频、图片预览  
+- [x] 本地离线访问 
 - [x] 个人中心面板  
 - [x] Docker 部署支持  
 - [x] 第三方 OAuth2 登录 (Google / GitHub / Microsoft / Custom)    
