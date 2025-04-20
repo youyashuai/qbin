@@ -28,11 +28,11 @@ export async function isCached(key: string, pwd?: string | undefined, repo): Pro
     if ("pwd" in memData) return memData;
   }
 
-  // const kvResult = await kv.get([PASTE_STORE, key]);
-  // if (!kvResult.value){
-  //   memCache.set(key, {'pwd': "!"});   // 减少内查询
-  //   return null;
-  // }
+  const kvResult = await kv.get([PASTE_STORE, key]);
+  if (!kvResult.value){
+    memCache.set(key, {'pwd': "!"});   // 减少内查询
+    return null;
+  }
 
   // 解决pg到kv批量同步问题
   if (kvResult.value === true){
@@ -55,11 +55,11 @@ export async function checkCached(key: string, pwd?: string | undefined, repo): 
     if ("content" in memData) return memData;
   }
 
-  // const kvResult = await kv.get([PASTE_STORE, key]);
-  // if (!kvResult.value){
-  //   memCache.set(key, {'pwd': "!"});   // 减少内查询
-  //   return null;
-  // }
+  const kvResult = await kv.get([PASTE_STORE, key]);
+  if (!kvResult.value){
+    memCache.set(key, {'pwd': "!"});   // 减少内查询
+    return null;
+  }
   if (!checkPassword(kvResult.value.pwd, pwd)){
     memCache.set(key, {'pwd': kvResult.value.pwd});   // 减少内查询
     return null;
