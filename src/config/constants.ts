@@ -19,7 +19,7 @@ export const basePath = Deno.cwd();
 // export const instanceId = `${get_env("DENO_DEPLOYMENT_ID")}-${get_env("DENO_REGION")}-${crypto.randomUUID()}`;
 export const EMAIL = get_env("ADMIN_EMAIL") || "admin@qbin.github";
 export const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin";
-export const ISDEMO = get_env("ISDEMO") || false;
+export const QBIN_ENV = get_env("QBIN_ENV") || "prod";
 // 匹配可用字符
 export const VALID_CHARS_REGEX = /^[a-zA-Z0-9-\.\_]+$/;
 // MIME 类型校验正则

@@ -1,28 +1,29 @@
+import { Context } from "https://deno.land/x/oak/mod.ts";
 
 
-export async function loggerMiddleware(ctx: any, next: Function) {
-  const start = Date.now();
+export async function loggerMiddleware(ctx: Context, next: () => Promise<unknown>,) {
   const requestId = crypto.randomUUID();
+  ctx.state.requestId = requestId;
+  ctx.response.headers.set("X-Request-Id", requestId);
 
-  // 记录请求开始信息
-  console.log(`[${requestId}] Request started - ${ctx.request.method} ${ctx.request.url.pathname}`);
+  const start = performance.now();
+
   try {
     await next();
-    // 计算执行时间
-    const ms = Date.now() - start;
-    // 记录请求完成信息
-    console.log(`[${requestId}] Request completed - ${ctx.response.status} - ${ms}ms
-      Method: ${ctx.request.method}
-      URL: ${ctx.request.url}
-      Status: ${ctx.response.status}
-      Duration: ${ms}ms`);
-  } catch (error) {
-    // 记录错误信息
-    const ms = Date.now() - start;
-    console.error(`[${requestId}] Request failed - ${ms}ms
-      Method: ${ctx.request.method}
-      URL: ${ctx.request.url}
-      Error: ${error.message}`);
-    throw error;
+  } finally {
+    const cost = performance.now() - start;
+    const status = ctx.response.status || 404;
+
+    const logStr =
+      `[${requestId}] ${ctx.request.method} ${ctx.request.url.pathname} ` +
+      `=> ${status} ${cost.toFixed(2)}ms`;
+
+    if (status >= 500) {
+      console.error(logStr);
+    } else if (status >= 400) {
+      console.warn(logStr);
+    } else {
+      console.info(logStr);
+    }
   }
 }

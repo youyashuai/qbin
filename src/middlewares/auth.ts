@@ -3,7 +3,7 @@ import {OAuth2Client} from "jsr:@cmd-johnson/oauth2-client";
 import {generateJwtToken, verifyJwtToken} from "../utils/crypto.ts";
 import {kv} from "../utils/cache.ts";
 import {PasteError, Response} from "../utils/response.ts";
-import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, EMAIL, ISDEMO} from "../config/constants.ts";
+import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, EMAIL, QBIN_ENV} from "../config/constants.ts";
 import {get_env} from "../config/env.ts";
 
 
@@ -134,7 +134,7 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   let token = await ctx.cookies.get("token");  // 从 cookie 中取出 Token
   const currentPath = ctx.request.url.pathname;
 
-  if (ISDEMO !== false && !token) {
+  if (QBIN_ENV === "dev" && !token) {
     if (!session.has("user") && !["/login", "/api/login/admin", "/favicon.ico", "/r/"].some(prefix => currentPath.startsWith(prefix))) {
       const demoToken = await generateJwtToken({
         id: 1,

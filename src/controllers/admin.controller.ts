@@ -1,6 +1,6 @@
 import {AppState} from "../utils/types.ts";
 import {kv} from "../utils/cache.ts";
-import {EMAIL, ISDEMO, PASTE_STORE} from "../config/constants.ts";
+import {EMAIL, QBIN_ENV, PASTE_STORE} from "../config/constants.ts";
 import {Response} from "../utils/response.ts";
 import {ResponseMessages} from "../utils/messages.ts";
 import {parsePagination} from "../utils/validator.ts";
@@ -83,7 +83,7 @@ export async function syncDBToKV(ctx: Context<AppState>, repo) {
 }
 
 export async function getAllStorage(ctx) {
-  if(ISDEMO) return new Response(ctx, 403, ResponseMessages.DEMO_RESTRICTED);
+  if(QBIN_ENV === "dev") return new Response(ctx, 403, ResponseMessages.DEMO_RESTRICTED);
   const email = await ctx.state.session?.get("user")?.email;
   if (email !== EMAIL) return new Response(ctx, 403, ResponseMessages.ADMIN_REQUIRED);
 
