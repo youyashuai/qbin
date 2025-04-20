@@ -1,5 +1,5 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
-import { Response } from "../utils/response.ts";
+import { Response, PasteError } from "../utils/response.ts";
 import { ResponseMessages } from "../utils/messages.ts";
 import {createMetadataRepository} from "../db/repositories/metadataRepository.ts";
 import {EMAIL, QBIN_ENV} from "../config/constants.ts";
@@ -20,7 +20,7 @@ router
 
     } catch (error) {
       console.error("获取管理员存储数据时出错:", error);
-      return new Response(ctx, 500, ResponseMessages.SERVER_ERROR);
+      throw new PasteError(500, ResponseMessages.SERVER_ERROR);
     }
   })
   .get("/api/admin/sync", async (ctx) => {

@@ -1,7 +1,7 @@
 import {AppState} from "../utils/types.ts";
 import {kv} from "../utils/cache.ts";
 import {EMAIL, QBIN_ENV, PASTE_STORE} from "../config/constants.ts";
-import {Response} from "../utils/response.ts";
+import {PasteError, Response} from "../utils/response.ts";
 import {ResponseMessages} from "../utils/messages.ts";
 import {parsePagination} from "../utils/validator.ts";
 import {createMetadataRepository} from "../db/repositories/metadataRepository.ts";
@@ -78,7 +78,7 @@ export async function syncDBToKV(ctx: Context<AppState>, repo) {
       }});
   } catch (error) {
     console.error("同步数据库到KV时出错:", error);
-    return new Response(ctx, 500, ResponseMessages.SERVER_ERROR)
+    throw new PasteError(500, ResponseMessages.SERVER_ERROR);
   }
 }
 

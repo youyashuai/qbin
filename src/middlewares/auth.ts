@@ -5,6 +5,7 @@ import {kv} from "../utils/cache.ts";
 import {PasteError, Response} from "../utils/response.ts";
 import {PASSWORD, exactPaths, HEADERS, prefixPaths, TOKEN_EXPIRE, EMAIL, QBIN_ENV} from "../config/constants.ts";
 import {get_env} from "../config/env.ts";
+import {ResponseMessages} from "../utils/messages.ts";
 
 
 // 定义 OAuth2 提供商配置
@@ -133,6 +134,9 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
   const session = ctx.state.session;
   let token = await ctx.cookies.get("token");  // 从 cookie 中取出 Token
   const currentPath = ctx.request.url.pathname;
+  const method = ctx.request.method;
+  const isExactPathAuth = method === "GET" && exactPaths.includes(currentPath);
+  const isPrefixPathAuth = prefixPaths.some(prefix => currentPath.startsWith(prefix));
 
   if (QBIN_ENV === "dev" && !token) {
     if (!session.has("user") && !["/login", "/api/login/admin", "/favicon.ico", "/r/"].some(prefix => currentPath.startsWith(prefix))) {
@@ -172,7 +176,9 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
         httpOnly: true,
         sameSite: "lax"
       });
-      return new Response(ctx, 401, "cookie expired");
+      if (!(isPrefixPathAuth || isExactPathAuth)) {
+        return new Response(ctx, 401, "Cookie expired");
+      }
     }
   }
 
@@ -184,9 +190,6 @@ export async function authMiddleware(ctx: Context, next: () => Promise<unknown>)
     return;
   }
 
-  const method = ctx.request.method;
-  const isExactPathAuth = method === "GET" && exactPaths.includes(currentPath);
-  const isPrefixPathAuth = prefixPaths.some(prefix => currentPath.startsWith(prefix));
   if (isPrefixPathAuth || isExactPathAuth){
     // 公开路径，无需认证
     await next();
@@ -218,7 +221,7 @@ export const handleAdminLogin = async (ctx: Context) => {
       sameSite: "lax",
       path: "/",
     });
-    return new Response(ctx, 200, "ok");
+    return new Response(ctx, 200, ResponseMessages.SUCCESS);
   } catch (error) {
     console.error("Admin login error:", error);
     return new Response(ctx, 400, "Invalid request format");
@@ -246,7 +249,7 @@ export const handleLogin = async (ctx: Context) => {
     ctx.response.redirect(uri);
   } catch (error) {
     console.error("OAuth 登录错误:", error);
-    return new Response(ctx, 500, "认证错误");
+    throw new PasteError(500, "OAuth2 认证错误");
   }
 }
 
@@ -311,7 +314,7 @@ export const handleOAuthCallback = async (ctx: Context) => {
     if (error instanceof PasteError) {
       return new Response(ctx, error.status, error.message);
     } else {
-      return new Response(ctx, 500, "认证回调错误");
+      throw new PasteError(500, "认证回调错误");
     }
   }
 };

@@ -1,25 +1,52 @@
-/**
- * 错误处理中间件
- */
-import { Context } from "https://deno.land/x/oak/mod.ts";
-import { HEADERS } from "../config/constants.ts";
+import {
+  Context,
+  isHttpError,
+  Status,
+} from "https://deno.land/x/oak/mod.ts";
+import {HEADERS, QBIN_ENV} from "../config/constants.ts";
 import { PasteError } from "../utils/response.ts";
 
-/**
- * 通用错误处理中间件
- */
-export async function errorMiddleware(ctx: Context, next: () => Promise<unknown>) {
+
+export async function errorMiddleware(
+  ctx: Context,
+  next: () => Promise<unknown>,
+) {
   try {
     await next();
   } catch (err) {
-    console.error(err);
-    const status = err instanceof PasteError ? err.status : 500;
-    const message = err instanceof PasteError ? err.message : "内部服务器错误";
+    if(err.message || err.stack){
+      let status: Status;
+      if (err instanceof PasteError) {
+        status = err.status as Status;
+      } else if (isHttpError(err)) {
+        status = err.status;
+      } else {
+        status = Status.InternalServerError;
+      }
+      const isClientErr = status >= 400 && status < 500;
 
-    ctx.response.status = status;
-    Object.entries(HEADERS.JSON).forEach(([key, value]) => {
-      ctx.response.headers.set(key, value);
-    });
-    ctx.response.body = { status: "error", message };
+      const logMsg = `${ctx.request.method} ${ctx.request.url} -> ${status}`;
+      if (isClientErr) {
+        console.warn(logMsg, "-", err.message);
+      } else {
+        console.error(logMsg, "\n", err.stack ?? err);
+      }
+
+      ctx.response.status = status;
+      ctx.response.headers.set(
+        "Content-Type",
+        HEADERS.JSON["Content-Type"],
+      );
+
+      ctx.response.body = {
+        code: status,
+        message: isClientErr
+          ? err.message
+          : QBIN_ENV === "dev"
+          ? err.message
+          : "内部服务器错误",
+        ...(QBIN_ENV === "dev" && !isClientErr ? { stack: err.stack } : {}),
+      };
+    }
   }
 }
