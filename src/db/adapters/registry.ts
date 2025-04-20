@@ -1,5 +1,5 @@
 import { get_env } from "../../config/env.ts";
-import {initPostgresSchema, initSQLiteSchema} from "../models/metadata.ts";
+import {initPostgresSchema} from "../models/metadata.ts";
 
 export type DrizzleDB = any;            // drizzle 数据库实例
 
@@ -28,8 +28,6 @@ export async function getDb(dialect?: string) {
     instances.set(d, await ctor());
     if(d === "postgres"){
       await initPostgresSchema(await ctor())
-    }else if(d === "sqlite"){
-      await initSQLiteSchema(await ctor())
     }
   }
   const db = instances.get(d)!.db;

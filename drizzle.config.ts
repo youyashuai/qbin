@@ -10,7 +10,6 @@ if(client === "postgres"){
   dbCredentials["url"] = Deno.env.get("SQLITE_URL") || "file:qbin_local.db";
   dbCredentials["authToken"] = Deno.env.get("SQLITE_AUTH_TOKEN");
 }
-console.log(dbCredentials)
 
 export default defineConfig({
   dialect: client,

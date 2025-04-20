@@ -73,8 +73,6 @@ export async function initPostgresSchema(db: any) {
 }
 
 export async function initSQLiteSchema(db: any) {
-  console.log(db.db)
-  console.log(db.db.execute)
   await db.db.execute(sql`
     CREATE TABLE IF NOT EXISTS "qbindbv2" (
       fkey    TEXT PRIMARY KEY,
