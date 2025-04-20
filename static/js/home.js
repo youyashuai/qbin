@@ -987,7 +987,7 @@ class QBinHome {
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
             const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type, 20);
+            const fileIcon = this.getFileTypeIcon(item.mime, 20);
 
             // 使用模板字符串创建元素，减少innerHTML操作
             template.innerHTML = `
@@ -1083,7 +1083,7 @@ class QBinHome {
         for (let i = startIndex; i < endIndex; i++) {
             const item = items[i];
             const fileName = item.fkey;
-            const fileIcon = this.getFileTypeIcon(item.type, 32);
+            const fileIcon = this.getFileTypeIcon(item.mime, 32);
 
             // 使用模板字符串创建元素
             template.innerHTML = `

@@ -135,7 +135,8 @@ class QBinMDEditor extends QBinEditorBase {
             },
             toolbars: this.toolbarsConfig(toolbars),
             previewer: {
-                enablePreviewerBubble: true,
+                dom: false,
+                enablePreviewerBubble: false,
                 floatWhenClosePreviewer: false,
                 lazyLoadImg: {
                     maxNumPerTime: 2,
@@ -149,7 +150,7 @@ class QBinMDEditor extends QBinEditorBase {
                 name: 'qbin-text',
                 autoSave2Textarea: false,
                 defaultModel: 'edit&preview',
-                showFullWidthMark: true,
+                showFullWidthMark: false,
                 showSuggestList: false,
                 writingStyle: 'normal',
             },
@@ -169,8 +170,6 @@ class QBinMDEditor extends QBinEditorBase {
                     if (userPreference === 'system') {
                         localStorage.setItem('qbin-theme', 'system');
                     }
-                    
-                    // Update document classes for consistent styling
                     document.documentElement.classList.remove('light-theme', 'dark-theme');
                     document.documentElement.classList.add(theme === 'dark' ? 'dark-theme' : 'light-theme');
                 }
