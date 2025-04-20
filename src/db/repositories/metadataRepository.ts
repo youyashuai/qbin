@@ -1,9 +1,9 @@
 import { eq, and, gt, sql as dsql, count } from "drizzle-orm";
-import { Metadata } from "../../types.ts";
+import { Metadata } from "../../utils/types.ts";
 import { IMetadataRepository } from "./IMetadataRepository.ts";
 import { getDb, SupportedDialect } from "../adapters/index.ts";
 import { metadataPg, metadataSqlite } from "../models/metadata.ts";
-import { withRetry } from "../utils/retry.ts";
+import { withRetry } from "../helpers/retry.ts";
 import { get_env } from "../../config/env.ts";
 import { getTimestamp } from "../../utils/common.ts";
 
@@ -87,9 +87,9 @@ class MetadataRepository implements IMetadataRepository {
     return affected > 0;
   }
 
-  async findByType(type: string) {
+  async findByMime(mime: string) {
     return await this.run(() =>
-      this.db.select().from(this.t).where(eq(this.t.type, type))
+      this.db.select().from(this.t).where(eq(this.t.mime, mime))
         .orderBy(dsql`${this.t.time} DESC`).execute()) as Metadata[];
   }
 

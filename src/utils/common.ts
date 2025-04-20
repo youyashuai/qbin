@@ -27,11 +27,6 @@ export function cyrb53_str(str: string, seed = 8125): number {
   return 2097152 * (h2 >>> 0) + (h1 >>> 11);
 }
 
-export function checkPassword(dbpwd:string, pwd?: string) {
-  if (!dbpwd) return true;           // 无密码
-  return dbpwd === pwd;              // 有密码则需匹配
-}
-
 export function generateKey(): string {
   return `${crypto.randomUUID().split("-").pop()}${Date.now()}`;
 }

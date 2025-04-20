@@ -1,4 +1,4 @@
-import {AppState} from "../types.ts";
+import {AppState} from "../utils/types.ts";
 import {kv} from "../utils/cache.ts";
 import {EMAIL, ISDEMO, PASTE_STORE} from "../config/constants.ts";
 import {Response} from "../utils/response.ts";

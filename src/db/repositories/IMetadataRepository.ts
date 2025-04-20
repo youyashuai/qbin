@@ -1,4 +1,4 @@
-import { Metadata } from "../../types.ts";
+import { Metadata } from "../../utils/types.ts";
 
 export interface IMetadataRepository {
   create(data: Metadata): Promise<string>;
@@ -6,7 +6,7 @@ export interface IMetadataRepository {
   list(limit?: number, offset?: number): Promise<Metadata[]>;
   update(fkey: string, patch: Partial<Metadata>): Promise<boolean>;
   delete(fkey: string): Promise<boolean>;
-  findByType(type: string): Promise<Metadata[]>;
+  findByMime(mime: string): Promise<Metadata[]>;
   getAllFkeys(): Promise<string[]>;
   /**
    * 获取指定邮箱的全部 fkey

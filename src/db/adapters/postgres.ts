@@ -3,7 +3,7 @@ import pg from "pg";
 import { schema } from "../schema.ts";
 import { get_env } from "../../config/env.ts";
 import { registerAdapter } from "./registry.ts";
-import { withRetry } from "../utils/retry.ts";
+import { withRetry } from "../helpers/retry.ts";
 
 const { Pool } = pg;
 

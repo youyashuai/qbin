@@ -9,12 +9,11 @@ import {
 } from "../utils/cache.ts";
 import {
   getTimestamp,
-  checkPassword,
   cyrb53,
 } from "../utils/common.ts";
 import { Response } from "../utils/response.ts";
 import { ResponseMessages } from "../utils/messages.ts";
-import { parsePathParams } from "../utils/validator.ts";
+import { checkPassword, parsePathParams } from "../utils/validator.ts";
 import {
   PASTE_STORE,
   MAX_UPLOAD_FILE_SIZE,
@@ -22,8 +21,7 @@ import {
   reservedPaths,
 } from "../config/constants.ts";
 import { createMetadataRepository } from "../db/db.ts";
-import { Metadata } from "../types.ts";
-import type { AppState } from "../types.ts";
+import { Metadata, AppState } from "../utils/types.ts";
 
 /** GET /r/:key/:pwd? 原始内容输出 */
 export async function getRaw(ctx: Context<AppState>) {
@@ -47,7 +45,7 @@ export async function getRaw(ctx: Context<AppState>) {
   ctx.state.metadata = { etag: full.hash, time: full.time };
   ctx.response.headers.set("Pragma", "no-cache");
   ctx.response.headers.set("Cache-Control", "no-cache, must-revalidate");  // private , must-revalidate | , max-age=3600
-  ctx.response.headers.set("Content-Type", full.type);
+  ctx.response.headers.set("Content-Type", full.mime);
   ctx.response.headers.set("Content-Length", full.len.toString());
   ctx.response.body = full.content;
 }
@@ -66,7 +64,7 @@ export async function queryRaw(ctx: Context<AppState>) {
   }
 
   ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", meta.type);
+  ctx.response.headers.set("Content-Type", meta.mime);
   ctx.response.headers.set("Content-Length", meta.len.toString());
 }
 
@@ -215,8 +213,8 @@ async function assembleMetadata(
   if (len > MAX_UPLOAD_FILE_SIZE) {
     throw new Response(ctx, 413, ResponseMessages.CONTENT_TOO_LARGE);
   }
-  const type = headers.get("Content-Type") ?? "application/octet-stream";
-  if (!mimeTypeRegex.test(type)) {
+  const mime = headers.get("Content-Type") ?? "application/octet-stream";
+  if (!mimeTypeRegex.test(mime)) {
     throw new Response(ctx, 415, ResponseMessages.INVALID_CONTENT_TYPE);
   }
 
@@ -233,7 +231,7 @@ async function assembleMetadata(
       ~~(headers.get("x-expire") ?? "315360000"),
     ip: req.ip,
     content,
-    type,
+    mime,
     len,
     pwd,
     email: payload?.email ?? "",

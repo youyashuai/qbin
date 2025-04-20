@@ -36,3 +36,8 @@ export function parsePagination(url: URL): { page: number; pageSize: number } {
   }
   return { page, pageSize };
 }
+
+export function checkPassword(dbpwd:string, pwd?: string) {
+  if (!dbpwd) return true;           // 无密码
+  return dbpwd === pwd;              // 有密码则需匹配
+}

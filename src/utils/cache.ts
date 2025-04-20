@@ -4,9 +4,9 @@
  * - Cache API (Deno Deploy KV-like)
  * - Deno KV (for meta) + Postgres (最终存储)
  */
-import { Metadata } from "../types.ts";
+import { Metadata } from "../utils/types.ts";
 import { PASTE_STORE, CACHE_CHANNEL } from "../config/constants.ts";
-import { checkPassword } from "./common.ts";
+import { checkPassword } from "./validator.ts";
 
 export const memCache = new Map<string, Metadata | Record<string, unknown>>();
 export const kv = await Deno.openKv();
