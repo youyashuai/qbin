@@ -56,7 +56,6 @@ class QBinMDEditor extends QBinEditorBase {
                     },
                     'undo',
                     'redo',
-                    'codeTheme',
                     'export',
                 ];
             config.toolbarRight = ['mySettings', 'togglePreview', 'wordCount'];
