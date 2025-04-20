@@ -45,7 +45,7 @@ export async function getRaw(ctx: Context<AppState>) {
   ctx.state.metadata = { etag: full.hash, time: full.time };
   ctx.response.headers.set("Pragma", "no-cache");
   ctx.response.headers.set("Cache-Control", "no-cache, must-revalidate");  // private , must-revalidate | , max-age=3600
-  ctx.response.headers.set("Content-Type", full.mime || full.type);
+  ctx.response.headers.set("Content-Type", full.mime);
   ctx.response.headers.set("Content-Length", full.len.toString());
   ctx.response.body = full.content;
 }
@@ -64,7 +64,7 @@ export async function queryRaw(ctx: Context<AppState>) {
   }
 
   ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", meta.mime || meta.type);
+  ctx.response.headers.set("Content-Type", meta.mime);
   ctx.response.headers.set("Content-Length", meta.len.toString());
 }
 
