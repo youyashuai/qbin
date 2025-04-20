@@ -104,9 +104,11 @@ docker run -it -p 8000:8000 \
 支持将 QBin 运行在 Deno Deploy、本地 Deno 环境等更多场景。详见[自托管教程](Docs/self-host.md)。
 
 ## 🚀 TODO
-- [ ] 打包多平台桌面端程序 
-- [ ] 后端本地存储 
+- [ ] 打包为多平台本地程序 
 - [ ] 实现端到端加密  
+- [ ] 增加Cloudflare D1存储  
+- [ ] 增加MySQL存储  
+- [x] 增加后端本地存储（sqlite数据库） 
 - [x] Code高亮、Markdown、音视频、图片预览  
 - [x] 本地离线访问 
 - [x] 个人中心面板  
