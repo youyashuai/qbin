@@ -27,9 +27,9 @@ router
   .get("/m/:key?/:pwd?", (ctx) => getMDEditHtml(ctx, 200))
   .get("/p/:key?/:pwd?", async (ctx) => await getRenderHtml(ctx, 200))
   .get(/^\/?[a-zA-Z0-9]?\/?$/, async (ctx) => {
-    const editor = await ctx.cookies.get("qbin-editor") ?? "m";
+    const editor = await ctx.cookies.get("qbin-editor") || "m";
     const map = { e: getEditHtml, c: getCodeEditHtml, m: getMDEditHtml };
-    return await (map[editor] ?? getMDEditHtml)(ctx, 200);
+    return await (map[editor] || getMDEditHtml)(ctx, 200);
   })
   .get("/service-worker.js", (ctx) => getServiceWorker(ctx, 200))
   .get("/manifest.json", (ctx) => getManifest(ctx, 200))

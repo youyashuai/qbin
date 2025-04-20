@@ -1,6 +1,7 @@
-import { load } from "https://deno.land/std/dotenv/mod.ts";
-const env = await load();
+import { loadSync } from "https://deno.land/std/dotenv/mod.ts";
+const env = loadSync();
 
-export function get_env(name){
-  return Deno.env.get(name) || env[name]
+
+export function get_env(key: string, fallback?: string): string | undefined {
+  return Deno.env.get(key) || env[key] || fallback;
 }

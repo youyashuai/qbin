@@ -17,7 +17,16 @@ router
       const repo = await createMetadataRepository();
       const { items, total } = await repo.listAlive(pageSize, offset);
 
-
+      const totalPages = Math.ceil(total / pageSize);
+      return new Response(ctx, 200, ResponseMessages.SUCCESS, {
+        items,
+        pagination: {
+          total,
+          page,
+          pageSize,
+          totalPages
+        }
+      });
     } catch (error) {
       console.error("获取管理员存储数据时出错:", error);
       throw new PasteError(500, ResponseMessages.SERVER_ERROR);

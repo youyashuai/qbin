@@ -25,8 +25,5 @@ registerAdapter("postgres", async () => {
   });
 
   const db = drizzle(pool, { schema });
-
-  await withRetry(() => db.execute("SELECT 1"));
-
   return { db, close: () => pool.end() };
 });

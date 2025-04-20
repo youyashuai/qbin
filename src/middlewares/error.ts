@@ -29,7 +29,7 @@ export async function errorMiddleware(
       if (isClientErr) {
         console.warn(logMsg, "-", err.message);
       } else {
-        console.error(logMsg, "\n", err.stack ?? err);
+        console.error(logMsg, "\n", err.stack || err);
       }
 
       ctx.response.status = status;

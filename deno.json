@@ -1,6 +1,10 @@
 {
   "tasks": {
-    "start": "deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel index.ts"
+    "start": "deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel index.ts",
+    "drizzle-kit": "deno run -A --env-file npm:drizzle-kit",
+    "db:generate": "deno run -A --env-file npm:drizzle-kit generate",
+    "db:migrate": "deno run -A --env-file npm:drizzle-kit migrate",
+    "db:push": "deno run -A --env-file npm:drizzle-kit push"
   },
   "imports": {
     "@libsql/client": "npm:@libsql/client@^0.15.4",
@@ -9,5 +13,11 @@
     "drizzle-orm": "npm:drizzle-orm@^0.41.0",
     "postgres": "npm:postgres@^3.4.5",
     "pg": "npm:pg@^8.14.1"
-  }
+  },
+  "nodeModulesDir": "auto",
+  "fmt": {
+    "lineWidth": 100,
+    "proseWrap": "preserve"
+  },
+  "unstable": ["fmt-component"]
 }

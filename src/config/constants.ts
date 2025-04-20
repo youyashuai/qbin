@@ -4,28 +4,28 @@
 import {get_env} from "./env.ts";
 
 
-export const TOKEN_EXPIRE = parseInt(get_env("TOKEN_EXPIRE") || "31536000"); // JWT 过期时长(秒)
-export const MAX_UPLOAD_FILE_SIZE = parseInt(get_env("MAX_UPLOAD_FILE_SIZE") || "52428800");  // 5MB
+export const TOKEN_EXPIRE = parseInt(get_env("TOKEN_EXPIRE", "31536000")); // JWT 过期时长(秒)
+export const MAX_UPLOAD_FILE_SIZE = parseInt(get_env("MAX_UPLOAD_FILE_SIZE", "52428800"));  // 5MB
 
 export const PASTE_STORE = "qbin";     // KV 命名空间
 export const CACHE_CHANNEL = "qbin-cache-sync";
 
-export const jwtSecret = get_env("JWT_SECRET") || "input-your-jwtSecret";  // 从环境变量获取jwt密钥
+export const jwtSecret = get_env("JWT_SECRET", "input-your-jwtSecret");  // 从环境变量获取jwt密钥
 export const exactPaths = ["/favicon.ico", "/document", "/health", "/login", "/service-worker.js", "/manifest.json"]
 export const prefixPaths = ['/r/', '/p/', '/static/', '/api/login/']
 export const basePath = Deno.cwd();
 
 // 分布式缓存唯一标识
-export const EMAIL = get_env("ADMIN_EMAIL") || "admin@qbin.github";
-export const PASSWORD = get_env("ADMIN_PASSWORD") || "qbin";
-export const QBIN_ENV = get_env("QBIN_ENV") || "prod";
+export const EMAIL = get_env("ADMIN_EMAIL", "admin@qbin.github");
+export const PASSWORD = get_env("ADMIN_PASSWORD", "qbin");
+export const QBIN_ENV = get_env("QBIN_ENV", "prod");
 // 匹配可用字符
 export const VALID_CHARS_REGEX = /^[a-zA-Z0-9-\.\_]+$/;
 // MIME 类型校验正则
 export const mimeTypeRegex = /^[-\w.+]+\/[-\w.+]+(?:;\s*[-\w]+=[-\w]+)*$/i;
 // 保留访问路径
 export const reservedPaths = new Set<string>(
-    (get_env("RESERVED_PATHS") || "").split(",").map(s => s.trim().toLowerCase())
+    (get_env("RESERVED_PATHS", "")).split(",").map(s => s.trim().toLowerCase())
 );
 
 export const HEADERS = {

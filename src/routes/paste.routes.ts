@@ -10,7 +10,7 @@ const router = new Router();
 
 router
   .get("/r/:key?/:pwd?", getRaw)
-  .head("/r/:key?/:pwd?", queryRaw)  // 让 controller 内部自行判断 HEAD / GET
+  .head("/r/:key?/:pwd?", queryRaw)
   .post("/s/:key/:pwd?", save)
   .put("/s/:key/:pwd?", save)
   .delete("/d/:key/:pwd?", remove);

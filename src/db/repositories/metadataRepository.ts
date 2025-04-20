@@ -14,7 +14,7 @@ const TABLE_MAP = {
 } as const;
 
 function currentDialect(): SupportedDialect {
-  return (get_env("DB_CLIENT") as SupportedDialect) ?? "postgres";
+  return (get_env("DB_CLIENT", "postgres") as SupportedDialect);
 }
 
 export async function createMetadataRepository(
@@ -24,7 +24,6 @@ export async function createMetadataRepository(
   const table = TABLE_MAP[dialect];
   return new MetadataRepository(db, table);
 }
-
 
 class MetadataRepository implements IMetadataRepository {
   constructor(private db: any, private t: any) {}
@@ -40,8 +39,8 @@ class MetadataRepository implements IMetadataRepository {
         .insert(this.t)
         .values(data)
         .onConflictDoUpdate({
-          target: this.t.fkey,     // 也可以写成 [this.t.fkey]
-          set:   updateSet,        // 冲突时要更新的字段
+          target: this.t.fkey,
+          set:   updateSet,
         })
         .execute(),
     );
@@ -116,7 +115,6 @@ class MetadataRepository implements IMetadataRepository {
         .where(and(eq(this.t.email, email), gt(this.t.expire, now)))
         .execute()) as [{ total: bigint | number }];
     const totalNumber = Number(total ?? 0);
-    console.log(totalNumber)
     if (offset >= totalNumber) return { items: [], total: totalNumber };
 
     const items = await this.run(() =>

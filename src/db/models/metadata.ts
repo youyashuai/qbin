@@ -27,7 +27,7 @@ const byteArray = customType<{ data: ArrayBuffer; driverData: Uint8Array }>({
   },
 });
 
-export const metadataPg = pgTable("qbindb", {
+export const metadataPg = pgTable("qbindbv2", {
   fkey:    varchar("fkey", { length: 40 }).primaryKey(),
   time:    bigint("time", { mode: "number" }).notNull(),
   expire:  bigint("expire", { mode: "number" }).notNull(),
@@ -41,7 +41,7 @@ export const metadataPg = pgTable("qbindb", {
   hash:    bigint("hash", { mode: "number" }),
 });
 
-export const metadataSqlite = sqliteTable("qbindb", {
+export const metadataSqlite = sqliteTable("qbindbv2", {
   fkey:    text("fkey").primaryKey(),
   time:    sqliteInteger("time", { mode: "number" }).notNull(),
   expire:  sqliteInteger("expire", { mode: "number" }).notNull(),
@@ -56,8 +56,8 @@ export const metadataSqlite = sqliteTable("qbindb", {
 });
 
 export async function initPostgresSchema(db: any) {
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS qbindb (
+  await db.db.execute(sql`
+    CREATE TABLE IF NOT EXISTS "qbindbv2" (
       fkey    varchar(40) PRIMARY KEY,
       time    bigint  NOT NULL,
       expire  bigint  NOT NULL,
@@ -73,8 +73,10 @@ export async function initPostgresSchema(db: any) {
 }
 
 export async function initSQLiteSchema(db: any) {
-  await db.execute(sql`
-    CREATE TABLE IF NOT EXISTS qbindb (
+  console.log(db.db)
+  console.log(db.db.execute)
+  await db.db.execute(sql`
+    CREATE TABLE IF NOT EXISTS "qbindbv2" (
       fkey    TEXT PRIMARY KEY,
       time    INTEGER NOT NULL,
       expire  INTEGER NOT NULL,

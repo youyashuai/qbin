@@ -1,3 +1,4 @@
+.DS_Store
 drizzle/
 node_modules/
 TEST/
@@ -5,5 +6,6 @@ TEST/
 .idea
 .env
 deno.lock
-local.db
+*.db
+*.log
 pnpm-lock.yaml

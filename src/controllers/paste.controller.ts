@@ -86,43 +86,28 @@ export async function save(ctx: Context<AppState>) {
 /** DELETE /d/:key/:pwd? */
 export async function remove(ctx: Context<AppState>) {
   const { key, pwd } = parsePathParams(ctx.params);
-  if (reservedPaths.has(key.toLowerCase())) {
-    throw new Response(ctx, 403, ResponseMessages.PATH_RESERVED);
-  }
-
+  if (reservedPaths.has(key.toLowerCase())) throw new Response(ctx, 403, ResponseMessages.PATH_RESERVED);
   const repo = await createMetadataRepository();
   const meta = await isCached(key, pwd, repo);
-  if (!meta || (meta.expire ?? 0) < getTimestamp()) {
-    throw new Response(ctx, 404, ResponseMessages.CONTENT_NOT_FOUND);
-  }
-  if (!checkPassword(meta.pwd, pwd)) {
-    throw new Response(ctx, 403, ResponseMessages.PASSWORD_INCORRECT);
-  }
-
+  if (!meta || (meta.expire ?? 0) < getTimestamp()) throw new Response(ctx, 404, ResponseMessages.CONTENT_NOT_FOUND);
+  if (!checkPassword(meta.pwd, pwd)) throw new Response(ctx, 403, ResponseMessages.PASSWORD_INCORRECT);
   const email = ctx.state.session?.get("user")?.email;
-  if (email !== meta.email) {
-    throw new Response(ctx, 403, ResponseMessages.PERMISSION_DENIED);
-  }
+  if (email !== meta.email) throw new Response(ctx, 403, ResponseMessages.PERMISSION_DENIED);
 
-  // 软删除
   meta.len = 0;
+  meta.content = new Uint8Array(0);
   if (meta.expire > 0) meta.expire = -meta.expire;
-  await Promise.all([
-    updateCache(key, meta),
-    kv.set([PASTE_STORE, key], meta),
-  ]);
+  await updateCache(key, meta)
   cacheBroadcast.postMessage({ type: "delete", key, metadata: meta });
-
-  // 真删除丢给微任务
   queueMicrotask(async () => {
-    await repo.update(key, { content: new Uint8Array(0), expire: meta.expire });
+    await kv.set([PASTE_STORE, key], meta)
+    await repo.update(key, meta);
   });
 
   return new Response(ctx, 200, ResponseMessages.SUCCESS);
 }
 
 /* ─────────── 辅助私有函数 ─────────── */
-
 async function createNew(
   ctx: Context<AppState>,
   key: string,
