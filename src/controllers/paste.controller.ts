@@ -45,7 +45,7 @@ export async function getRaw(ctx: Context<AppState>) {
   ctx.state.metadata = { etag: full.hash, time: full.time };
   ctx.response.headers.set("Pragma", "no-cache");
   ctx.response.headers.set("Cache-Control", "no-cache, must-revalidate");  // private , must-revalidate | , max-age=3600
-  ctx.response.headers.set("Content-Type", full.mime);
+  ctx.response.headers.set("Content-Type", full.mime || full.type);
   ctx.response.headers.set("Content-Length", full.len.toString());
   ctx.response.body = full.content;
 }
@@ -64,11 +64,11 @@ export async function queryRaw(ctx: Context<AppState>) {
   }
 
   ctx.response.status = 200;
-  ctx.response.headers.set("Content-Type", meta.mime);
+  ctx.response.headers.set("Content-Type", meta.mime || meta.type);
   ctx.response.headers.set("Content-Length", meta.len.toString());
 }
 
-/** POST/PUT /s/:key/:pwd? 统一入口：若 key 已存在则更新，否则创建 */
+/** POST/PUT /save/:key/:pwd? 统一入口：若 key 已存在则更新，否则创建 */
 export async function save(ctx: Context<AppState>) {
   const { key, pwd } = parsePathParams(ctx.params);
   if (reservedPaths.has(key.toLowerCase())) {
@@ -83,7 +83,7 @@ export async function save(ctx: Context<AppState>) {
     : await createNew(ctx, key, pwd, repo);
 }
 
-/** DELETE /d/:key/:pwd? */
+/** DELETE /delete/:key/:pwd? */
 export async function remove(ctx: Context<AppState>) {
   const { key, pwd } = parsePathParams(ctx.params);
   if (reservedPaths.has(key.toLowerCase())) throw new Response(ctx, 403, ResponseMessages.PATH_RESERVED);
@@ -198,7 +198,7 @@ async function assembleMetadata(
   if (len > MAX_UPLOAD_FILE_SIZE) {
     throw new Response(ctx, 413, ResponseMessages.CONTENT_TOO_LARGE);
   }
-  const mime = headers.get("Content-Type") ?? "application/octet-stream";
+  const mime = headers.get("Content-Type") || "application/octet-stream";
   if (!mimeTypeRegex.test(mime)) {
     throw new Response(ctx, 415, ResponseMessages.INVALID_CONTENT_TYPE);
   }

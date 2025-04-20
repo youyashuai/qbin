@@ -1171,7 +1171,7 @@ class QBinHome {
             return;
         }
         try {
-            const response = await fetch(`/d/${fkey}/${pwd}`, {
+            const response = await fetch(`/delete/${fkey}/${pwd}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });

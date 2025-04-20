@@ -11,8 +11,8 @@ const router = new Router();
 router
   .get("/r/:key?/:pwd?", getRaw)
   .head("/r/:key?/:pwd?", queryRaw)
-  .post("/s/:key/:pwd?", save)
-  .put("/s/:key/:pwd?", save)
-  .delete("/d/:key/:pwd?", remove);
+  .post("/save/:key/:pwd?", save)
+  .put("/save/:key/:pwd?", save)
+  .delete("/delete/:key/:pwd?", remove);
 
 export default router;

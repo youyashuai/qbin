@@ -11,7 +11,7 @@ GET /health
 
 ### 1. 上传/更新内容
 ```http
-POST /s/{访问路径}/{密码}
+POST /save/{访问路径}/{密码}
 ```
 - 说明：如果内容存在则更新，不存在则创建
 - 权限：更新已有内容需要是创建者
@@ -24,7 +24,7 @@ POST /s/{访问路径}/{密码}
 import requests
 
 def upload_content(path, content, password="", expire=315360000):
-    url = f'https://qbin.me/s/{path}/{password}'
+    url = f'https://qbin.me/save/{path}/{password}'
     headers = {
         'Content-Type': 'text/plain',
         'x-expire': str(expire),
@@ -46,7 +46,7 @@ upload_content('test123', 'Hello World', 'password123')
 
 ### 2. 上传文件内容 (不支持更新)
 ```http
-PUT /s/{访问路径}/{密码}
+PUT /save/{访问路径}/{密码}
 ```
 - 说明：如果访问路径已存在且未过期，返回409错误
 - 请求头：

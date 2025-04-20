@@ -462,7 +462,7 @@ const API = {
                 "Content-Type": mimetype,
             };
 
-            const response = await this.fetchNet(`/s/${key}/${pwd}`, {
+            const response = await this.fetchNet(`/save/${key}/${pwd}`, {
                 method,
                 body: content,
                 headers

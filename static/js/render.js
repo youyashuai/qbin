@@ -609,7 +609,7 @@ class QBinViewer {
     }
 
     async handleDelete() {
-        const path = `/d/${this.currentPath.key}/${this.currentPath.pwd}`;
+        const path = `/delete/${this.currentPath.key}/${this.currentPath.pwd}`;
         try {
             const response = await fetch(path, {method: 'DELETE'});
             if (response.ok) {
