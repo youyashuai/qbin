@@ -7,7 +7,7 @@ import {get_env} from "./env.ts";
 export const TOKEN_EXPIRE = parseInt(get_env("TOKEN_EXPIRE", "31536000")); // JWT 过期时长(秒)
 export const MAX_UPLOAD_FILE_SIZE = parseInt(get_env("MAX_UPLOAD_FILE_SIZE", "52428800"));  // 5MB
 
-export const PASTE_STORE = "qbinv1";     // KV 命名空间
+export const PASTE_STORE = "qbin";     // KV 命名空间
 export const CACHE_CHANNEL = "qbin-cache-sync";
 
 export const jwtSecret = get_env("JWT_SECRET", "input-your-jwtSecret");  // 从环境变量获取jwt密钥
