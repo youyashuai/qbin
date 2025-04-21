@@ -203,26 +203,49 @@ html, body {
     gap: 12px;
 }
 
+/* 使用更具体的选择器并添加 !important */
+.search-box input[type="text"],
+.search-box input#storage-search {
+    padding: 6px 10px 6px 35px !important; /* 适中的左边距 */
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+}
+
+/* 确保图标位置正确 */
+.search-box .search-icon {
+    position: absolute !important;
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    z-index: 2 !important;
+    pointer-events: none !important;
+    color: #999 !important; /* 默认浅灰色 */
+    transition: color 0.3s ease !important;
+}
+
+/* 检查容器定位 */
 .search-box {
-    position: relative;
-    width: 240px;
+    position: relative !important;
+    display: block !important;
+    width: 240px !important;
+    transition: all 0.3s ease !important;
 }
 
-.search-box input {
-    width: 100%;
-    padding: 6px 10px 6px 30px; /* 减少内边距，增加左侧空间给图标 */
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-size: 13px; /* 减小字体大小 */
-    transition: all 0.2s ease;
+/* 聚焦效果 - 容器聚焦时的样式 */
+.search-box:focus-within {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15) !important;
 }
 
+/* 输入框聚焦时的样式 */
 .search-box input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    outline: none !important;
+    border-color: var(--primary-color, #3b82f6) !important;
+}
+
+/* 输入框聚焦时图标变亮效果 */
+.search-box:focus-within .search-icon {
+    color: var(--primary-color, #3b82f6) !important; /* 聚焦时图标变为主题色 */
 }
 
 .search-icon {
@@ -233,6 +256,17 @@ html, body {
     color: #999;
     pointer-events: none; /* 确保图标不会阻止点击输入框 */
     z-index: 2; /* 确保图标在输入框上方 */
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 12px 8px 35px; /* 优化内边距比例 */
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 14px; /* 稍微增加字体大小提高可读性 */
+    transition: all 0.2s ease;
 }
 
 .view-toggle {
@@ -295,7 +329,6 @@ html, body {
     margin-top: 0; /* 移除顶部的间距 */
 }
 
-/* Webkit (Chrome, Safari, Edge) 滚动条样式 */
 .storage-list::-webkit-scrollbar,
 .share-list::-webkit-scrollbar {
     width: 6px;
