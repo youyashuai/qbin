@@ -143,6 +143,7 @@ docker run -it -p 8000:8000 \
 - [Cherry Markdown](https://github.com/Tencent/cherry-markdown)
 - [Monaco Editor](https://github.com/microsoft/monaco-editor)
 - [deno_docker](https://github.com/denoland/deno_docker)
+- [drizzle-orm](https://github.com/drizzle-team/drizzle-orm)
 - [bin](https://github.com/wantguns/bin) 
 - [excalidraw](https://github.com/excalidraw/excalidraw)
 
