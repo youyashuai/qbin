@@ -19,7 +19,7 @@ const error = console.error.bind(console, '[SW]');
 const CACHE_EXPIRATION = {
     static: 30 * 24 * 60 * 60 * 1000, // 30天
     dynamic: 7 * 24 * 60 * 60 * 1000, // 7天
-    cdn: 14 * 24 * 60 * 60 * 1000     // 14天
+    cdn: 90 * 24 * 60 * 60 * 1000     // 90天
 };
 
 const isSecureContext = self.location.protocol === 'https:' ||
