@@ -1,83 +1,77 @@
-import {AppState} from "../utils/types.ts";
+import {AppState, KVMeta} from "../utils/types.ts";
 import {kv} from "../utils/cache.ts";
 import {EMAIL, QBIN_ENV, PASTE_STORE} from "../config/constants.ts";
 import {PasteError, Response} from "../utils/response.ts";
 import {ResponseMessages} from "../utils/messages.ts";
 import {parsePagination} from "../utils/validator.ts";
 import {createMetadataRepository} from "../db/repositories/metadataRepository.ts";
+import {getTimestamp} from "../utils/common.ts";
+
 
 export async function syncDBToKV(ctx: Context<AppState>, repo) {
   try {
-    // 从数据库获取所有fkeys
-    const pgFkeys = await repo.getAllFkeys();
-    const pgFkeysSet = new Set(pgFkeys);
+    const now = getTimestamp();
+    const rows = await repo.getActiveMetas();
+    const dbMap = new Map<string, Omit<KVMeta, "fkey">>();
+    for (const r of rows) {
+      dbMap.set(r.fkey, {
+        email: r.email,
+        name: r.uname,
+        ip: r.ip,
+        len: r.len,
+        expire: r.expire,
+        hash: r.hash,
+        pwd: r.pwd,
+      });
+    }
 
-    // 追踪同步统计信息
-    let added = 0;
-    let removed = 0;
-    let unchanged = 0;
-
-    // 处理现有KV条目
-    const kvEntries = kv.list({ prefix: [PASTE_STORE] });
-    const kvFkeysSet = new Set<string>();
     const toRemove = [];
+    const kvFkeys = new Set<string>();
+    let removed = 0, added = 0, unchanged = 0;
 
-    // 识别需要删除的fkeys（存在于KV中但不在数据库中）
-    for await (const entry of kvEntries) {
+    for await (const entry of kv.list({ prefix: [PASTE_STORE] })) {
       const fkey = entry.key[1] as string;
+      const kvVal: { expire?: number } = entry.value ?? {};
 
-      if (!pgFkeysSet.has(fkey)) {
-        toRemove.push(["qbin", fkey]);
+      // 1. KV 中条目已过期   2. 不存在于数据库（被删除或已过期）
+      if (
+        (kvVal.expire !== undefined && kvVal.expire <= now) ||
+        !dbMap.has(fkey)
+      ) {
+        toRemove.push(entry.key);
       } else {
-        kvFkeysSet.add(fkey);
+        kvFkeys.add(fkey);
         unchanged++;
       }
     }
 
-    // 批量删除过期的fkeys
-    const batchSize = 100; // 根据系统限制优化批次大小
+    const batchSize = 100;
     for (let i = 0; i < toRemove.length; i += batchSize) {
-      const batch = toRemove.slice(i, i + batchSize);
-      if (batch.length > 0) {
-        const atomicOp = kv.atomic();
-        for (const key of batch) {
-          atomicOp.delete(key);
-        }
-        await atomicOp.commit();
-        removed += batch.length;
-      }
+      const atomic = kv.atomic();
+      for (const key of toRemove.slice(i, i + batchSize)) atomic.delete(key);
+      await atomic.commit();
+      removed += Math.min(batchSize, toRemove.length - i);
     }
 
-    // 识别需要添加的fkeys（存在于数据库但不在KV中）
-    const toAdd = [];
-    for (const fkey of pgFkeys) {
-      if (!kvFkeysSet.has(fkey)) {
-        toAdd.push(fkey);
-      }
+    const toAdd: [string, ReturnType<typeof dbMap.get>] [] = [];
+    for (const [fkey, meta] of dbMap) {
+      if (!kvFkeys.has(fkey)) toAdd.push([fkey, meta]);
     }
 
-    // 批量添加新fkeys
     for (let i = 0; i < toAdd.length; i += batchSize) {
-      const batch = toAdd.slice(i, i + batchSize);
-      if (batch.length > 0) {
-        const atomicOp = kv.atomic();
-        for (const fkey of batch) {
-          atomicOp.set(["qbin", fkey], true);
-        }
-        await atomicOp.commit();
-        added += batch.length;
+      const atomic = kv.atomic();
+      for (const [fkey, meta] of toAdd.slice(i, i + batchSize)) {
+        atomic.set([PASTE_STORE, fkey], meta);
       }
+      await atomic.commit();
+      added += Math.min(batchSize, toAdd.length - i);
     }
 
     return new Response(ctx, 200, ResponseMessages.SUCCESS, {
-      stats: {
-        added, // 新增的fkey数量
-        removed, // 移除的fkey数量
-        unchanged, // 保持不变的fkey数量
-        total: pgFkeys.length // 总fkey数量
-      }});
+      stats: { added, removed, unchanged, total: rows.length },
+    });
   } catch (error) {
-    console.error("同步数据库到KV时出错:", error);
+    console.error("同步数据库到 KV 时出错: ", error);
     throw new PasteError(500, ResponseMessages.SERVER_ERROR);
   }
 }
@@ -97,5 +91,37 @@ export async function getAllStorage(ctx) {
   return new Response(ctx, 200, ResponseMessages.SUCCESS, {
     items,
     pagination: { total, page, pageSize, totalPages },
+  });
+}
+
+export async function purgeExpiredCacheEntries(ctx){
+  const now      = getTimestamp();
+  let removed    = 0;   // 被删除的条目
+  let kept       = 0;   // 保留下来的条目
+  const BATCH_SZ = 100;
+  let batch   = kv.atomic();
+  let counter = 0;
+  for await (const { key, value } of kv.list({ prefix: [] })) {
+    const isPasteStore = key[0] === PASTE_STORE;
+    const isExpired    = isPasteStore && value?.expire && value.expire < now;
+    if (!isPasteStore || isExpired) {
+      batch = batch.delete(key);
+      removed++;
+      counter++;
+      if (counter === BATCH_SZ) {
+        await batch.commit();
+        batch   = kv.atomic();
+        counter = 0;
+      }
+    } else {
+      kept++;
+    }
+  }
+  if (counter) {
+    await batch.commit();
+  }
+  return new Response(ctx, 200, ResponseMessages.SUCCESS, {
+    removed,
+    kept,
   });
 }

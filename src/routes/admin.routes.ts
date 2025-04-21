@@ -3,7 +3,7 @@ import { Response } from "../utils/response.ts";
 import { ResponseMessages } from "../utils/messages.ts";
 import {createMetadataRepository} from "../db/repositories/metadataRepository.ts";
 import {EMAIL, QBIN_ENV} from "../config/constants.ts";
-import {getAllStorage, syncDBToKV} from "../controllers/admin.controller.ts";
+import {purgeExpiredCacheEntries, getAllStorage, syncDBToKV} from "../controllers/admin.controller.ts";
 import {migrateToV2} from "../db/helpers/migrate.ts";
 import {get_env} from "../config/env.ts";
 
@@ -28,7 +28,6 @@ router
     const {rowCount} = await migrateToV2(repo, get_env("DB_CLIENT", "postgres"));
     return new Response(ctx, 200, ResponseMessages.SUCCESS, {rowCount: rowCount});
   })
-  // .post("/api/admin/clean", async (ctx) => {
-  // });   // 清理过期key
+  .get("/api/cache/purge", purgeExpiredCacheEntries);   // 清理过期缓存
 
 export default router;

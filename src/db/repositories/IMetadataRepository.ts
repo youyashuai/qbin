@@ -1,13 +1,13 @@
-import { Metadata } from "../../utils/types.ts";
+import {KVMeta, Metadata} from "../../utils/types.ts";
 
 export interface IMetadataRepository {
-  create(data: Metadata): Promise<string>;
+  create(data: Metadata): Promise<boolean>;
   getByFkey(fkey: string): Promise<Metadata | null>;
   list(limit?: number, offset?: number): Promise<Metadata[]>;
   update(fkey: string, patch: Partial<Metadata>): Promise<boolean>;
   delete(fkey: string): Promise<boolean>;
   findByMime(mime: string): Promise<Metadata[]>;
-  getAllFkeys(): Promise<string[]>;
+  getActiveMetas(): Promise<KVMeta[]>;
   /**
    * 获取指定邮箱的全部 fkey
    */

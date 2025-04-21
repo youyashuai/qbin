@@ -27,6 +27,17 @@ export interface Metadata {
   hash: number;
 }
 
+export interface KVMeta {
+  fkey: string;
+  email: string | null;
+  uname: string | null;
+  ip: string | null;
+  len: number;
+  expire: number;
+  hash: string;
+  pwd: string | null;
+}
+
 export interface SessionStore extends Map<string, unknown> {}
 
 export interface AuthUser {

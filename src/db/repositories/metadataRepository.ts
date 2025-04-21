@@ -1,5 +1,5 @@
-import { eq, and, gt, sql as dsql, count } from "drizzle-orm";
-import { Metadata } from "../../utils/types.ts";
+import { or, eq, and, gt, sql as dsql, count, isNull } from "drizzle-orm";
+import {KVMeta, Metadata} from "../../utils/types.ts";
 import { IMetadataRepository } from "./IMetadataRepository.ts";
 import { getDb, SupportedDialect } from "../adapters/index.ts";
 import { metadataPg, metadataSqlite } from "../models/metadata.ts";
@@ -92,10 +92,25 @@ class MetadataRepository implements IMetadataRepository {
         .orderBy(dsql`${this.t.time} DESC`).execute()) as Metadata[];
   }
 
-  async getAllFkeys() {
-    const rows = await this.run(() =>
-      this.db.select({ fkey: this.t.fkey }).from(this.t).execute());
-    return rows.map((r: { fkey: string }) => r.fkey);
+  async getActiveMetas(): Promise<KVMeta[]> {
+    const now = getTimestamp();
+    return await this.run(() =>
+      this.db.select({
+        fkey: this.t.fkey,
+        email: this.t.email,
+        uname: this.t.uname,
+        ip: this.t.ip,
+        len: this.t.len,
+        expire: this.t.expire,
+        hash: this.t.hash,
+        pwd: this.t.pwd,
+      })
+      .from(this.t)
+      .where(
+        or(isNull(this.t.expire), gt(this.t.expire, now)),
+      )
+      .execute()
+    );
   }
 
   /** 获取邮箱全部 fkey */
