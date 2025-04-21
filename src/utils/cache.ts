@@ -5,8 +5,9 @@
  * - Deno KV (for meta) + Postgres (最终存储)
  */
 import { Metadata } from "../utils/types.ts";
-import { PASTE_STORE, CACHE_CHANNEL } from "../config/constants.ts";
+import {PASTE_STORE, CACHE_CHANNEL, MAX_CACHE_SIZE} from "../config/constants.ts";
 import { checkPassword } from "./validator.ts";
+
 
 export const memCache = new Map<string, Metadata | Record<string, unknown>>();
 export const kv = await Deno.openKv();
@@ -92,7 +93,7 @@ export async function getCachedContent(key: string, pwd?: string, repo): Promise
  */
 export async function updateCache(key: string, metadata: Metadata): Promise<void> {
   try {
-    memCache.set(key, metadata);
+    if(metadata.len <= MAX_CACHE_SIZE) memCache.set(key, metadata);
   } catch (error) {
     console.error('Cache update error:', error);
   }
