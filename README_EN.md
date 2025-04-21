@@ -89,7 +89,7 @@ docker pull naiher/qbin:latest
 
 # Start the container
 docker run -it -p 8000:8000 \
-  -e DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require" \
+  -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
   -e JWT_SECRET="your_jwt_secret" \
   -e ADMIN_PASSWORD="qbin" \
   -e ADMIN_EMAIL="admin@qbin.github" \

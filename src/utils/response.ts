@@ -4,7 +4,6 @@ export function Response(ctx, status: number, message: string, data?: any) {
   ctx.response.body = { status, message, data };
 }
 
-
 // 错误响应类
 export class PasteError extends Error {
   constructor(public status: number = 500, message: string) {

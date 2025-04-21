@@ -310,7 +310,6 @@ export const handleOAuthCallback = async (ctx: Context) => {
     ctx.response.redirect("/home");
   } catch (error) {
     console.error("OAuth 回调错误:", error);
-
     if (error instanceof PasteError) {
       return new Response(ctx, error.status, error.message);
     } else {

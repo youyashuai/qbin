@@ -115,7 +115,7 @@ deno run -NER --allow-ffi --allow-sys --unstable-kv --unstable-broadcast-channel
 ADMIN_EMAIL=admin@qbin.github    # 管理员邮箱（必选）
 ADMIN_PASSWORD=qbin              # 管理员密码（必选）
 DB_CLIENT=postgres      # 选择数据库，支持 postgres、sqlite
-DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=require
+DATABASE_URL=postgresql://user:password@host:5432/database
 JWT_SECRET=your_jwt_secret  # JWT密钥，用于加密验证（建议修改）
 ```
 
@@ -129,7 +129,7 @@ JWT_SECRET=your_jwt_secret  # JWT密钥，用于加密验证（建议修改）
 |:-------:|:----:|:----:|:---------------------------------------------------------------:|
 | `ADMIN_PASSWORD` | 必选 | 管理员访问密码 |                             `qbin`                              |
 | `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 |                       `admin@qbin.github`                       |
-| `DATABASE_URL` | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database?sslmode=require` |
+| `DATABASE_URL` | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database` |
 | `JWT_SECRET` | 必选 | JWT 签名密钥（建议使用随机字符串） |                `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                 |
 | `PORT` | 可选 | 服务访问端口，默认 8000 |                             `8000`                              |
 | `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 |                           `31536000`                            |
