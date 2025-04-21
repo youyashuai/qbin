@@ -155,7 +155,7 @@ class QBinEditorBase {
             if (status === 404) {
                 this.status = this.emoji.online;
                 this.saveToLocalCache(true);
-                tips = "这是可用的KEY";
+                tips = "这是可用的访问路径";
                 if (uploadArea) {
                     uploadArea.classList.add('visible');
                 }
