@@ -59,7 +59,7 @@ QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适
 
 后端:  
 - Deno Oak 框架
-- PostgreSQL 数据库  
+- PostgreSQL 、 SQLite 数据库  
 - Deno KV & Edge Cache 多级缓存 + ETag 缓存校验  
 
 安全与认证:  
@@ -82,22 +82,21 @@ docker-compose up -d
 
 ### 直接使用 Docker
 
-适合已有 PostgreSQL 环境：
+默认 SQLite 本地存储：
 ```bash
 # 拉取最新镜像
 docker pull naiher/qbin:latest
 
 # 启动容器
 docker run -it -p 8000:8000 \
-  -e DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require" \
   -e JWT_SECRET="your_jwt_secret" \
   -e ADMIN_PASSWORD="qbin" \
   -e ADMIN_EMAIL="admin@qbin.github" \
+  -e DB_CLIENT="sqlite" \
   naiher/qbin
 ```
 
 然后访问 http://localhost:8000 即可。  
-> 小提示：可使用 [Neon](https://neon.tech/)、[Aiven](https://aiven.io/) 或 [Render](https://render.com/docs/deploy-mysql) 提供的免费 PostgreSQL。
 
 ### 其他部署方式
 
@@ -108,7 +107,7 @@ docker run -it -p 8000:8000 \
 - [ ] 实现端到端加密  
 - [ ] 增加Cloudflare D1存储  
 - [ ] 增加MySQL存储  
-- [x] 增加后端本地存储（sqlite数据库） 
+- [x] 增加后端本地存储（SQLite数据库） 
 - [x] Code高亮、Markdown、音视频、图片预览  
 - [x] 本地离线访问 
 - [x] 个人中心面板  

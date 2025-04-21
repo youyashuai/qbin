@@ -3,20 +3,18 @@ services:
     image: naiher/qbin:latest
     container_name: qbin-app
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       # 必选环境变量
+      - ADMIN_EMAIL=admin@qbin.github  # 请修改为你的邮箱
       - ADMIN_PASSWORD=qbin  # 请修改为安全的密码
-      - ADMIN_EMAIL=admin@qbin.github  # 请修改为您的邮箱
-      - DATABASE_URL=postgres://qbin:qbinpassword@postgres:5432/qbin
       - JWT_SECRET=change_this_to_a_secure_random_string  # 请修改为随机安全字符串
 
       # 可选环境变量
       - PORT=8000
       - TOKEN_EXPIRE=31536000
       - MAX_UPLOAD_FILE_SIZE=52428800
+      - DB_CLIENT=sqlite
+      - DATABASE_URL="file:/app/src/qbin_local.db"
 
       # GitHub OAuth配置（可选，如需使用请取消注释并填写）
       # - GITHUB_CLIENT_ID=your_github_client_id
@@ -41,48 +39,21 @@ services:
       # - OAUTH_CALLBACK_URL=http://localhost:8000/api/login/oauth2/callback/custom
       # - OAUTH_SCOPES=user:profile
       # - OAUTH_USER_INFO_URL=https://provider.example.com/api/user
+    volumes:
+      - qbin-data:/app/src  # 持久化存储数据库文件
     ports:
       - "8000:8000"
     networks:
       - qbin-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
 
-  # Postgres数据库服务
-  postgres:
-    image: postgres:14-alpine
-    container_name: qbin-postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=qbin
-      - POSTGRES_PASSWORD=qbinpassword
-      - POSTGRES_DB=qbin
-      - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    expose:
-      - "5432"
-    networks:
-      - qbin-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U qbin"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-
 volumes:
-  postgres-data:
+  qbin-data:  # 定义用于存储SQLite数据库的卷
     driver: local
 
 networks:

@@ -7,19 +7,9 @@
 |      部署方式      |      适用场景       | 难度  | 稳定性 |
 |:--------------:|:---------------:|:---:|:---:|
 | Docker Compose | 本地或服务器部署，适合生产环境 | 很简单 |  高  |
-|   Docker 命令行   |    快速测试或简单部署    | 简单  |  高  |
+|     Docker     |    快速测试或简单部署    | 很简单  |  高  |
 |  Deno Deploy   |  无需服务器，快速云端部署   | 很简单  |  高  |
 |    Deno CIL    |  本地开发环境和调试测试     | 简单  |  中  |
-
-## 🛢 数据库准备
-
-Docker 和 Deno Deploy部署方式需要手动创建 PostgreSQL 数据库。如果你没有，那么可以使用以下几个提供免费方案的服务商：
-
-| 服务商 | 免费方案 | 特点 |
-|:-----:|:-------:|:----:|
-| [Render](https://render.com/docs/deploy-mysql) | 免费 10 GB 空间 | 与 Render 应用集成方便 |
-| [Aiven](https://aiven.io/) | 免费 5 GB 空间 | 稳定可靠，简单易用 |
-| [Neon](https://neon.tech/) | 免费 0.5 GB 空间 | 弹性扩展，零停机时间，开发者友好 |
 
 ## 🐳 Docker Compose 一键部署（推荐）
 
@@ -36,11 +26,9 @@ cd qbin
 docker-compose up -d
 ```
 
-完成后，访问 `http://localhost:8000` 即可使用 QBin 服务，所有配置已在 docker-compose.yml 中预设好（默认管理员密码为 `qbin`）。
+完成后，访问 `http://localhost:8000` 即可使用 QBin 服务，所有配置已在 docker-compose.yml 中预设好。
 
-## 🐋 Docker 命令行部署
-
-适合需要更灵活配置的场景：
+## 🐋 Docker 部署
 
 ```bash
 # 拉取最新镜像
@@ -48,16 +36,14 @@ docker pull naiher/qbin:latest
 
 # 启动容器
 docker run -it -p 8000:8000 \
-  -e DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require" \
   -e JWT_SECRET="your_jwt_secret" \
   -e ADMIN_PASSWORD="qbin" \
   -e ADMIN_EMAIL="admin@qbin.github" \
+  -e DB_CLIENT="sqlite" \
   naiher/qbin
 ```
 
 启动后，访问 `http://localhost:8000` 即可使用 QBin 服务。
-
-> **注意**：使用 Docker 命令行部署需要提前准备好 PostgreSQL 数据库。
 
 ## ☁️ Deno Deploy 云端部署
 
@@ -79,6 +65,19 @@ docker run -it -p 8000:8000 \
 11. 自定义域名（可选）：
      - 在 Project 的 Settings 中设置自定义二级域名或绑定自己的域名
      <img src="https://s3.tebi.io/lite/custom_url.jpg" width="60%" alt="自定义域名" title="自定义域名" />
+
+> **注意**：使用 Deno 部署需要提前准备好 PostgreSQL 数据库。
+
+## 🛢 数据库准备
+
+Deno Deploy部署方式需要手动创建 PostgreSQL 数据库。如果你没有，那么可以使用以下几个提供免费方案的服务商：
+
+| 服务商 | 免费方案 | 特点 |
+|:-----:|:-------:|:----:|
+| [Render](https://render.com/docs/deploy-mysql) | 免费 10 GB 空间 | 与 Render 应用集成方便 |
+| [Aiven](https://aiven.io/) | 免费 5 GB 空间 | 稳定可靠，简单易用 |
+| [Neon](https://neon.tech/) | 免费 0.5 GB 空间 | 弹性扩展，零停机时间，开发者友好 |
+
 
 ## 🖥️ Deno CLI 本地部署
 
@@ -105,18 +104,19 @@ cd qbin
 
 **启动项目:**
 ```bash
-deno run --allow-net --allow-env --allow-read --unstable-kv --unstable-broadcast-channel index.ts
+deno run -NER --allow-ffi --allow-sys --unstable-kv --unstable-broadcast-channel index.ts
 ```
 
 ### 环境变量配置
 
-在项目根目录 `.env` 文件中设置必要的环境变量（参考环境变量配置说明）：
+在项目根目录 将`.env.template` 重命名为 `.env` 文件，并设置必要的环境变量（参考环境变量配置说明）：
 
 ```
-ADMIN_PASSWORD=qbin
-ADMIN_EMAIL=admin@qbin.github
+ADMIN_EMAIL=admin@qbin.github    # 管理员邮箱（必选）
+ADMIN_PASSWORD=qbin              # 管理员密码（必选）
+DB_CLIENT=postgres      # 选择数据库，支持 postgres、sqlite
 DATABASE_URL=postgresql://user:password@host:5432/database?sslmode=require
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_jwt_secret  # JWT密钥，用于加密验证（建议修改）
 ```
 
 完成部署后，访问 `http://localhost:8000` 即可使用 QBin 服务。

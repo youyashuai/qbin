@@ -2,7 +2,7 @@
 
 ## 系统状态
 ```http
-GET /health
+GET /api/health
 ```
 用途：检查服务是否正常运行
 - 返回：200 表示服务正常
