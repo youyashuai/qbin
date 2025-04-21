@@ -1606,7 +1606,7 @@ class QBinHome {
         if (avatarElement && userData.avatar) {
             avatarElement.src = userData.avatar;
             avatarElement.onerror = function() {
-                this.src = getStyleFromHash(userData.name || "Demo User");
+                this.src = getStyleFromHash(userData.name || "Anonymous User");
                 this.onerror = function() {
                     this.onerror = null; // 防止无限循环
                 };

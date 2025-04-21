@@ -40,6 +40,7 @@ docker run -it -p 8000:8000 \
   -e ADMIN_PASSWORD="qbin" \
   -e ADMIN_EMAIL="admin@qbin.github" \
   -e DB_CLIENT="sqlite" \
+  -e ENABLE_ANONYMOUS_ACCESS="1" \
   naiher/qbin
 ```
 
@@ -112,6 +113,7 @@ deno run -NER --allow-ffi --allow-sys --unstable-kv --unstable-broadcast-channel
 在项目根目录 将`.env.template` 重命名为 `.env` 文件，并设置必要的环境变量（参考环境变量配置说明）：
 
 ```
+ENABLE_ANONYMOUS_ACCESS=1        # 匿名访问，默认开启，0表示关闭, 支持共享编辑
 ADMIN_EMAIL=admin@qbin.github    # 管理员邮箱（必选）
 ADMIN_PASSWORD=qbin              # 管理员密码（必选）
 DB_CLIENT=postgres      # 选择数据库，支持 postgres、sqlite
@@ -125,15 +127,16 @@ JWT_SECRET=your_jwt_secret  # JWT密钥，用于加密验证（建议修改）
 
 ### 基础配置
 
-| 环境变量 | 类型 | 描述 |                               示例                                |
-|:-------:|:----:|:----:|:---------------------------------------------------------------:|
-| `ADMIN_PASSWORD` | 必选 | 管理员访问密码 |                             `qbin`                              |
-| `ADMIN_EMAIL` | 必选 | 管理员邮箱地址 |                       `admin@qbin.github`                       |
-| `DATABASE_URL` | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database` |
-| `JWT_SECRET` | 必选 | JWT 签名密钥（建议使用随机字符串） |                `XTV0STZzYFxxxxxxxxxx5ecm50W04v`                 |
-| `PORT` | 可选 | 服务访问端口，默认 8000 |                             `8000`                              |
-| `TOKEN_EXPIRE` | 可选 | 令牌有效期(秒)，默认一年 |                           `31536000`                            |
-| `MAX_UPLOAD_FILE_SIZE` | 可选 | 最大上传文件大小(字节)，默认 50MB |                           `52428800`                            |
+|           环境变量            | 类型 | 描述 |                       示例                        |
+|:-------------------------:|:----:|:----:|:-----------------------------------------------:|
+|     `ADMIN_PASSWORD`      | 必选 | 管理员访问密码 |                     `qbin`                      |
+|       `ADMIN_EMAIL`       | 必选 | 管理员邮箱地址 |               `admin@qbin.github`               |
+|      `DATABASE_URL`       | 必选 | PostgreSQL 数据库连接 URL | `postgresql://user:password@host:5432/database` |
+|       `JWT_SECRET`        | 必选 | JWT 签名密钥（建议使用随机字符串） |        `XTV0STZzYFxxxxxxxxxx5ecm50W04v`         |
+|          `PORT`           | 可选 | 服务访问端口，默认 8000 |                     `8000`                      |
+| `ENABLE_ANONYMOUS_ACCESS` | 可选 | 匿名访问, 支持共享编辑 |                       `1`                       |
+|      `TOKEN_EXPIRE`       | 可选 | 令牌有效期(秒)，默认一年 |                   `31536000`                    |
+|  `MAX_UPLOAD_FILE_SIZE`   | 可选 | 最大上传文件大小(字节)，默认 50MB |                   `52428800`                    |
 
 ### 社交登录配置（可选）
 

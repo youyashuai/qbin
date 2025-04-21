@@ -93,6 +93,7 @@ docker run -it -p 8000:8000 \
   -e ADMIN_PASSWORD="qbin" \
   -e ADMIN_EMAIL="admin@qbin.github" \
   -e DB_CLIENT="sqlite" \
+  -e ENABLE_ANONYMOUS_ACCESS="1" \
   naiher/qbin
 ```
 
