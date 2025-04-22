@@ -34,6 +34,7 @@ const STATIC_RESOURCES = [
     '/static/',
     '/p/',
     '/home',
+    '/pwa-loader',
 ];
 
 // CDN资源
