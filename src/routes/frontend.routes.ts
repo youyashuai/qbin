@@ -8,6 +8,7 @@ import {
     getHomeHtml,
     getRenderHtml,
     getDocumentHtml,
+    getPWALoaderHtml,
     getServiceWorker,
     getManifest,
     getJS,
@@ -33,6 +34,7 @@ router
   })
   .get("/service-worker.js", (ctx) => getServiceWorker(ctx, 200))
   .get("/manifest.json", (ctx) => getManifest(ctx, 200))
+  .get("/pwa-loader", (ctx) => getPWALoaderHtml(ctx, 200))
   .get("/document", async (ctx) => {
     return await getDocumentHtml(ctx, 200);
   })

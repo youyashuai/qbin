@@ -1,8 +1,8 @@
 {
   "name": "QBin - 一键存储",
   "short_name": "QBin",
-  "description": "轻盈优雅的数据存储服务，比云盘更便捷，轻松存取文字、图片、视频等任意数据",
-  "start_url": "/",
+  "description": "轻量的 Cloud Note & PasteBin 替代方案，一键保存文本、代码、图片、视频等任意内容，分享更便捷！",
+  "start_url": "/?source=pwa",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a6cf7",
@@ -11,6 +11,11 @@
   "lang": "zh",
   "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "/static/img/apple-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
     {
       "src": "/static/img/icon-192.png",
       "sizes": "192x192",
@@ -22,11 +27,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/static/img/apple-icon-180.png",
-      "sizes": "180x180",
-      "type": "image/png"
     }
   ]
 }

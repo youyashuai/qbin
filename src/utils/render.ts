@@ -131,6 +131,15 @@ export async function getHomeHtml(ctx, status = 200): Promise<string> {
     ctx.state.metadata = {etag: hash};
 }
 
+export async function getPWALoaderHtml(ctx, status = 200): Promise<string> {
+    ctx.response.status = status;
+    ctx.response.headers.set("Content-Type", "text/html; charset=utf-8");
+    // ctx.response.headers.set("Cache-Control", "public, max-age=300");
+    ctx.response.body = await Deno.readTextFile(join(basePath, './templates/pwa-loader.html'));
+    const hash = cyrb53_str('pwa-loader.html' + ctx.response.body.length);
+    ctx.state.metadata = {etag: hash};
+}
+
 // PWA - Service Worker
 export async function getServiceWorker(ctx, status = 200): Promise<string> {
     ctx.response.status = status;
@@ -151,6 +160,7 @@ export async function getManifest(ctx, status = 200): Promise<string> {
     const hash = cyrb53_str('manifest.json' + ctx.response.body.length);
     ctx.state.metadata = {etag: hash};
 }
+
 
 // // 路径格式错误网页
 // export async function getPathErrorHtml(ctx, status=200): Promise<string> {
