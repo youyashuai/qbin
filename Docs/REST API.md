@@ -44,11 +44,12 @@ def upload_content(path, content, password="", expire=315360000):
 upload_content('test123', 'Hello World', 'password123')
 ```
 
-### 2. 上传文件内容 (不支持更新)
+### 2. 上传文件内容 
 ```http
 PUT /save/{访问路径}/{密码}
 ```
-- 说明：如果访问路径已存在且未过期，返回409错误
+- 说明：如果文件存在则更新，不存在则创建
+- 权限：更新已有文件需要是创建者
 - 请求头：
   - `Content-Type`: 内容类型
   - `x-expire`: 过期时间(秒)
