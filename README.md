@@ -24,7 +24,7 @@ Windows
 
 QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适合个人笔记、临时存储、多人协作、跨平台分享等多种场景。  
 - 前端全程采用纯 HTML+JS+CSS，无需笨重框架，内置 Monaco 代码编辑器、Cherry Markdown 渲染器、通用编辑器，满足多种内容场景。 ；  
-- 后端选用 Deno Oak 框架 + PostgreSQL 数据库，并结合 Deno KV 与 Edge Cache 多级缓存，让读取与写入都拥有极佳性能；  
+- 后端选用 Deno Oak 框架 + Drizzle ORM，并结合 Deno KV 与 Edge Cache 多级缓存，让读取与写入都拥有极佳性能；  
 - 内置 PWA 与 IndexedDB 支持，让你在断网下依然可以编辑、保存与预览；  
 - 可自由设置访问路径、密码、有效期，保护隐私的同时实现灵活分享；  
 - 与传统 PasteBin 相比，QBin 提供了更丰富的编辑能力、多层次安全防护和更高扩展性。
@@ -59,7 +59,7 @@ QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适
 
 后端:  
 - Deno Oak 框架
-- PostgreSQL 、 SQLite 数据库  
+- Drizzle ORM库，支持PostgreSQL、 SQLite等数据库  
 - Deno KV & Edge Cache 多级缓存 + ETag 缓存校验  
 
 安全与认证:  
