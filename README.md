@@ -23,7 +23,7 @@ Windows
 ## 📝 项目简介
 
 QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适合个人笔记、临时存储、多人协作、跨平台分享等多种场景。  
-- 前端全程采用纯 HTML+JS+CSS，无需笨重框架，内置 Monaco 代码编辑器、Cherry Markdown 渲染器、通用编辑器，满足多种内容场景。 ；  
+- 前端全程采用纯 HTML+JS+CSS，无需笨重框架，内置 Monaco 代码编辑器、Cherry Markdown 渲染器、通用编辑器，满足多种内容场景；  
 - 后端选用 Deno Oak 框架 + Drizzle ORM，并结合 Deno KV 与 Edge Cache 多级缓存，让读取与写入都拥有极佳性能；  
 - 内置 PWA 与 IndexedDB 支持，让你在断网下依然可以编辑、保存与预览；  
 - 可自由设置访问路径、密码、有效期，保护隐私的同时实现灵活分享；  
@@ -38,7 +38,7 @@ QBin 专注于「快速、安全、轻量」的在线编辑与内容分享，适
 - 📱 **PWA 离线**：断网也能编辑、读取本地缓存，随时随地记录与查看 
 - 🔄 **实时保存**：自动定时保存到本地及远程，减少数据丢失风险
 - 🔑 **多种登录**：支持账号密码登录 和 OAuth2（Google、GitHub、Microsoft、自定义）
-- ♻️ **多级缓存**：Deno KV、PostgreSQL、Edge Cache 与 ETag 结合，提升访问速度
+- ♻️ **多级缓存**：Deno KV、Drizzle ORM、Edge Cache 与 ETag 结合，提升访问速度
 - ⚡ **一键部署**：支持 Docker Compose、Deno Deploy 等多种场景，轻松自托管
 
 ## 🚀 快速使用指南

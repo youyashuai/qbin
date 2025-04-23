@@ -94,15 +94,19 @@ export async function remove(ctx: Context<AppState>) {
   const email = ctx.state.session?.get("user")?.email;
   if (email !== meta.email) throw new Response(ctx, 403, ResponseMessages.PERMISSION_DENIED);
 
-  meta.len = 0;
-  meta.content = new Uint8Array(0);
-  if (meta.expire > 0) meta.expire = -meta.expire;
-  await updateCache(key, meta)
-  cacheBroadcast.postMessage({ type: "delete", key, metadata: meta });
   queueMicrotask(async () => {
-    await kv.set([PASTE_STORE, key], meta)
-    await repo.update(key, meta);
+    await kv.delete([PASTE_STORE, key])
+    await repo.delete(key);
   });
+  // meta.len = 0;
+  // meta.content = new Uint8Array(0);
+  // if (meta.expire > 0) meta.expire = -meta.expire;
+  // await updateCache(key, meta)
+  // cacheBroadcast.postMessage({ type: "delete", key, metadata: meta });
+  // queueMicrotask(async () => {
+  //   await kv.set([PASTE_STORE, key], meta)
+  //   await repo.update(key, {expire: meta.expire});
+  // });
 
   return new Response(ctx, 200, ResponseMessages.SUCCESS);
 }

@@ -80,10 +80,9 @@ class MetadataRepository implements IMetadataRepository {
   }
 
   async delete(fkey: string) {
-    const res = await this.run(() =>
+    const query = await this.run(() =>
       this.db.delete(this.t).where(eq(this.t.fkey, fkey)).execute());
-    const affected = (res as any).rowsAffected ?? (res as any).count ?? 0;
-    return affected > 0;
+    return (query.rowCount || query.rowsAffected) > 0;
   }
 
   async findByMime(mime: string) {
