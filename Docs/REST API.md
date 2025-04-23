@@ -18,6 +18,7 @@ POST /save/{访问路径}/{密码}
 - 请求头：
   - `Content-Type`: 内容类型
   - `x-expire`: 过期时间(秒)
+  - `Cookie`: 生成的API Token信息
 - 返回：成功返回访问链接
 - python代码示例
 ```python
@@ -28,7 +29,7 @@ def upload_content(path, content, password="", expire=315360000):
     headers = {
         'Content-Type': 'text/plain',
         'x-expire': str(expire),
-        'Authorization': 'Bearer your_jwt_token'  # 在设置API Token中生成获取
+        'Cookie': 'token=your_jwt_token'  # 在设置API Token中生成获取
     }
     response = requests.post(url, data=content, headers=headers)
 
@@ -53,6 +54,7 @@ PUT /save/{访问路径}/{密码}
 - 请求头：
   - `Content-Type`: 内容类型
   - `x-expire`: 过期时间(秒)
+  - `Cookie`: 生成的API Token信息
 - 返回：成功返回访问链接
 
 ### 3. 获取直链内容
